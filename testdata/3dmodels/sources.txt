@@ -1,0 +1,2 @@
+bun_zipper: Execute in bash
+  wget 'http://graphics.stanford.edu/pub/3Dscanrep/bunny.tar.gz' && tar xfz bunny.tar.gz && mv bunny/reconstruction/bun_zipper.ply . && rm -f bunny.tar.gz && rm -rf bunny
