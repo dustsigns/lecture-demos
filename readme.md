@@ -75,4 +75,4 @@ Missing features
 License
 -------
 
-These demonstrations and their documentation are provided under the [3-Clause BCD License](LICENSE). If you use any part of them, please provide appropriate attribution. For details, see the [`LICENSE`](LICENSE) file. *Note: All data in the `testdata` folder is provided for convenience only and is licensed by third parties.*
+These demonstrations and their documentation are provided under the [3-Clause BSD License](LICENSE). If you use any part of them, please provide appropriate attribution. For details, see the [`LICENSE`](LICENSE) file. *Note: All data in the `testdata` folder is provided for convenience only and is licensed by third parties.*
