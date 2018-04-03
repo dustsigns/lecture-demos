@@ -64,7 +64,7 @@ These demonstrations come with a set of sample files. They are located in the [t
 Known issues
 ------------
 
-* **Incompability with *OpenCV* 3.4.1+** (*OpenCV* bugs): Practically all demonstrations which make use of the `viz` module behave incorrectly due to two regressions in *OpenCV* 3.4.1 and above (see [*OpenCV* issue #10944](https://github.com/opencv/opencv/issues/10944) and [*OpenCV* issue #10945](https://github.com/opencv/opencv/issues/10945)).
+* **Incompatibility with *OpenCV* 3.4.1+** (*OpenCV* bugs): Practically all demonstrations which make use of the `viz` module behave incorrectly due to two regressions in *OpenCV* 3.4.1 and above (see [*OpenCV* issue #10944](https://github.com/opencv/opencv/issues/10944) and [*OpenCV* issue #10945](https://github.com/opencv/opencv/issues/10945)).
 * **Additional *Eigen* 3 dependency** (*OpenCV* bug): *Eigen* 3 is manually added as a dependency for some demonstrations since *OpenCV*'s *pkg-config* file does not include it (see [*OpenCV* issue #10942](https://github.com/opencv/opencv/issues/10942)). *Note: This does not impact the functionality of the demonstrations. The provided Makefile works around this issue, but might not work with future versions of *OpenCV*.*
 
 Missing features
