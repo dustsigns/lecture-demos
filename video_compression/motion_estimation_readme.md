@@ -52,6 +52,7 @@ Hard-coded parameters
 Known issues
 ------------
 
+* **Missing option to only show search range**: Only illustrating the area within the search range in both frames would make both, the search process and the manual block center selection clearer.
 * **Incorrect initial zoom** (*OpenCV* bug): The pixel values in the *Original block vs. found block vs. motion compensation* window are supposed to be visible at a zoom level of 30, but the zoom level is calculated incorrectly from the window size (see [*OpenCV* issue #9405](https://github.com/opencv/opencv/issues/9405)).
 
 Missing features
