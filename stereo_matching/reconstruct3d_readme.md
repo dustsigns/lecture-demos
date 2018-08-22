@@ -45,7 +45,7 @@ None
 Known issues
 ------------
 
-* **Window is white on startup** (*OpenCV* or *VTK* bug): The visualization window does not show any content, but only an all-white surface until it is moved (see [*OpenCV* issue #9759](https://github.com/opencv/opencv/issues/9759)).
+None
 
 Missing features
 ----------------

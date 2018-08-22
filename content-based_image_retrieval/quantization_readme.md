@@ -46,7 +46,6 @@ None
 Known issues
 ------------
 
-* **Window is white after changing the number of elements** (*OpenCV* or *VTK* bug): The visualization window does not show any content, but only an all-white surface until it is moved (see [*OpenCV* issue #9759](https://github.com/opencv/opencv/issues/9759)).
 * **Crash on exit** (*OpenCV* or *VTK* bug): The demonstration crashes with a segmentation fault on exit, i.e., when both windows are closed (see [*OpenCV* issue #9390](https://github.com/opencv/opencv/issues/9390)).
 * **Slow drawing speed**: Setting the number of elements to 5 or more results in significant delays for the initial rendering of the cube as well as for all subsequent renderings after rotating the cube by adjusting the camera.
 
