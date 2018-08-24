@@ -7,7 +7,7 @@ pan001-pan003: Execute in bash (with ffmpeg installed)
   wget 'ftp://ftp.tnt.uni-hannover.de/pub/jvt/sequences/flower_cif.yuv' && ffmpeg -y -s 352x288 -r 30 -i flower_cif.yuv -vf framestep=100 -q 0 pan%03d.png && rm -f flower_cif.yuv
 im2, im6 disp2: Execute in bash
   wget 'http://vision.middlebury.edu/stereo/data/scenes2003/newdata/cones/cones-png-2.zip' && unzip cones-png-2.zip && mv cones/im2.png cones/im6.png cones/disp2.png . && rm -f cones-png-2.zip && rm -rf cones
-news: Execute in bash (with p7z and ffmpeg installed)
+news: Execute in bash (with p7zip and ffmpeg installed)
   wget 'http://trace.eas.asu.edu/yuv/news/news_cif.7z' && 7zr x news_cif.7z && ffmpeg -y -s 352x288 -r 30 -i news_cif.yuv -frames 1 -q 0 news.png && rm -f news_cif.7z news_cif.yuv
 recttext: Execute in bash (with ImageMagick installed)
   rm -f recttext.png && convert -size 600x400 xc:white -stroke 'gray(20%)' -fill 'gray(20%)' -font "Times-Roman" -pointsize 70 -gravity center -draw "text 0,0 'Längerer großer Text'" -pointsize 20 -draw "text 150,150 'Kleiner Text'" -stroke black -fill black -draw "line 25,25 150,150" -fill red -stroke red -draw "rectangle 400,10 500,110" -fill blue -stroke blue -draw "circle 450,60 475,85" recttext.png
