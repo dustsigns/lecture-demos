@@ -59,7 +59,7 @@ To show-case all demonstrations within a folder, i.e., to execute each of them w
 Sample files
 ------------
 
-These demonstrations come with a set of sample files. They are located in the [testdata/](testdata/) directory and grouped into subfolders by type. For each type, a file named `sources.txt` lists the source (URL) for all sample files and optional instructions on how to convert them to the format they are in. If there are no sample files in the [testdata/](testdata/) directory, the instructions can be used to (re-)create them. *Note: Some conversions require special software. For convenience, their Ubuntu 16.04 package names are specified so that they can be installed before executing the commands.*
+These demonstrations come with a set of sample files. They are located in the [testdata/](testdata/) directory and grouped into subfolders by type. For each type, a file named `sources.txt` lists the source (URL) for all sample files and optional instructions on how to convert them to the format they are in. If there are no sample files in the [testdata/](testdata/) directory, the instructions can be used to (re-)create them. *Note: Some conversions require special software. For convenience, their Ubuntu package names are specified so that they can be installed before executing the commands.*
 
 Known issues
 ------------
