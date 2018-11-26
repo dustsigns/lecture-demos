@@ -31,12 +31,12 @@ endif
 ifneq ($(filter images,$(PARTS)),)
   SRCDEP += $(wildcard $(COMMONPATH)/imgutils/*.cpp)
   CXXFLAGS += -I$(COMMONPATH)/imgutils
-  LIBS += opencv
+  LIBS += opencv4
 endif
 ifneq ($(filter 3d,$(PARTS)),)
   SRCDEP += $(wildcard $(COMMONPATH)/3dutils/*.cpp)
   CXXFLAGS += -I$(COMMONPATH)/3dutils
-  LIBS += opencv eigen3
+  LIBS += opencv4 eigen3
   #TODO: Remove eigen3 as soon as it is added as a dependency in OpenCV's pkg-config file
 endif
 OBJDEP := $(SRCDEP:.cpp=.o)
