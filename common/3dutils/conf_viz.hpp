@@ -52,7 +52,7 @@ namespace vizutils
       //Replaces the visualization's camera object with the one specified
       void SetCamera(const Camera &camera);
       //Returns the visualization's camera pose
-      Affine3d GetViewerPose() /*const*/;
+      Affine3d GetViewerPose() const;
       //Replaces the visualization's camera pose with the one specified
       void SetViewerPose(const Affine3d &pose);
       

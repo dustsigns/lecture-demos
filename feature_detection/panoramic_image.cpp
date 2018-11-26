@@ -66,7 +66,7 @@ static void ExtractPoints(const vector<KeyPoint> &first_keypoints, const vector<
 static Mat StitchImages(const Mat &first_image, const vector<Point2f> &first_points, const Mat &second_image, const vector<Point2f> &second_points)
 {
   Mat stitched_image;
-  Mat homography = findHomography(second_points, first_points, CV_RANSAC);
+  Mat homography = findHomography(second_points, first_points, RANSAC);
   warpPerspective(second_image, stitched_image, homography, Size(first_image.cols + second_image.cols, MAX(first_image.rows, second_image.rows)));
   first_image.copyTo(stitched_image(Rect(0, 0, first_image.cols, first_image.rows)));
   return stitched_image;

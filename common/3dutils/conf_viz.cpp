@@ -109,7 +109,7 @@ namespace vizutils
     visualization.setCamera(camera);
   }
   
-  Affine3d ConfigurableVisualization::GetViewerPose() /*const*/ //TODO: getViewerPose should be const, but is not
+  Affine3d ConfigurableVisualization::GetViewerPose() const
   {
     return visualization.getViewerPose();
   }

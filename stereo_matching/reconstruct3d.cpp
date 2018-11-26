@@ -45,7 +45,7 @@ static void ShowWindow(const Mat &disparity_image, const Mat &left_image)
   const Mat depth_image = DisparityImageTo3D(disparity_image);
   WCloud reconstruction(depth_image, left_image);
   visualization.showWidget("Point cloud", reconstruction);
-  /*visualization.spinOnce(1, true); //TODO: Why does zooming no longer work once the camera has been moved? [fixed in new OpenCV version > 3.4.0, but buggy in 3.4.1; update as soon as > 3.4.1 it is available]
+  /*visualization.spinOnce(1, true); //TODO: Why does zooming no longer work once the pose is read and set again (even without changes)
   auto pose = visualization.getViewerPose();
   pose = pose.rotate(Vec3f(M_PI, 0, 0)); //Flip camera around so that it faces into the right direction
   visualization.setViewerPose(pose);*/
