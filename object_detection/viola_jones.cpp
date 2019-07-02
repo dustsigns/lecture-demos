@@ -1,5 +1,5 @@
 //Illustration of Viola-Jones object detection
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -20,7 +20,7 @@ using namespace imgutils;
 
 static bool InitClassifier(CascadeClassifier &classifier)
 {
-  constexpr auto classifier_path = "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml";
+  constexpr auto classifier_path = "/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt.xml";
   const bool successful = classifier.load(classifier_path);
   return successful;
 }
