@@ -1,23 +1,23 @@
 Panoramic image
 ===============
 
-**Short description**: Illustration of panoramic images (Illustrates how a panoramic image can be created from SIFT keypoint matches)
+**Short description**: Illustration of panoramic images (Illustrates how a panoramic image can be created from multiple single images)
 
 **Author**: Andreas Unterweger
 
-**Status**: Work in progress (features missing)
+**Status**: Done
 
 Overview
 --------
 
 ![Screenshot](../screenshots/panoramic_image.png)
 
-Two images (top in the *First and second image combined* window) can be merged into a panoramic image (bottom) under certain conditions. To do so, the SIFT keypoints of both are matched and a corresponding homography is computed to warp the second image next to the first. For this to work, the two images need to have only small differences in perspective.
+Multiple images (top in the *Images combined* window) can be merged into a panoramic image (bottom) under certain conditions. To do so, keypoints in both images are computed and matched to estimate transformations between the images. After compensating for these transformations, the images are stitched together. For this to work, the images need to have relatively small differences in perspective.
 
 Usage
 -----
 
-Observe that the right image is warped so that it extends the left one. This forms a panoramic image. *Note: For the default program parameters, the black vertical bar between the two images stems from the source images. It is not an error introduced by the matching or warping processes.*
+Observe that both images are warped to fit together without overlapping. This forms a panoramic image. The errors around the bootom of the tree stems from the occlusions (missing pixel data) due to the differences in perspective between the images.
 
 Available actions
 -----------------
@@ -32,8 +32,12 @@ None
 Program parameters
 ------------------
 
-* **First image**: File path of the left image.
-* **Second image**: File path of the right (second) image to be combined with the first.
+* **First image**: File path of the first image.
+* **Second image**: File path of the second image to be combined with the first.
+* (optional) **Third image**: File path of the third image to be combined with the first two.
+* ...
+
+*Note: This program supports an arbitrary number of images (parameters).*
 
 Hard-coded parameters
 ---------------------
@@ -48,7 +52,7 @@ None
 Missing features
 ----------------
 
-* **Support for multiple images**: There is no option to create a panoramic image out of more than two images. For example, for three images, the first and third image would have to be warped to the second on the left and right, respectively.
+None
 
 License
 -------

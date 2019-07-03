@@ -3,8 +3,8 @@ Lenna: https://en.wikipedia.org/wiki/File:Lenna.png
   wget 'ftp://ftp.tnt.uni-hannover.de/pub/svc/testsequences/ICE_352x288_30_orig_02_yuv.zip' && unzip ICE_352x288_30_orig_02_yuv.zip && ffmpeg -y -s 352x288 -r 30 -i ICE_352x288_30_orig_02_yuv/ICE_352x288_30_orig_02.yuv -ss 0:00:05 -frames 2 -q 0 %03d.png && rm -f ICE_352x288_30_orig_02_yuv.zip && rm -rf ICE_352x288_30_orig_02_yuv
 f001-f010: Execute in bash (with ffmpeg installed)
   wget 'ftp://ftp.tnt.uni-hannover.de/pub/svc/testsequences/FOREMAN_352x288_30_orig_01_yuv.zip' && unzip FOREMAN_352x288_30_orig_01_yuv.zip && ffmpeg -y -s 352x288 -r 30 -i FOREMAN_352x288_30_orig_01.yuv -ss 0:00:01 -frames 10 -q 0 f%03d.png && rm -f FOREMAN_352x288_30_orig_01.yuv FOREMAN_352x288_30_orig_01_yuv.zip
-pan001-pan003: Execute in bash (with ffmpeg installed)
-  wget 'ftp://ftp.tnt.uni-hannover.de/pub/jvt/sequences/flower_cif.yuv' && ffmpeg -y -s 352x288 -r 30 -i flower_cif.yuv -vf framestep=100 -q 0 pan%03d.png && rm -f flower_cif.yuv
+pan001-pan007: Execute in bash (with ffmpeg installed)
+  wget 'ftp://vqeg.its.bldrdoc.gov/MM/7-12_testclip/7-12_testclip_CIF.avi' && ffmpeg -y -i 7-12_testclip_CIF.avi -ss 74 -frames 7 -vf framestep=50 -q 0 pan%03d.png && rm -f 7-12_testclip_CIF.avi
 im2, im6 disp2: Execute in bash
   wget 'http://vision.middlebury.edu/stereo/data/scenes2003/newdata/cones/cones-png-2.zip' && unzip cones-png-2.zip && mv cones/im2.png cones/im6.png cones/disp2.png . && rm -f cones-png-2.zip && rm -rf cones
 news: Execute in bash (with p7zip and ffmpeg installed)

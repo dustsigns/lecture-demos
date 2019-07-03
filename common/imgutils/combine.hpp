@@ -1,5 +1,5 @@
 //Image combination functions (header)
-// Andreas Unterweger, 2016-2018
+// Andreas Unterweger, 2016-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -30,7 +30,7 @@ namespace imgutils
   Mat CombineImages(const Mat (&images)[N], const CombinationMode mode, const unsigned int border_size = 3);
 
   //Concatenates N images (of potentially different sizes and color spaces) horizontally or vertically with black borders between them. If the images differ in size, they are border-filled to the largest width and height across all images.
-  Mat CombineImages(const size_t N, const Mat images[], const CombinationMode mode, const unsigned int border_size);
+  Mat CombineImages(const size_t N, const Mat images[], const CombinationMode mode, const unsigned int border_size = 3);
 
   //Subtracts two (unsigned) 8-bit images from one another and returns a (signed) 16-bit difference image
   Mat SubtractImages(const Mat &image1, const Mat &image2);
