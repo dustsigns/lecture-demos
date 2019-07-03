@@ -1,8 +1,9 @@
 //Audio playback helper class (template implementation)
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <cassert>
+#include <stdexcept>
 #include <thread> //TODO: Add <atomic> and make fields used in playback-thread atomic
 
 #include "common.hpp"
@@ -81,7 +82,7 @@ namespace sndutils
     ao_initialize();
     const int driver_id = ao_default_driver_id();
     if (!(playback_device = ao_open_live(driver_id, &sample_format, NULL)))
-      throw "Could not open playback device";
+      throw runtime_error("Could not open playback device");
   }
 
   template<typename T>
@@ -89,7 +90,7 @@ namespace sndutils
   {
     static_assert(WaveFormConverter<T>::sample_size == 2, "Only 16-bit samples are currently supported");
     if (playing)
-      throw "Already playing. Stop playback first.";
+      throw runtime_error("Already playing. Stop playback first.");
     playing = true;
     
     const size_t this_number_of_channels = this->sample_format.channels;
@@ -110,7 +111,7 @@ namespace sndutils
                           size_t buffer_size = converter.GetNextSampleBuffer(buffer);
                           static_assert(sizeof(char) == 1 && sizeof(char) == sizeof(unsigned char), "Both, char and unsigned char, must be one byte in size");
                           if (!ao_play(this_playback_device, (char*)buffer, buffer_size)) //TODO: Double-buffering to avoid pauses
-                            throw "Playback error. Don't use this instance again.";
+                            throw runtime_error("Playback error. Don't use this instance again.");
                         }
                       }
                     });
@@ -127,14 +128,14 @@ namespace sndutils
   void AudioPlayer::Pause()
   {
     if (!playing)
-      throw "Not playing. Start playback first.";
+      throw runtime_error("Not playing. Start playback first.");
     paused = true;
   }
 
   void AudioPlayer::Resume()
   {
     if (!playing)
-      throw "Not playing. Start playback first.";
+      throw runtime_error("Not playing. Start playback first.");
     paused = false;
   }
 
