@@ -135,7 +135,7 @@ int main(const int argc, const char * const argv[])
   if (second_image.empty())
   {
     cerr << "Could not read second image '" << second_image_filename << "'" << endl;
-    return 2;
+    return 3;
   }
   ShowImages(first_image, second_image);
   waitKey(0);
