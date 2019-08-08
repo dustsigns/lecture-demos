@@ -35,6 +35,7 @@ Feature detection (`feature_detection`)
 ---------------------------------------
 * [Difference of Gaussians](feature_detection/difference_of_gaussians_readme.md) (`difference_of_gaussians`)
 * [Gaussian filtering](feature_detection/gaussian_readme.md) (`gaussian`)
+* [Matching for perspective transform](feature_detection/matching_perspective_readme.md) (`matching_perspective`)
 * [Panoramic image](feature_detection/panoramic_image_readme.md) (`panoramic_image`)
 * [SIFT keypoint matching](feature_detection/sift_keypoint_matching_readme.md) (`sift_keypoint_matching`)
 * [SIFT keypoints](feature_detection/sift_keypoints_readme.md) (`sift_keypoints`)
