@@ -117,7 +117,7 @@ static Mat SetFocusedCoefficient(const unsigned int x_index, const unsigned int 
   return raw_weighted_basis_function_image;
 }
 
-typedef pair<size_t, size_t> coefficient_index;
+using coefficient_index = pair<size_t, size_t>;
 
 static vector<coefficient_index> ZigZagScanIndices(unsigned int block_size)
 {

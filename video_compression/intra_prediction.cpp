@@ -44,7 +44,7 @@ struct prediction_data
      original_window_name(original_window_name), predicted_window_name(predicted_window_name), transformed_window_name(transformed_window_name), predicted_transformed_window_name(predicted_transformed_window_name), prediction_window_name(prediction_window_name) { }
 };
 
-typedef Mat (*prediction_function)(const Mat&, const Mat&);
+using prediction_function = Mat (*)(const Mat&, const Mat&);
 
 struct prediction_function_data
 {

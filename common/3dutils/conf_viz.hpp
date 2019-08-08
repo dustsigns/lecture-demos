@@ -25,9 +25,9 @@ namespace vizutils
       static constexpr auto window_height = 600;
     
       //Defines a callback function for applying a transform to the viewer pose
-      typedef Affine3d ViewerTransform(const Affine3d &pose);
+      using ViewerTransform = Affine3d (const Affine3d &pose);
       //Defines a callback function when a window control has been changed, e.g., the trackbar value has been changed
-      typedef void (*ControlCallback)(ConfigurableVisualization &visualization);
+      using ControlCallback = void (*)(ConfigurableVisualization &visualization);
       
       //3-D objects to be displayed in the visualization window with their corresponding names
       map<string, Widget3D> objects;
