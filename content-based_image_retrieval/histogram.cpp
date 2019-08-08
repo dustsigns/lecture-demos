@@ -1,5 +1,5 @@
 //Illustration of image histograms
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -20,7 +20,7 @@ using namespace cv;
 
 using namespace imgutils;
 
-typedef struct histogram_data
+struct histogram_data
 {
   const Mat image;
   int number_of_bins;
@@ -31,7 +31,7 @@ typedef struct histogram_data
    : image(image),
      number_of_bins(64),
      window_name(window_name) { }
-} histogram_data;
+};
 
 static void ComputeRelativeHistogram(const Mat_<float> &histogram, vector<float> &relative_histogram)
 {

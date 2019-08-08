@@ -1,5 +1,5 @@
 //Illustration of Gaussian filtering
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -18,7 +18,7 @@ using namespace cv;
 using namespace comutils;
 using namespace imgutils;
 
-typedef struct Gaussian_data
+struct Gaussian_data
 {
   const Mat image;
   int sigma_percent;
@@ -29,7 +29,7 @@ typedef struct Gaussian_data
    : image(image),
      sigma_percent(100),
      window_name(window_name) { }
-} Gaussian_data;
+};
 
 static const char *AddControls(Gaussian_data &data)
 {

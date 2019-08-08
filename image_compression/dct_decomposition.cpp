@@ -1,5 +1,5 @@
 //Illustration of the decomposition of a block into 2-D DCT basis functions and their recomposition
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -29,7 +29,7 @@ static constexpr unsigned int max_block_size = 1 << log_max_block_size; //Maximu
 static constexpr unsigned int log_default_block_size = 3; //(1 << 3) = 8
 static_assert(log_default_block_size <= log_max_block_size, "The default block size cannot be larger than the maximum block size");
 
-typedef struct DCT_data
+struct DCT_data
 {
   const Mat image;
   int log_block_size;
@@ -48,7 +48,7 @@ typedef struct DCT_data
   {
     return 1 << log_block_size; //2^(log_block_size)
   }
-} DCT_data;
+};
 
 static Mat GetCenterBlock(const Mat &image, const unsigned int block_size)
 {

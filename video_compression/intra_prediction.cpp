@@ -1,5 +1,5 @@
 //Illustration of intra prediction and the effect of residuals on transforms
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -29,7 +29,7 @@ static constexpr auto block_size = 32;
 static constexpr auto region_size = 2 * block_size;
 static_assert(region_size / 2 == block_size, "The region size must be even and equal to double the block size");
 
-typedef struct prediction_data
+struct prediction_data
 {
   const Mat image;
 
@@ -42,11 +42,11 @@ typedef struct prediction_data
   prediction_data(const Mat &image, const string &original_window_name, const string &predicted_window_name, const string &transformed_window_name, const string &predicted_transformed_window_name, const string &prediction_window_name)
    : image(image),
      original_window_name(original_window_name), predicted_window_name(predicted_window_name), transformed_window_name(transformed_window_name), predicted_transformed_window_name(predicted_transformed_window_name), prediction_window_name(prediction_window_name) { }
-} prediction_data;
+};
 
 typedef Mat (*prediction_function)(const Mat&, const Mat&);
 
-typedef struct prediction_function_data
+struct prediction_function_data
 {
   const string name;
   const prediction_data &data;
@@ -55,7 +55,7 @@ typedef struct prediction_function_data
   
   prediction_function_data(const string &name, const prediction_data &data, const prediction_function function, const prediction_function illustration_function)
    : name(name), data(data), function(function), illustration_function(illustration_function) {}
-} prediction_function_data;
+};
 
 static Mat GetCenterRegion(const Mat &image)
 {

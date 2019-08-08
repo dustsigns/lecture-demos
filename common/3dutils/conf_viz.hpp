@@ -1,5 +1,5 @@
 //3-D visualization window with accompanying configuration window (header)
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -62,7 +62,7 @@ namespace vizutils
       void RedrawObjects();
     protected:
       //Represents a control element in the control window
-      typedef struct WindowControl
+      struct WindowControl
       {
         //The function called when the control is changed
         ControlCallback callback;
@@ -77,7 +77,7 @@ namespace vizutils
         
         //Constructs a new instance of WindowControl with the specified callback, minimum, maximum and default value
         WindowControl(ControlCallback callback, const int max_parameter, const int min_parameter, const int default_parameter, ConfigurableVisualization &parent);
-      } WindowControl;
+      };
     
       const string visualization_window_name;
       const string control_window_name;

@@ -1,5 +1,5 @@
 //Illustration of non-linear lense distortion
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -17,7 +17,7 @@ using namespace cv;
 
 using namespace imgutils;
 
-typedef struct distortion_data
+struct distortion_data
 {
   const Mat image;
   int k1, k2, p1, p2;
@@ -29,7 +29,7 @@ typedef struct distortion_data
    : image(image),
      k1(0), k2(0), p1(0), p2(0), negative_coefficients(false),
      window_name(window_name) { }
-} distortion_data;
+};
 
 static Mat GetStandardCameraMatrix(Size2i image_size)
 {

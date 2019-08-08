@@ -1,5 +1,5 @@
 //Illustration of downsampling and upsampling
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -19,7 +19,7 @@ using namespace cv;
 using namespace comutils;
 using namespace imgutils;
 
-typedef struct resampling_data
+struct resampling_data
 {
   const Mat image;
   int scaling_factor_percent;
@@ -31,7 +31,7 @@ typedef struct resampling_data
    : image(image),
      scaling_factor_percent(100), resampling_algorithm(INTER_NEAREST),
      window_name(window_name) { }
-} resampling_data;
+};
 
 constexpr pair<const char*, int> resampling_algorithms[] {make_pair("Nearest neighbor", INTER_NEAREST),
                                                           make_pair("Bilinear", INTER_LINEAR),

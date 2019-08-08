@@ -1,5 +1,5 @@
 //Illustration of frequency masking
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -30,7 +30,7 @@ static constexpr unsigned int frequencies[2] {400, 440};
 static_assert(arraysize(frequencies) == 2, "This application can only illustrate masking for two frequencies in total");
 static_assert(frequencies[1] > frequencies[0], "The second frequency has to be larger than the first");
 
-typedef struct audio_data
+struct audio_data
 {
   int levels_percent[2];
   SineWaveGenerator<short> generators[2];
@@ -45,7 +45,7 @@ typedef struct audio_data
      generators{SineWaveGenerator<short>(frequencies[0]), SineWaveGenerator<short>(frequencies[1])},
      mixer({&generators[0], &generators[1]}),
      window_name(window_name), trackbar_names{trackbar1_name, trackbar2_name} { }
-} audio_data;
+};
 
 static Mat PlotWaves(const audio_data &data)
 {

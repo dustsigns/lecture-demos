@@ -1,5 +1,5 @@
 //Illustration of the signal composition through the 1-D IDCT
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -48,7 +48,7 @@ static array<CosineWaveGenerator<double>, N> CreateAllGenerators()
   return CreateGenerators(make_index_sequence<N>{}); //Create generators by iterating through all (coefficient) array indices
 }
 
-typedef struct DCT_data
+struct DCT_data
 {
   int visible_coefficients;
   array<CosineWaveGenerator<double>, N> generators;
@@ -62,7 +62,7 @@ typedef struct DCT_data
      generators{CreateAllGenerators()},
      mixer(array<WaveFormGenerator<double>*, N>{}, 1.0, N), //Add waveforms (mixer with weight 1.0); initialize with empty generators at startup (filled later)
      window_name(window_name), trackbar_name(trackbar_name) { }
-} DCT_data;
+};
 
 static void AddCurrentWave(const DCT_data &data, vector<PointSet> &point_sets)
 {

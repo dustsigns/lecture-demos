@@ -1,5 +1,5 @@
 //Illustration of JPEG quality levels
-// Andreas Unterweger, 2016-2018
+// Andreas Unterweger, 2016-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -19,7 +19,7 @@ using namespace cv;
 
 using namespace imgutils;
 
-typedef struct JPEG_data
+struct JPEG_data
 {
   const Mat image;
   int quality;
@@ -31,7 +31,7 @@ typedef struct JPEG_data
    : image(image),
      quality(0),
      image_window_name(image_window_name), difference_window_name(difference_window_name) { }
-} JPEG_data;
+};
 
 static Mat CompressImage(const Mat &image, const unsigned char quality, unsigned int &compressed_size)
 {

@@ -1,5 +1,5 @@
 //Illustration of epipolar lines
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -22,7 +22,7 @@ using namespace sfm;
 using namespace comutils;
 using namespace imgutils;
 
-typedef struct epipolar_data
+struct epipolar_data
 {
   static constexpr auto global_window_name = "Global view";
   static constexpr auto window_width = 600;
@@ -43,7 +43,7 @@ typedef struct epipolar_data
     right_visualization.setWindowSize(Size2i(window_width, window_height));
     global_visualization.setWindowSize(Size2i(window_width, window_height));
   }
-} epipolar_data;
+};
 
 static void LoadModel(const char * const filename, Viz3d &visualization)
 {

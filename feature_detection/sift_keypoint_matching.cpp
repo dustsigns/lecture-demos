@@ -1,5 +1,5 @@
 //Illustration of SIFT keypoint matching
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -18,7 +18,7 @@ using namespace cv::xfeatures2d;
 
 using namespace imgutils;
 
-typedef struct match_data
+struct match_data
 {
   const Mat first_image;
   const vector<KeyPoint> first_keypoints;
@@ -33,7 +33,7 @@ typedef struct match_data
    : first_image(first_image), first_keypoints(first_keypoints), second_image(second_image), second_keypoints(second_keypoints), matches(matches),
      visible_match(1),
      window_name(window_name) {}
-} match_data;
+};
 
 static void DetectFeatures(const Mat &image, vector<KeyPoint> &keypoints)
 {

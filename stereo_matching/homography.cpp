@@ -1,5 +1,5 @@
 //Illustration of plane-to-plane warping with a homography
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -16,7 +16,7 @@ using namespace cv;
 
 using namespace imgutils;
 
-typedef struct homography_data
+struct homography_data
 {
   const Mat source_image;
   const Mat target_image;
@@ -28,7 +28,7 @@ typedef struct homography_data
   
   homography_data(const Mat &source_image, const Mat &target_image, const string &source_window_name, const string &target_window_name)
    : source_image(source_image), target_image(target_image), source_window_name(source_window_name), target_window_name(target_window_name) { }
-} homography_data;
+};
 
 static Mat DrawCorners(const Mat &original_image, const vector<Point2f> &corners)
 {

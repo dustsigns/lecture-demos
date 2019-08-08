@@ -1,5 +1,5 @@
 //Illustration of YCbCr color mixing
-// Andreas Unterweger, 2018
+// Andreas Unterweger, 2018-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -12,7 +12,7 @@ using namespace std;
 
 using namespace cv;
 
-typedef struct YCbCr_data
+struct YCbCr_data
 {
   int y_portion;
   int cb_portion;
@@ -23,7 +23,7 @@ typedef struct YCbCr_data
   YCbCr_data(const string &window_name)
    : y_portion(0), cb_portion(0), cr_portion(0),
      window_name(window_name) { }
-} YCbCr_data;
+};
 
 static Mat GenerateColorImage(const int y, const int cr, const int cb)
 {

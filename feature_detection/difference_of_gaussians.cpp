@@ -1,5 +1,5 @@
 //Illustration of DoG computation
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -18,7 +18,7 @@ using namespace cv;
 
 using namespace imgutils;
 
-typedef struct DoG_data
+struct DoG_data
 {
   const Mat image;
   int k_percent;
@@ -31,7 +31,7 @@ typedef struct DoG_data
    : image(image),
      k_percent(100), sigma_percent(200),
      image_window_name(image_window_name), difference_window_name(difference_window_name) { }
-} DoG_data;
+};
 
 static void ShowDifferenceImage(const string &window_name, const Mat &first_image, const Mat &second_image)
 {

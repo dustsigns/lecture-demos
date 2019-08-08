@@ -1,5 +1,5 @@
 //Illustration of RGB color mixing
-// Andreas Unterweger, 2018
+// Andreas Unterweger, 2018-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -11,7 +11,7 @@ using namespace std;
 
 using namespace cv;
 
-typedef struct RGB_data
+struct RGB_data
 {
   int r_portion;
   int g_portion;
@@ -22,7 +22,7 @@ typedef struct RGB_data
   RGB_data(const string &window_name)
    : r_portion(0), g_portion(0), b_portion(0),
      window_name(window_name) { }
-} RGB_data;
+};
 
 static Mat GenerateColorImage(const int r, const int g, const int b)
 {

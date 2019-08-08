@@ -1,5 +1,5 @@
 //Illustration of motion estimation and motion compensation
-// Andreas Unterweger, 2016-2018
+// Andreas Unterweger, 2016-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -21,7 +21,7 @@ using namespace cv;
 
 using namespace imgutils;
 
-typedef struct ME_data
+struct ME_data
 {
   const Mat reference_image;
   const Mat image;
@@ -37,7 +37,7 @@ typedef struct ME_data
    : reference_image(reference_image), image(image), search_area(search_area), reference_block(reference_block),
      running(false),
      me_window_name(me_window_name), mc_window_name(mc_window_name) {}
-} ME_data;
+};
 
 static constexpr unsigned int search_radius = 16;
 static constexpr unsigned int block_size = 8;

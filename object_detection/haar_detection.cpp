@@ -1,5 +1,5 @@
 //Illustration of Haar features for object detection
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -25,7 +25,7 @@ static constexpr unsigned int block_height = 50;
 static_assert(block_width % 2 == 0, "Block width must be even");
 static_assert(block_height % 2 == 0, "Block height must be even");
 
-typedef struct haar_data
+struct haar_data
 {
   const Mat feature_image;
   const Mat original_image;
@@ -47,7 +47,7 @@ typedef struct haar_data
   {
     ResetAnnotatedImage();
   }
-} haar_data;
+};
 
 static constexpr unsigned int border_size = 1;
 static_assert(border_size < (block_width + 1) / 2, "Border size must be smaller than half the block width");

@@ -1,5 +1,5 @@
 //Illustration of chrominance subsampling
-// Andreas Unterweger, 2016-2018
+// Andreas Unterweger, 2016-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -18,7 +18,7 @@ using namespace cv;
 
 using namespace imgutils;
 
-typedef struct color_format
+struct color_format
 {
   const string name;
   const int conversion_id;
@@ -26,7 +26,7 @@ typedef struct color_format
   
   color_format(const string &name, const int conversion_id, const int back_conversion_id) 
    : name(name), conversion_id(conversion_id), back_conversion_id(back_conversion_id) { }
-} color_format;
+};
 
 static const color_format color_formats[] {{"4:4:4", COLOR_BGR2YUV, COLOR_YUV2BGR},
                                            {"4:2:0", COLOR_BGR2YUV_I420, COLOR_YUV2BGR_I420},
@@ -35,7 +35,7 @@ static const color_format color_formats[] {{"4:4:4", COLOR_BGR2YUV, COLOR_YUV2BG
 
 const auto &default_color_format = color_formats[1]; //4:2:0 by default
 
-typedef struct subsampling_data
+struct subsampling_data
 {
   const Mat image;
   
@@ -43,7 +43,7 @@ typedef struct subsampling_data
   
   subsampling_data(const Mat &image, const string &window_name) 
    : image(image), window_name(window_name) { }
-} subsampling_data;
+};
 
 static Mat ConvertImage(const Mat &image, const color_format format, unsigned int &converted_size)
 {

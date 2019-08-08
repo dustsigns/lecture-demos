@@ -1,5 +1,5 @@
 //Illustration of frequency-dependent intensity sensitivity
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -26,7 +26,7 @@ static constexpr unsigned int default_frequency = 440;
 static constexpr unsigned int max_frequency = 4000;
 static_assert(default_frequency <= max_frequency, "The default frequency cannot exceed the maximum frequency.");
 
-typedef struct audio_data
+struct audio_data
 {
   int frequency;
   int level_percent;
@@ -42,7 +42,7 @@ typedef struct audio_data
      level_percent(0),
      generator(default_frequency),
      window_name(window_name), frequency_trackbar_name(frequency_trackbar_name), level_trackbar_name(level_trackbar_name) { }
-} audio_data;
+};
 
 static void ResetGenerator(audio_data &data)
 {
