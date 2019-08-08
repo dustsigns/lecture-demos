@@ -33,7 +33,7 @@ Program parameters
 ------------------
 
 * **First image**: File path of the first image to find within the second.
-* **Second image**: File path of the second image to find the first one in.
+* **Second image**: File path of the second image to find the first one in. This parameter can also specify the file path of a video consisting of multiple second images.
 
 Hard-coded parameters
 ---------------------

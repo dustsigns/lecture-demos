@@ -114,17 +114,16 @@ static void TransformAndDrawImageRectangle(const Mat &first_image, Mat &second_i
   DrawImageRectangle(second_image, transformed_corners);
 }
 
-static void ShowImages(const Mat &first_image, const Mat &second_image)
+static void ShowImages(const Mat &first_image, Mat &second_image)
 {
   constexpr auto window_name = "Original and found (perspective-transformed) image";
   namedWindow(window_name, WINDOW_GUI_NORMAL | WINDOW_AUTOSIZE);
   moveWindow(window_name, 0, 0);
-  Mat second_image_with_rectangle = second_image.clone();
   Mat homography;
   const bool found = FindHomography(first_image, second_image, homography);
   if (found)
-    TransformAndDrawImageRectangle(first_image, second_image_with_rectangle, homography);
-  const Mat combined_image = CombineImages({first_image, second_image_with_rectangle}, Horizontal);
+    TransformAndDrawImageRectangle(first_image, second_image, homography);
+  const Mat combined_image = CombineImages({first_image, second_image}, Horizontal);
   imshow(window_name, combined_image);
 }
 
@@ -133,7 +132,7 @@ int main(const int argc, const char * const argv[])
   if (argc != 3)
   {
     cout << "Illustrates how to find an image with a perspective transform within another image." << endl;
-    cout << "Usage: " << argv[0] << " <first image> <second image>" << endl;
+    cout << "Usage: " << argv[0] << " <first image> <second image or video of second images>" << endl;
     return 1;
   }
   const auto first_image_filename = argv[1];
@@ -144,13 +143,17 @@ int main(const int argc, const char * const argv[])
     return 2;
   }
   const auto second_image_filename = argv[2];
-  const Mat second_image = imread(second_image_filename);
-  if (second_image.empty())
+  VideoCapture capture(second_image_filename);
+  if (!capture.isOpened())
   {
-    cerr << "Could not read second image '" << second_image_filename << "'" << endl;
+    cerr << "Could not open second image '" << second_image_filename << "'" << endl;
     return 3;
   }
-  ShowImages(first_image, second_image);
-  waitKey(0);
+  Mat second_image;
+  while (capture.read(second_image) && !second_image.empty())
+  {
+    ShowImages(first_image, second_image);
+    waitKey(0);
+  }
   return 0;
 }
