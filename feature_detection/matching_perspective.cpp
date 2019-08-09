@@ -81,7 +81,7 @@ static bool FindHomography(const Mat &first_image, const Mat &second_image, Mat 
   vector<Point2f> first_image_points, second_image_points;
   GetMatchingKeyPoints(matches, first_keypoints, second_keypoints, first_image_points, second_image_points);
   homography = findHomography(first_image_points, second_image_points, RANSAC);
-  return true;
+  return !homography.empty();
 }
 
 static void TransformImageRectangle(const Size2i original_size, const Mat &homography, vector<Point2i> &transformed_corners)
