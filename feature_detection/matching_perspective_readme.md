@@ -19,6 +19,8 @@ Usage
 
 Observe that the first image is, for the most part, contained within the second. The left-most portion is an exception. The slight change in perspective does not impact the matching, nor do occlusions like the one around the tip of the rightmost green cone. Note that the estimated perspective transform is not entirely correct due to the limitations of homography-based mapping on non-planar objects.
 
+![Screenshot with a different input file](../screenshots/matching_transform_tractor.png)
+
 Available actions
 -----------------
 

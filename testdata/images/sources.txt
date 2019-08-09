@@ -3,6 +3,10 @@ Lenna: https://en.wikipedia.org/wiki/File:Lenna.png
   wget 'ftp://ftp.tnt.uni-hannover.de/pub/svc/testsequences/ICE_352x288_30_orig_02_yuv.zip' && unzip ICE_352x288_30_orig_02_yuv.zip && ffmpeg -y -s 352x288 -r 30 -i ICE_352x288_30_orig_02_yuv/ICE_352x288_30_orig_02.yuv -ss 0:00:05 -frames 2 -q 0 %03d.png && rm -f ICE_352x288_30_orig_02_yuv.zip && rm -rf ICE_352x288_30_orig_02_yuv
 f001-f010: Execute in bash (with ffmpeg installed)
   wget 'ftp://ftp.tnt.uni-hannover.de/pub/svc/testsequences/FOREMAN_352x288_30_orig_01_yuv.zip' && unzip FOREMAN_352x288_30_orig_01_yuv.zip && ffmpeg -y -s 352x288 -r 30 -i FOREMAN_352x288_30_orig_01.yuv -ss 0:00:01 -frames 10 -q 0 f%03d.png && rm -f FOREMAN_352x288_30_orig_01.yuv FOREMAN_352x288_30_orig_01_yuv.zip
+t001-t014: Execute in bash (with ffmpeg installed)
+  wget 'https://media.xiph.org/video/derf/y4m/tractor_1080p25.y4m' && ffmpeg -y -i tractor_1080p25.y4m -vf framestep=50,scale=480:270 -q 0 t%03d.png && rm -f tractor_1080p25.y4m
+tractor: Execute in bash (with ImageMagick installed and t004 already present)
+  convert t004.png -crop 300x200+0+50 +repage tractor.png
 pan001-pan007: Execute in bash (with ffmpeg installed)
   wget 'ftp://vqeg.its.bldrdoc.gov/MM/7-12_testclip/7-12_testclip_CIF.avi' && ffmpeg -y -i 7-12_testclip_CIF.avi -ss 74 -frames 7 -vf framestep=50 -q 0 pan%03d.png && rm -f 7-12_testclip_CIF.avi
 im2, im6 disp2: Execute in bash
