@@ -127,6 +127,15 @@ static void ShowImages(const Mat &first_image, Mat &second_image)
   imshow(window_name, combined_image);
 }
 
+static int OpenVideo(const char * const filename, VideoCapture &capture)
+{
+  const bool use_webcam = "-"s == filename; //Interpret - as the default webcam
+  const bool opened = use_webcam ? capture.open(0) : capture.open(filename);
+  if (use_webcam) //Minimize buffering for webcams to return up-to-date images
+    capture.set(CAP_PROP_BUFFERSIZE, 1);
+  return opened;
+}
+
 int main(const int argc, const char * const argv[])
 {
   if (argc != 3)
@@ -143,17 +152,19 @@ int main(const int argc, const char * const argv[])
     return 2;
   }
   const auto second_image_filename = argv[2];
-  VideoCapture capture(second_image_filename);
-  if (!capture.isOpened())
+  VideoCapture capture;
+  if (!OpenVideo(second_image_filename, capture))
   {
     cerr << "Could not open second image '" << second_image_filename << "'" << endl;
     return 3;
   }
+  
   Mat second_image;
   while (capture.read(second_image) && !second_image.empty())
   {
     ShowImages(first_image, second_image);
-    waitKey(0);
+    if (waitKey(0) == 'q') //Interpret Q key press as exit
+      break;
   }
   return 0;
 }
