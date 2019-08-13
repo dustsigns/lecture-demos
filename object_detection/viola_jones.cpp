@@ -80,7 +80,8 @@ int main(const int argc, const char * const argv[])
       return 3;
     }
     ShowImage(image, classifier);
-    waitKey(0);
+    if (waitKey(0) == 'q') //Interpret Q key press as exit
+      break;
   }
   return 0;
 }

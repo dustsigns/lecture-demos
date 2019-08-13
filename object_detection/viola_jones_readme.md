@@ -29,7 +29,7 @@ Use any key to advance to the next frame. *Notes: Pressing any key in the last f
 Interactive parameters
 ----------------------
 
-None
+Press Q to quit.
 
 Program parameters
 ------------------
