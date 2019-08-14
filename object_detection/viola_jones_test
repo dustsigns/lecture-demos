@@ -1,1 +1,1 @@
-../testdata/images/f*.png #../testdata/images/00?.png
+../testdata/images/f%3d.png #../testdata/images/00%d.png #-

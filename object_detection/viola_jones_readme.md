@@ -1,7 +1,7 @@
 Object detection by Viola & Jones
 =================================
 
-**Short description**: Illustration of Viola-Jones object detection (Illustrates object detection on multiple input frames with the object detector by Viola and Jones)
+**Short description**: Illustration of Viola-Jones object detection (Illustrates object detection on video frames with the object detector by Viola and Jones)
 
 **Author**: Andreas Unterweger
 
@@ -24,17 +24,17 @@ Advance to the next frame (see parameters below) to its face detection results. 
 Available actions
 -----------------
 
-Use any key to advance to the next frame. *Notes: Pressing any key in the last frame terminates the program. For all other frames, the program cannot be terminated by pressing a key.*
+Press Q to quit. Use any other key to advance to the next frame. *Notes: Pressing any key in the last frame terminates the program.*
 
 Interactive parameters
 ----------------------
 
-Press Q to quit.
+None
 
 Program parameters
 ------------------
 
-* **Input images** (one image per parameter): File path of the frames to detect objects in. *Note: At least one parameter (image) must be specified.*
+* **Input video**: File path of the video to detect objects in. If *-* is specified, a webcam is used. *Note: An image or image sequence can also be specified instead of a video file.*
 
 Hard-coded parameters
 ---------------------

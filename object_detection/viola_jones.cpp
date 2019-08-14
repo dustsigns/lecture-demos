@@ -37,31 +37,42 @@ static void HighlightFaces(Mat &image, vector<Rect> faces)
     rectangle(image, face, face_color);
 }
 
-static Mat GetColorImage(const Mat &image)
+static Mat GetGrayscaleImage(const Mat &image)
 {
-  Mat color_image;
-  cvtColor(image, color_image, COLOR_GRAY2BGRA);
-  return color_image;
+  assert(image.type() == CV_8UC3); //Assume 8-bit RGB image
+  Mat grayscale_image;
+  cvtColor(image, grayscale_image, COLOR_BGR2GRAY);
+  return grayscale_image;
 }
 
 static void ShowImage(const Mat &image, /*const*/ CascadeClassifier &classifier)
 {
-  constexpr auto window_name = "Image with objects to detect";
+  constexpr auto window_name = "Frame with objects to detect";
   namedWindow(window_name, WINDOW_GUI_NORMAL | WINDOW_AUTOSIZE);
   moveWindow(window_name, 0, 0);
+  const Mat grayscale_image = GetGrayscaleImage(image);
   vector<Rect> faces;
-  FindFaces(image, classifier, faces);
-  Mat image_with_faces = GetColorImage(image);
+  FindFaces(grayscale_image, classifier, faces);
+  Mat image_with_faces = image.clone();
   HighlightFaces(image_with_faces, faces);
   imshow(window_name, image_with_faces);
 }
 
+static int OpenVideo(const char * const filename, VideoCapture &capture)
+{
+  const bool use_webcam = "-"s == filename; //Interpret - as the default webcam
+  const bool opened = use_webcam ? capture.open(0) : capture.open(filename);
+  if (use_webcam) //Minimize buffering for webcams to return up-to-date images
+    capture.set(CAP_PROP_BUFFERSIZE, 1);
+  return opened;
+}
+
 int main(const int argc, const char * const argv[])
 {
-  if (argc < 2)
+  if (argc != 2)
   {
-    cout << "Illustrates object detection on multiple input frames with the object detector by Viola and Jones." << endl;
-    cout << "Usage: " << argv[0] << " <input image 1> [<input image 2> ... [<input image n>]]" << endl;
+    cout << "Illustrates object detection on video frames with the object detector by Viola and Jones." << endl;
+    cout << "Usage: " << argv[0] << " <input video>" << endl;
     return 1;
   }
   CascadeClassifier classifier;
@@ -70,16 +81,17 @@ int main(const int argc, const char * const argv[])
     cerr << "Could not initialize cascade classifier" << endl;
     return 2;
   }
-  vector<const char*> image_filenames(argv + 1, argv + argc); //Start from first actual parameter (ignore program name)
-  for (const auto &image_filename : image_filenames)
+  const auto video_filename = argv[1];
+  VideoCapture capture;
+  if (!OpenVideo(video_filename, capture))
   {
-    Mat image = imread(image_filename, IMREAD_GRAYSCALE);
-    if (image.empty())
-    {
-      cerr << "Could not read input image '" << image_filename << "'" << endl;
-      return 3;
-    }
-    ShowImage(image, classifier);
+    cerr << "Could not open video '" << video_filename << "'" << endl;
+    return 3;
+  }
+  Mat frame;
+  while (capture.read(frame) && !frame.empty())
+  {
+    ShowImage(frame, classifier);
     if (waitKey(0) == 'q') //Interpret Q key press as exit
       break;
   }

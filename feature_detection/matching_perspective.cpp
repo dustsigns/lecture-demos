@@ -158,7 +158,6 @@ int main(const int argc, const char * const argv[])
     cerr << "Could not open second image '" << second_image_filename << "'" << endl;
     return 3;
   }
-  
   Mat second_image;
   while (capture.read(second_image) && !second_image.empty())
   {

@@ -24,12 +24,12 @@ Observe that the first image is, for the most part, contained within the second.
 Available actions
 -----------------
 
-None
+Press Q to quit. Use any other key to advance to the next frame. *Notes: Pressing any key in the last frame terminates the program.*
 
 Interactive parameters
 ----------------------
 
-Press Q to quit.
+None.
 
 Program parameters
 ------------------
