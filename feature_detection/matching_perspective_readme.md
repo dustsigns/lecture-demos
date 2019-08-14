@@ -36,6 +36,7 @@ Program parameters
 
 * **First image**: File path of the first image to find within the second.
 * **Second image**: File path of the second image to find the first one in. This parameter can also specify the file path of a video consisting of multiple second images. If *-* is specified, a webcam is used.
+* (optional) **Waiting time between images**: Time in ms to wait after each processed second image. The default value 0 denotes infinite waiting, which can be interrupted by a key press.
 
 Hard-coded parameters
 ---------------------

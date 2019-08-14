@@ -138,10 +138,10 @@ static int OpenVideo(const char * const filename, VideoCapture &capture)
 
 int main(const int argc, const char * const argv[])
 {
-  if (argc != 3)
+  if (argc != 3 && argc != 4)
   {
     cout << "Illustrates how to find an image with a perspective transform within another image." << endl;
-    cout << "Usage: " << argv[0] << " <first image> <second image or video of second images>" << endl;
+    cout << "Usage: " << argv[0] << " <first image> <second image or video of second images> [<wait time between second images>]" << endl;
     return 1;
   }
   const auto first_image_filename = argv[1];
@@ -152,6 +152,12 @@ int main(const int argc, const char * const argv[])
     return 2;
   }
   const auto second_image_filename = argv[2];
+  int wait_time = 0;
+  if (argc == 4)
+  {
+    const auto wait_time_text = argv[3];
+    wait_time = stoi(wait_time_text);
+  }
   VideoCapture capture;
   if (!OpenVideo(second_image_filename, capture))
   {
@@ -162,7 +168,7 @@ int main(const int argc, const char * const argv[])
   while (capture.read(second_image) && !second_image.empty())
   {
     ShowImages(first_image, second_image);
-    if (waitKey(0) == 'q') //Interpret Q key press as exit
+    if (waitKey(wait_time) == 'q') //Interpret Q key press as exit
       break;
   }
   return 0;

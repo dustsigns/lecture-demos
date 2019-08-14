@@ -69,10 +69,10 @@ static int OpenVideo(const char * const filename, VideoCapture &capture)
 
 int main(const int argc, const char * const argv[])
 {
-  if (argc != 2)
+  if (argc != 2 && argc != 3)
   {
     cout << "Illustrates object detection on video frames with the object detector by Viola and Jones." << endl;
-    cout << "Usage: " << argv[0] << " <input video>" << endl;
+    cout << "Usage: " << argv[0] << " <input video> [<wait time between frames>]" << endl;
     return 1;
   }
   CascadeClassifier classifier;
@@ -82,6 +82,12 @@ int main(const int argc, const char * const argv[])
     return 2;
   }
   const auto video_filename = argv[1];
+  int wait_time = 0;
+  if (argc == 3)
+  {
+    const auto wait_time_text = argv[2];
+    wait_time = stoi(wait_time_text);
+  }
   VideoCapture capture;
   if (!OpenVideo(video_filename, capture))
   {
@@ -92,7 +98,7 @@ int main(const int argc, const char * const argv[])
   while (capture.read(frame) && !frame.empty())
   {
     ShowImage(frame, classifier);
-    if (waitKey(0) == 'q') //Interpret Q key press as exit
+    if (waitKey(wait_time) == 'q') //Interpret Q key press as exit
       break;
   }
   return 0;

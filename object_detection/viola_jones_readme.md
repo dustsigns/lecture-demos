@@ -35,6 +35,7 @@ Program parameters
 ------------------
 
 * **Input video**: File path of the video to detect objects in. If *-* is specified, a webcam is used. *Note: An image or image sequence can also be specified instead of a video file.*
+* (optional) **Waiting time between frames**: Time in ms to wait after each processed frame. The default value 0 denotes infinite waiting, which can be interrupted by a key press.
 
 Hard-coded parameters
 ---------------------
