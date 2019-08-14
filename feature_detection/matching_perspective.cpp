@@ -103,8 +103,9 @@ static void TransformImageRectangle(const Size2i original_size, const Mat &homog
  
 static void DrawImageRectangle(Mat image, const vector<Point2i> &transformed_corners)
 {
-  constexpr auto line_width = 3;
-  polylines(image, transformed_corners, true, Red, line_width); //Closed polylines
+  constexpr auto line_width = 2;
+  const auto frame_color = Red;
+  polylines(image, transformed_corners, true, frame_color, line_width); //Closed polylines
 }
 
 static void TransformAndDrawImageRectangle(const Mat &first_image, Mat &second_image, const Mat &homography)

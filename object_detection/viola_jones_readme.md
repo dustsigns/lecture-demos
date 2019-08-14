@@ -17,9 +17,9 @@ The object detection algorithm by Viola and Jones can be used to find the positi
 Usage
 -----
 
-Advance to the next frame (see parameters below) to its face detection results. For the default program parameters, observe that the detection is successful and relatively consistent among all frames.
+Advance to the next frame (see parameters below) to its face detection results. For the default program parameters, observe that the detection is successful and relatively consistent among all frames. Observe that non-frontal faces are not detected or detected unreliably.
 
-![Screenshot after advancing to the tenth frame](../screenshots/viola_jones_10.png)
+![Screenshot when using a different sequence with non-frontal faces](../screenshots/viola_jones_ice.png)
 
 Available actions
 -----------------
@@ -41,6 +41,7 @@ Hard-coded parameters
 ---------------------
 
 * `classifier_path` (local to `InitClassifier`): File path of the XML file specifying the classifier cascade to be used.
+* `line_width`: Width of the face-highlighting rectangles' lines in pixels.
 
 Known issues
 ------------

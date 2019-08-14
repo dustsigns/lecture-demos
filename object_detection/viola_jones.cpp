@@ -32,9 +32,10 @@ static void FindFaces(const Mat &image, /*const*/ CascadeClassifier &classifier,
 
 static void HighlightFaces(Mat &image, vector<Rect> faces)
 {
+  constexpr auto line_width = 2;
   const auto face_color = Red;
   for (const auto &face : faces)
-    rectangle(image, face, face_color);
+    rectangle(image, face, face_color, line_width);
 }
 
 static Mat GetGrayscaleImage(const Mat &image)

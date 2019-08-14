@@ -41,7 +41,7 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-None
+* `line_width`: Width of the transformed image frame's lines in pixels.
 
 Known issues
 ------------
