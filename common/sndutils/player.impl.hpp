@@ -17,8 +17,6 @@ namespace sndutils
   template<typename T>
   class WaveFormConverter
   {
-    friend class WaveFormGenerator<T>;
-    
     public:
       WaveFormConverter(WaveFormGenerator<T> &generator, const size_t number_of_channels)
        : generator(generator), number_of_channels(number_of_channels),
