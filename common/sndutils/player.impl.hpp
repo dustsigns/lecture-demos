@@ -4,7 +4,8 @@
 
 #include <cassert>
 #include <stdexcept>
-#include <thread> //TODO: Add <atomic> and make fields used in playback-thread atomic
+#include <atomic>
+#include <thread>
 
 #include "common.hpp"
 
@@ -92,8 +93,8 @@ namespace sndutils
     playing = true;
     
     const size_t this_number_of_channels = this->sample_format.channels;
-    const bool &this_playing = this->playing;
-    const bool &this_paused = this->paused;
+    const auto &this_playing = this->playing;
+    const auto &this_paused = this->paused;
     ao_device * const &this_playback_device = this->playback_device;
     worker = thread([&generator, this_number_of_channels, &this_playing, &this_paused, &this_playback_device]
                     ()

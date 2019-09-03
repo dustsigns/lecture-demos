@@ -1,9 +1,10 @@
 //Audio playback helper class (header)
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
 
+#include <atomic>
 #include <thread>
 
 #include <ao/ao.h>
@@ -38,8 +39,8 @@ namespace sndutils
     private:
       ao_sample_format sample_format;
       ao_device *playback_device;
-      bool playing;
-      bool paused;
+      atomic<bool> playing;
+      atomic<bool> paused;
       thread worker;
   };
 }
