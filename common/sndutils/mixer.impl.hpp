@@ -1,5 +1,5 @@
 //Wave form mixer class (template implementation)
-// Andreas Unterweger, 2017
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <cassert>
