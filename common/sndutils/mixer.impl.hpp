@@ -12,7 +12,7 @@ namespace sndutils
   using namespace std;
 
   template<typename T, size_t M>
-  WaveFormMixer<T, M>::WaveFormMixer(array<WaveFormGenerator<T>*, M> generators, const double mixing_factor, const unsigned int sampling_rate)
+  WaveFormMixer<T, M>::WaveFormMixer(const array<WaveFormGenerator<T>*, M> &generators, const double mixing_factor, const unsigned int sampling_rate)
    : WaveFormGenerator<T>(sampling_rate),
      generators(generators), mixing_factor(mixing_factor)
   {

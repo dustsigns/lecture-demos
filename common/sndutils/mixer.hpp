@@ -1,5 +1,5 @@
 //Wave form mixer class (header)
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -18,7 +18,7 @@ namespace sndutils
   {  
     public:
       //Constructs a new instance of WaveFormGenerator with the given channel parameters
-      WaveFormMixer(array<WaveFormGenerator<T>*, M> generators, const double mixing_factor = 1.0 / M, const unsigned int sampling_rate = 48000);
+      WaveFormMixer(const array<WaveFormGenerator<T>*, M> &generators, const double mixing_factor = 1.0 / M, const unsigned int sampling_rate = 48000);
       
       //Replaces the component at the specified index with the given component
       void SetGenerator(const size_t generator_index, WaveFormGenerator<T> * const generator);
