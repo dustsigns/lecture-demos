@@ -41,12 +41,12 @@ namespace sndutils
         static_assert(sizeof(unsigned char) == 1, "char must be one byte in size");
         for (size_t unit = 0; unit < units_per_buffer; unit++)
         {
+          static_assert(sizeof(T) <= sizeof(unsigned long), "T cannot be larger than unsigned long"); //Since unsigned long is used for shifting below, the type's size has to be smaller than that of an unsigned long
+          const auto current_value = static_cast<unsigned long>(this->generator.GetNextSample());
           for (size_t channel = 0; channel < this->number_of_channels; channel++) //Fill all channels with the same samples
           {
             for (size_t sample_byte = 0; sample_byte < sample_size; sample_byte++)
             {
-              static_assert(sizeof(T) <= sizeof(unsigned long), "T cannot be larger than unsigned long"); //Since unsigned long is used for shifting below, the type's size has to be smaller than that of an unsigned long
-              const auto current_value = static_cast<unsigned long>(this->generator.GetNextSample());
               buffer[unit * unit_size + channel * sample_size + sample_byte] = (current_value >> (8 * sample_byte)) & 0xFF; //Extract (sample_byte)th byte in little-endian byte order
             }
           }
