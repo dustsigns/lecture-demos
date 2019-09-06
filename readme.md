@@ -66,11 +66,6 @@ Known issues
 
 * **Additional *Eigen* 3 dependency** (*OpenCV* bug): *Eigen* 3 is manually added as a dependency for some demonstrations since *OpenCV*'s *pkg-config* file does not include it (see [*OpenCV* issue #10942](https://github.com/opencv/opencv/issues/10942)). *Note: This does not impact the functionality of the demonstrations. The provided Makefile works around this issue, but might not work with future versions of *OpenCV*.*
 
-Missing features
-----------------
-
-* **No auto-complete for Makefile targets**: Building single demonstrations with *make* requires using their Makefile target names, which entail knowing or copying the respective source file names. There is no shell auto-completion for Makefile targets in the respective directory which simplifies this, but the [list of demonstrations](demolist.md) includes all file names.
-
 License
 -------
 

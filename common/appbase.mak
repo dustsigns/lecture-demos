@@ -16,9 +16,10 @@ TST := $(addprefix test_, $(EXE:.exe=))
 %.exe: %.o $(OBJDEP)
 	$(CXX) $^ -o $@ $(LDFLAGS)
 
-#TODO: Make test_ targets show up for auto-complete (.PHONY will not work as it does not process the prerequisites)
-test_%: %.exe %_test
+$(TST): test_%: %.exe %_test
 	./$< $(shell $(CAT) $*_test)
+
+.PHONY: $(TST) tests all clean
 
 tests: $(TST)
 
