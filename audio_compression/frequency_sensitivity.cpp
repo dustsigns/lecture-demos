@@ -23,7 +23,7 @@ using namespace sndutils;
 using namespace imgutils;
 
 static constexpr unsigned int default_frequency = 440;
-static constexpr unsigned int max_frequency = 4000;
+static constexpr unsigned int max_frequency = 8000;
 static_assert(default_frequency <= max_frequency, "The default frequency cannot exceed the maximum frequency.");
 
 struct audio_data
