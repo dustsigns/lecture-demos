@@ -108,8 +108,8 @@ static void ShowControls()
   constexpr auto window_name = "Attenuation";
   namedWindow(window_name);
   moveWindow(window_name, 0, 0);
-  const string trackbar_names[2] {to_string(frequencies[0]) + " Hz level [dB]",
-                                  to_string(frequencies[1]) + " Hz level [dB]"};
+  const string trackbar_names[2] {to_string(frequencies[0]) + " Hz level [-dB]",
+                                  to_string(frequencies[1]) + " Hz level [-dB]"};
   static audio_data data(window_name, trackbar_names[0], trackbar_names[1]); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
   createTrackbar(trackbar_names[0], window_name, &data.levels_percent[0], 100, [](const int, void * const user_data)
                                                                                  {
