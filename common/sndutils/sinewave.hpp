@@ -1,5 +1,5 @@
 //Sine wave generator class (header)
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -44,7 +44,7 @@ namespace sndutils
       double phase; //Current phase
       double phase_shift; //Initial phase shift
       
-      T GetSample(const unsigned selected_phase) const;
+      T GetSample(const double selected_phase) const;
       
       void SetPhaseShift(const double phase);
   };

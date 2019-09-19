@@ -1,5 +1,5 @@
 //Sine wave generator class (template implementation)
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2019
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <cassert>
@@ -60,8 +60,9 @@ namespace sndutils
   }
   
   template<typename T>
-  T SineWaveGenerator<T>::GetSample(const unsigned int selected_phase) const
+  T SineWaveGenerator<T>::GetSample(const double selected_phase) const
   {
+    assert(selected_phase >= 0.0); //Comment this if a purely positive phase is desired
     const double relative_amplitude = this->amplitude * (this->absolute_amplitude ? 1.0 : WaveFormGenerator<T>::max_amplitude);
     const double current_amplitude = relative_amplitude * (this->frequency == 0 ? 1.0 : sin(2 * M_PI * this->frequency * (selected_phase + this->phase_shift) / this->sampling_rate)); //DC is multiplication with 1.0
     const T selected_value = static_cast<T>(current_amplitude);
