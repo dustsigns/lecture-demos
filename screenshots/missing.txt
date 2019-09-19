@@ -1,0 +1,1 @@
+If this folder is empty, please fetch the screenshots from https://github.com/dustsigns/lecture-demos/tree/master/screenshots.
