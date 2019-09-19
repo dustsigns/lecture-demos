@@ -54,6 +54,7 @@ static_assert(border_size < (block_width + 1) / 2, "Border size must be smaller 
 static_assert(border_size < (block_height + 1) / 2, "Border size must be smaller than half the block height");
 
 static constexpr auto detection_threshold = 80000; //Feature-dependent threshold
+static_assert(detection_threshold >= 1, "The detection threshold must be positive and non-zero");
 
 static Rect ExtendRect(const Rect &rect, const unsigned int border)
 {
@@ -104,49 +105,62 @@ static double GetFeatureValue(const Mat &block, const Mat &feature)
   return difference_1d;
 }
 
-static double UpdateImage(haar_data &data)
+static double UpdateImage(haar_data &data, const bool from_GUI = true)
 {
   const Mat block_pixels = data.original_image(data.current_block);
   const double feature_value = GetFeatureValue(block_pixels, data.feature_image);
-  const auto permanent_annotation = feature_value > detection_threshold;
-  const Mat annotated_image = GetAnnotatedImage(data, permanent_annotation);
-  const string status_text = "Pixel difference (feature value): " + FormatValue(feature_value, 0);
-  displayStatusBar(data.window_name, status_text);
-  imshow(data.window_name, annotated_image);
+  if (from_GUI)
+  {
+    const auto permanent_annotation = feature_value > detection_threshold;
+    const Mat annotated_image = GetAnnotatedImage(data, permanent_annotation);
+    const string status_text = "Pixel difference (feature value): " + FormatValue(feature_value, 0);
+    displayStatusBar(data.window_name, status_text);
+    imshow(data.window_name, annotated_image);
+  }
   return feature_value;
 }
 
-static double SetCurrentPosition(haar_data &data, const Point &top_left)
+static double SetCurrentPosition(haar_data &data, const Point &top_left, const bool from_GUI = true)
 {
   data.current_block = Rect(top_left, Size(block_width, block_height));
-  return UpdateImage(data);
+  return UpdateImage(data, from_GUI);
 }
 
-static void PerformSearch(haar_data &data)
+static Mat_<double> PerformSearch(haar_data &data, const bool from_GUI = true)
 {
   constexpr auto search_step_delay = 1; //Animation delay in ms
-  double highest_score = numeric_limits<double>::max();
-  Point best_position;
+  Mat_<double> score_map(data.original_image.size(), INFINITY);
   for (int y = border_size; y <= data.original_image.cols - static_cast<int>(block_height + border_size); y++)
   {
     for (int x = border_size; x <= data.original_image.rows - static_cast<int>(block_width + border_size); x++)
     {
-      if (!data.running) //Skip the rest when the user aborts
-        return;
+      if (from_GUI && !data.running) //Skip the rest when the user aborts
+        return score_map;
       const Point current_position(x, y);
-      const double current_score = SetCurrentPosition(data, current_position);
-      waitKey(search_step_delay);
-      highest_score = max(highest_score, current_score);
-      if (current_score == highest_score) //Save the best position
-        best_position = current_position;
+      const double current_score = SetCurrentPosition(data, current_position, from_GUI);
+      score_map(current_position - Point(border_size, border_size)) = current_score;
+      if (from_GUI)
+        waitKey(search_step_delay);
     }
   }
-  SetCurrentPosition(data, best_position);
-} //TODO: Illustrate map of costs
+  return score_map;
+}
 
 static void ResetImage(haar_data &data)
 {
   SetCurrentPosition(data, Point(border_size, border_size)); //Set current position to (0, 0) plus border
+}
+
+static void SelectPointInImage(const int event, const int x, const int y, const int, void * const userdata)
+{
+  auto &data = *((haar_data * const)userdata);
+  if (!data.running && event == EVENT_LBUTTONUP) //Only react when the left mouse button is being pressed while no motion estimation is running
+  {
+    const Point mouse_point(x + border_size, y + border_size); //Assume mouse position is in the top-left of the search block (on the outside border which is border_size pixels in width)
+    if (mouse_point.x <= data.original_image.cols - static_cast<int>(block_width + border_size) &&
+        mouse_point.y <= data.original_image.rows - static_cast<int>(block_height + border_size)) //If the mouse is within the image area (minus the positions on the bottom which would lead to the block exceeding the borders)...
+      SetCurrentPosition(data, mouse_point); //... set the current position according to the mouse position
+  }
 }
 
 static void ShowImage(const Mat &feature_image, const Mat &image)
@@ -155,17 +169,7 @@ static void ShowImage(const Mat &feature_image, const Mat &image)
   namedWindow(window_name);
   moveWindow(window_name, 0, 0);
   static haar_data data(feature_image, image, window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
-  setMouseCallback(window_name, [](const int event, const int x, const int y, const int, void * const userdata)
-                                  {
-                                    auto &data = *((haar_data * const)userdata);
-                                    if (!data.running && event == EVENT_LBUTTONUP) //Only react when the left mouse button is being pressed while no motion estimation is running
-                                    {
-                                      const Point mouse_point(x + border_size, y + border_size); //Assume mouse position is in the top-left of the search block (on the outside border which is border_size pixels in width)
-                                      if (mouse_point.x <= data.original_image.cols - static_cast<int>(block_width + border_size) &&
-                                          mouse_point.y <= data.original_image.rows - static_cast<int>(block_height + border_size)) //If the mouse is within the image area (minus the positions on the bottom which would lead to the block exceeding the borders)...
-                                        SetCurrentPosition(data, mouse_point); //... set the current position according to the mouse position
-                                    }
-                                   }, (void*)&data);
+  setMouseCallback(window_name, SelectPointInImage, (void*)&data);
   constexpr auto clear_button_name = "Clear detections";
   createButton(clear_button_name, [](const int, void * const user_data)
                                     {
@@ -190,6 +194,30 @@ static void ShowImage(const Mat &feature_image, const Mat &image)
                                      auto &data = *((haar_data * const)user_data);
                                      data.running = false;
                                    }, (void*)&data, QT_PUSH_BUTTON);
+  constexpr auto map_button_name = "Show map of differences";
+  createButton(map_button_name, [](const int, void * const user_data)
+                                  {
+                                    auto &data = *((haar_data * const)user_data);
+                                    auto diff_map = PerformSearch(data, false);
+                                    Mat color_map(diff_map.size(), CV_8UC3);
+                                    transform(diff_map.begin(), diff_map.end(), color_map.begin<Vec3b>(),
+                                              [](const double value) -> Vec3b
+                                                {
+                                                  if (isinf(value))
+                                                    return 0.5 * White; //The border is gray
+                                                  else if (value < detection_threshold) //Values below the threshold are more red the further away they are from the threshold
+                                                    return ((detection_threshold - value) / (2 * detection_threshold)) * Red; //0 is half-way, -threshold and below are full red
+                                                  else if (value >= detection_threshold) //Values above the threshold are always 25% green and more green the further away they are from the threshold
+                                                    return 0.25 * Green + 0.75 * ((value - detection_threshold) / detection_threshold) * Green;
+                                                  else
+                                                    return Black;
+                                                });
+                                    constexpr auto map_window_name = "Difference map";
+                                    namedWindow(map_window_name);
+                                    moveWindow(map_window_name, data.original_image.cols + 3, 0); //Move difference window right of the main window (image size plus 3 border pixels)
+                                    imshow(map_window_name, color_map);
+                                    setMouseCallback(map_window_name, SelectPointInImage, (void*)&data); //Perform the same action as in the main window
+                                  }, (void*)&data, QT_PUSH_BUTTON);
   ResetImage(data); //Implies imshow with default position
 }
 

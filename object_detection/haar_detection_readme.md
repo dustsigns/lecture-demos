@@ -5,7 +5,7 @@ Haar-feature-based detection
 
 **Author**: Andreas Unterweger
 
-**Status**: Near-complete (nice-to-have features missing)
+**Status**: Complete
 
 Overview
 --------
@@ -27,6 +27,7 @@ Available actions
 * **Clear detections** (button): Removes all successful detections (green windows) found so far.
 * **Search whole image** (button): Iterates through all valid window positions and highlights all detections in the process. *Note: Starting always restarts the process from the top-left-most position.*
 * **Stop search** (button): Halts the process initiated by *Search whole image* without removing the successful detections. *Note: Stopping after completion or when the process has not been started yet does not do anything.*
+* **Show map of differences**: Iterates through all valid window positions at once, i.e., without intermediate visualizations, and shows a map of differences after finishing. Green pixels indicate window positions which are successful detections, while red pixels indicate the opposite. The stronger the color is, the further away the computed difference is from the pre-defined threshold. Clicking on pixels in the map sets the window position in the main window (see interactive parameters below). *Note: Computing the map might take some time initially.*
 
 Interactive parameters
 ----------------------
@@ -55,7 +56,7 @@ None
 Missing features
 ----------------
 
-* **Cost map illustration**: There is no option to illustrate the feature values of all possible search positions in a separate window.
+None
 
 License
 -------
