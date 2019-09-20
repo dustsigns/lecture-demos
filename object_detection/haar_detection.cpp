@@ -105,11 +105,11 @@ static double GetFeatureValue(const Mat &block, const Mat &feature)
   return difference_1d;
 }
 
-static double UpdateImage(haar_data &data, const bool from_GUI = true)
+static double UpdateImage(haar_data &data, const bool update_GUI = true)
 {
   const Mat block_pixels = data.original_image(data.current_block);
   const double feature_value = GetFeatureValue(block_pixels, data.feature_image);
-  if (from_GUI)
+  if (update_GUI)
   {
     const auto permanent_annotation = feature_value > detection_threshold;
     const Mat annotated_image = GetAnnotatedImage(data, permanent_annotation);
@@ -120,13 +120,13 @@ static double UpdateImage(haar_data &data, const bool from_GUI = true)
   return feature_value;
 }
 
-static double SetCurrentPosition(haar_data &data, const Point &top_left, const bool from_GUI = true)
+static double SetCurrentPosition(haar_data &data, const Point &top_left, const bool update_GUI = true)
 {
   data.current_block = Rect(top_left, Size(block_width, block_height));
-  return UpdateImage(data, from_GUI);
+  return UpdateImage(data, update_GUI);
 }
 
-static Mat_<double> PerformSearch(haar_data &data, const bool from_GUI = true)
+static Mat_<double> PerformSearch(haar_data &data, const bool update_GUI = true)
 {
   constexpr auto search_step_delay = 1; //Animation delay in ms
   Mat_<double> score_map(data.original_image.size(), INFINITY);
@@ -134,12 +134,12 @@ static Mat_<double> PerformSearch(haar_data &data, const bool from_GUI = true)
   {
     for (int x = border_size; x <= data.original_image.rows - static_cast<int>(block_width + border_size); x++)
     {
-      if (from_GUI && !data.running) //Skip the rest when the user aborts
+      if (update_GUI && !data.running) //Skip the rest when the user aborts
         return score_map;
       const Point current_position(x, y);
-      const double current_score = SetCurrentPosition(data, current_position, from_GUI);
+      const double current_score = SetCurrentPosition(data, current_position, update_GUI);
       score_map(current_position - Point(border_size, border_size)) = current_score;
-      if (from_GUI)
+      if (update_GUI)
         waitKey(search_step_delay);
     }
   }
