@@ -17,7 +17,7 @@ In order to detect basic objects in an image (window *Image with objects to dete
 Usage
 -----
 
-Change the window position (see parameters below) to see the different resulting feature values. Start the automatic search process (see actions below) to see all positions where objects can be found, i.e., the ones where the feature value of the window exceeds the pre-defined threshold (highlighted in green). For the default program parameters, observe that the region around the eyes contains several successful detections, while few other regions exhibit detections which do not contain pairs of eyes.
+Change the window position (see parameters below) to see the different resulting feature values. Start the automatic search process (see actions below) to see all positions where objects can be found, i.e., the ones where the feature value of the window exceeds the pre-defined threshold (highlighted in green). For the default program parameters, observe that the region around the eyes contains several successful detections, while few other regions exhibit detections which do not contain pairs of eyes. The map of differences (see actions below) highlights allows for distinguishing these areas by color.
 
 ![Screenshot after selecting a region around the eyes](../screenshots/haar_detection_eyes.png)
 
