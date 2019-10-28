@@ -1,7 +1,7 @@
 Andreas Unterweger's Multimedia Lecture Demonstrations
 ======================================================
 
-This is a collection of demonstrations by [Andreas Unterweger](http://www.dustsigns.de) originally designed for the lectures *Media Technology* and *Media Informatics* at the Salzburg University of Applied Sciences. These demonstrations allow to interactively explore selected core concepts of audio, image and video processing as well as related topics.
+This is a collection of demonstrations by [Andreas Unterweger](https://www.andreas-unterweger.eu) originally designed for the lectures *Media Technology* and *Media Informatics* at the Salzburg University of Applied Sciences. These demonstrations allow to interactively explore selected core concepts of audio, image and video processing as well as related topics.
 
 ![Screenshot](screenshots/intra_prediction.png)
 
