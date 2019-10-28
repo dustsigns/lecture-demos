@@ -37,7 +37,7 @@ Interactive parameters
 Program parameters
 ------------------
 
-* **3-D model** (optional): File path of the PLY model to be rotated. If no path is specified, a 3-D cone (see parameters below) will be created instead.
+* **3-D model** (optional): File path of the PLY model to be displayed. If no path is specified, a 3-D cone (see parameters below) will be created instead.
 
 Hard-coded parameters
 ---------------------
