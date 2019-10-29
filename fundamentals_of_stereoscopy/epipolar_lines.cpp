@@ -108,11 +108,11 @@ static void MarkPosition(Mat &image, const int x_position, const int y_position)
   drawMarker(image, Point(x_position, y_position), marker_color);
 }
 
-static Mat GetFundamentalMatrix(/*const*/ Viz3d &left_visualization, /*const*/ Viz3d &right_visualization)
+static Mat GetFundamentalMatrix(const Viz3d &left_visualization, const Viz3d &right_visualization)
 {
   //TODO: Which of these parameters is/are incorrect? The final result is incorrect when rotation is used.
-  const auto left_camera_pose = left_visualization.getViewerPose(); //Method should be const, but is not
-  const auto right_camera_pose = right_visualization.getViewerPose(); //Method should be const, but is not
+  const auto left_camera_pose = left_visualization.getViewerPose();
+  const auto right_camera_pose = right_visualization.getViewerPose();
   Mat essential_matrix;
   essentialFromRt(left_camera_pose.rotation(), left_camera_pose.translation(), right_camera_pose.rotation(), right_camera_pose.translation(), essential_matrix);
 
@@ -125,7 +125,7 @@ static Mat GetFundamentalMatrix(/*const*/ Viz3d &left_visualization, /*const*/ V
   return fundamental_matrix;
 }
 
-static Vec3f ComputeEpipolarLine(/*const*/ epipolar_data &data, const int x_position, const int y_position)
+static Vec3f ComputeEpipolarLine(const epipolar_data &data, const int x_position, const int y_position)
 {
   const Mat &fundamental_matrix = GetFundamentalMatrix(data.left_visualization, data.right_visualization);
   const Point2f selected_point(x_position, y_position);
@@ -141,7 +141,7 @@ static Point GetLinePointFromLineParameters(const int x_coordinate, const Vec3f 
   return Point(x_coordinate, y);
 }
 
-static void DrawEpipolarLine(epipolar_data &data, const int x_position, const int y_position, Mat image)
+static void DrawEpipolarLine(const epipolar_data &data, const int x_position, const int y_position, Mat image)
 {
   const auto line_parameters = ComputeEpipolarLine(data, x_position, y_position);
   const Point from = GetLinePointFromLineParameters(0, line_parameters); //Start on the left
@@ -149,7 +149,7 @@ static void DrawEpipolarLine(epipolar_data &data, const int x_position, const in
   line(image, from, to, Red, 1);
 }
 
-static void RenderViews(/*const*/ epipolar_data &data, const int x_position, const int y_position)
+static void RenderViews(const epipolar_data &data, const int x_position, const int y_position)
 {
   const bool annotate = x_position >= 0 && y_position >= 0;
   auto left_view = data.left_visualization.getScreenshot();
@@ -182,7 +182,7 @@ Viz3d &ShowWindows(const char * const model_filename)
                                        {
                                          if (event != EVENT_MOUSEMOVE) //Only react on mouse move
                                            return;
-                                         /*const*/ auto &data = *((epipolar_data * const)userdata);
+                                         auto &data = *((const epipolar_data * const)userdata);
                                          RenderViews(data, x, y);
                                        }, (void*)&data);
   moveWindow(data.left_window_name, 0, 0);
