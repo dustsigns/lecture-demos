@@ -6,7 +6,7 @@ To build the [demonstrations](demolist.md), the following build configuration of
 Build command
 -------------
 
-When all other required [prerequisites](readmme.md) are installed, the following `cmake` command can be used to build a minimum version of *OpenCV*:
+When all other required [prerequisites](readme.md) are installed, the following `cmake` command can be used to build a minimum version of *OpenCV*:
 
 `cmake -D OPENCV_EXTRA_MODULES_PATH=../opencv_contrib-4.1.0/modules -D BUILD_LIST=calib3d,features2d,flann,highgui,imgcodecs,imgproc,ml,objdetect,sfm,stereo,stitching,video,videoio,viz,xfeatures2d -D OPENCV_ENABLE_NONFREE=ON -D WITH_1394=OFF -D WITH_GSTREAMER=OFF -D WITH_IPP=OFF -D WITH_JASPER=OFF -D WITH_WEBP=OFF -D WITH_OPENEXR=OFF -D WITH_QT=ON -D WITH_TIFF=OFF -D WITH_OPENCL=OFF -D WITH_LAPACK=OFF -D BUILD_ITT=OFF -D WITH_PROTOBUF=OFF -D WITH_IMGCODEC_HDR=OFF -D WITH_IMGCODEC_SUNRASTER=OFF -D WITH_IMGCODEC_PFM=OFF -D WITH_QUIRC=OFF -D BUILD_opencv_apps=OFF -D BUILD_DOCS=OFF -D BUILD_PACKAGE=OFF -D BUILD_JAVA=OFF -D ENABLE_PRECOMPILED_HEADERS=OFF -D OPENCV_GENERATE_PKGCONFIG=ON ../opencv-4.1.0/`
 
