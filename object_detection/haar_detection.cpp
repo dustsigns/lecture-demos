@@ -1,5 +1,5 @@
 //Illustration of Haar features for object detection
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -129,7 +129,7 @@ static double SetCurrentPosition(haar_data &data, const Point &top_left, const b
 static Mat_<double> PerformSearch(haar_data &data, const bool update_GUI = true)
 {
   constexpr auto search_step_delay = 1; //Animation delay in ms
-  Mat_<double> score_map(data.original_image.size(), INFINITY);
+  Mat_<double> score_map(data.original_image.size(), std::numeric_limits<double>::infinity());
   for (int y = border_size; y <= data.original_image.cols - static_cast<int>(block_height + border_size); y++)
   {
     for (int x = border_size; x <= data.original_image.rows - static_cast<int>(block_width + border_size); x++)
@@ -161,6 +161,24 @@ static void SelectPointInImage(const int event, const int x, const int y, const 
         mouse_point.y <= data.original_image.rows - static_cast<int>(block_height + border_size)) //If the mouse is within the image area (minus the positions on the bottom which would lead to the block exceeding the borders)...
       SetCurrentPosition(data, mouse_point); //... set the current position according to the mouse position
   }
+}
+
+static Mat MakeColorMap(const Mat_<double> &diff_map)
+{
+  Mat color_map(diff_map.size(), CV_8UC3);
+  transform(diff_map.begin(), diff_map.end(), color_map.begin<Vec3b>(),
+            [](const double value) -> Vec3b
+              {
+                if (isinf(value))
+                  return 0.5 * White; //The border is gray
+                else if (value < detection_threshold) //Values below the threshold are more red the further away they are from the threshold
+                  return ((detection_threshold - value) / (2 * detection_threshold)) * Red; //0 is half-way, -threshold and below are full red
+                else if (value >= detection_threshold) //Values above the threshold are always 25% green and more green the further away they are from the threshold
+                  return 0.25 * Green + 0.75 * ((value - detection_threshold) / detection_threshold) * Green;
+                else
+                  return Black;
+              });
+  return color_map;
 }
 
 static void ShowImage(const Mat &feature_image, const Mat &image)
@@ -199,19 +217,7 @@ static void ShowImage(const Mat &feature_image, const Mat &image)
                                   {
                                     auto &data = *((haar_data * const)user_data);
                                     auto diff_map = PerformSearch(data, false);
-                                    Mat color_map(diff_map.size(), CV_8UC3);
-                                    transform(diff_map.begin(), diff_map.end(), color_map.begin<Vec3b>(),
-                                              [](const double value) -> Vec3b
-                                                {
-                                                  if (isinf(value))
-                                                    return 0.5 * White; //The border is gray
-                                                  else if (value < detection_threshold) //Values below the threshold are more red the further away they are from the threshold
-                                                    return ((detection_threshold - value) / (2 * detection_threshold)) * Red; //0 is half-way, -threshold and below are full red
-                                                  else if (value >= detection_threshold) //Values above the threshold are always 25% green and more green the further away they are from the threshold
-                                                    return 0.25 * Green + 0.75 * ((value - detection_threshold) / detection_threshold) * Green;
-                                                  else
-                                                    return Black;
-                                                });
+                                    const auto color_map = MakeColorMap(diff_map);
                                     constexpr auto map_window_name = "Difference map";
                                     namedWindow(map_window_name);
                                     moveWindow(map_window_name, data.original_image.cols + 3, 0); //Move difference window right of the main window (image size plus 3 border pixels)
