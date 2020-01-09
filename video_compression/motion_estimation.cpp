@@ -1,9 +1,10 @@
 //Illustration of motion estimation and motion compensation
-// Andreas Unterweger, 2016-2019
+// Andreas Unterweger, 2016-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
 #include <limits>
+#include <algorithm>
 #include <atomic>
 
 #include <opencv2/core.hpp>
@@ -57,13 +58,18 @@ static void HighlightBlock(Mat &image, const Rect &block, const Scalar &color)
   rectangle(image, block_with_border, color, border_size);
 }
 
-static Mat GetAnnotatedReferenceImage(const ME_data &data, Rect &searched_block)
+static Rect GetSearchedBlock(const ME_data &data)
+{
+  const Rect searched_block(data.reference_block.tl() + data.relative_search_position, data.reference_block.size());
+  return searched_block;
+}
+
+static Mat GetAnnotatedReferenceImage(const ME_data &data, const Rect &searched_block)
 {
   Mat annotated_reference_image;
   cvtColor(data.reference_image, annotated_reference_image, COLOR_GRAY2BGR);
   HighlightBlock(annotated_reference_image, data.search_area, Green);
   HighlightBlock(annotated_reference_image, data.reference_block, Blue);
-  searched_block = Rect(data.reference_block.tl() + data.relative_search_position, data.reference_block.size());
   HighlightBlock(annotated_reference_image, searched_block, Red); //Searched position
   return annotated_reference_image;
 }
@@ -76,16 +82,22 @@ static Mat GetAnnotatedImage(const ME_data &data)
   return annotated_image;
 }
 
-static Rect UpdateMotionEstimationImage(const ME_data &data)
+static Rect UpdateMotionEstimationImage(const ME_data &data, const bool update_GUI = true)
 {
-  const string status_text = "Motion vector: (" + to_string(data.relative_search_position.x) + ", " + to_string(data.relative_search_position.y) + ")";
-  displayOverlay(data.me_window_name, status_text, 1000);
-  displayStatusBar(data.me_window_name, status_text);
-  Rect searched_block;
-  const Mat annotated_reference_image = GetAnnotatedReferenceImage(data, searched_block);
-  const Mat annotated_image = GetAnnotatedImage(data);
-  const Mat combined_image = CombineImages({annotated_reference_image, annotated_image}, Horizontal);
-  imshow(data.me_window_name, combined_image);
+  if (update_GUI)
+  {
+    const string status_text = "Motion vector: (" + to_string(data.relative_search_position.x) + ", " + to_string(data.relative_search_position.y) + ")";
+    displayOverlay(data.me_window_name, status_text, 1000);
+    displayStatusBar(data.me_window_name, status_text);
+  }
+  const Rect searched_block = GetSearchedBlock(data);
+  if (update_GUI)
+  {
+    const Mat annotated_reference_image = GetAnnotatedReferenceImage(data, searched_block);
+    const Mat annotated_image = GetAnnotatedImage(data);
+    const Mat combined_image = CombineImages({annotated_reference_image, annotated_image}, Horizontal);
+    imshow(data.me_window_name, combined_image);
+  }
   return searched_block;
 }
 
@@ -99,24 +111,27 @@ static string GetDifferenceMetrics(const Mat &difference, double &representative
   return "SAD: " + FormatValue(YSAD) + ", SSD: " + FormatValue(YSSD) + ", MSE: " + FormatValue(YMSE) + ", Y-PSNR: " + FormatLevel(YPSNR);
 }
 
-static double UpdateMotionCompensationImage(const ME_data &data, const Rect &searched_block)
+static double UpdateMotionCompensationImage(const ME_data &data, const Rect &searched_block, const bool update_GUI = true)
 {
   const Mat searched_block_pixels = data.reference_image(searched_block);
   const Mat block_pixels = data.image(data.reference_block);
   const Mat compensated_block_pixels_16 = SubtractImages(searched_block_pixels, block_pixels);
   double difference_value;
   const string status_text = GetDifferenceMetrics(compensated_block_pixels_16, difference_value);
-  displayStatusBar(data.mc_window_name, status_text);
-  const Mat difference_image = ConvertDifferenceImage(compensated_block_pixels_16);
-  const Mat combined_image = CombineImages({searched_block_pixels, block_pixels, difference_image}, Horizontal, 1);
-  imshow(data.mc_window_name, combined_image);
+  if (update_GUI)
+  {
+    displayStatusBar(data.mc_window_name, status_text);
+    const Mat difference_image = ConvertDifferenceImage(compensated_block_pixels_16);
+    const Mat combined_image = CombineImages({searched_block_pixels, block_pixels, difference_image}, Horizontal, 1);
+    imshow(data.mc_window_name, combined_image);
+  }
   return difference_value;
 }
 
-static double UpdateImages(ME_data &data)
+static double UpdateImages(ME_data &data, const bool update_GUI = true)
 {
-  const Rect searched_block = UpdateMotionEstimationImage(data);
-  return UpdateMotionCompensationImage(data, searched_block); //TODO: Image of search range with illustration of SSD values
+  const Rect searched_block = UpdateMotionEstimationImage(data, update_GUI);
+  return UpdateMotionCompensationImage(data, searched_block, update_GUI);
 }
 
 static Rect LimitRect(const Rect &rect, const unsigned int distance)
@@ -124,10 +139,10 @@ static Rect LimitRect(const Rect &rect, const unsigned int distance)
   return Rect(rect.tl(), rect.size() - Size(distance - 1, distance -1)); //Shrink rectangle, but leave one pixel on the right and the bottom for the collision check to work (it considers the bottom-right pixels to be outside the rectangle)
 }
 
-static double SetMotionVector(ME_data &data, const Point &MV)
+static double SetMotionVector(ME_data &data, const Point &MV, const bool update_GUI = true)
 {
   data.relative_search_position = MV;
-  return UpdateImages(data);
+  return UpdateImages(data, update_GUI);
 }
 
 static Rect ExtendRect(const Point &center, const unsigned int border)
@@ -135,27 +150,58 @@ static Rect ExtendRect(const Point &center, const unsigned int border)
   return Rect(center.x - border, center.y - border, 2 * border, 2 * border);
 }
 
-static void PerformMotionEstimation(ME_data &data)
+static constexpr int search_limit = static_cast<int>(search_radius) - block_size / 2;
+static const Point search_index_offset(search_limit, search_limit);
+
+static Point MVToMatrixPosition(const Point &p)
+{
+  const Point pos = p + search_index_offset;
+  return pos;
+}
+
+static Point MatrixPositionToMV(const Point &p)
+{
+  const Point offset(search_limit, search_limit);
+  const Point pos = p - search_index_offset;
+  return pos;
+}
+
+static constexpr auto search_pixels = 2 * search_limit + 1;
+
+static Mat_<double> PerformMotionEstimation(ME_data &data, const bool update_GUI = true)
 {
   constexpr auto ME_step_delay = 10; //Animation delay in ms
-  const int search_limit = (int)search_radius - block_size / 2;
-  double lowest_cost = numeric_limits<double>::max();
-  Point best_MV;
+  Mat_<double> cost_map(search_pixels, search_pixels, std::numeric_limits<double>::infinity());
   for (int y = -search_limit; y <= search_limit; y++)
   {
     for (int x = -search_limit; x <= search_limit; x++)
     {
-      if (!data.running) //Skip the rest when the user aborts
-        return;
+      if (update_GUI && !data.running) //Skip the rest when the user aborts
+        return cost_map;
       const Point current_MV(x, y);
-      const double current_cost = SetMotionVector(data, current_MV);
-      waitKey(ME_step_delay);
-      lowest_cost = min(lowest_cost, current_cost);
-      if (current_cost == lowest_cost) //Save the best MV
-        best_MV = current_MV;
+      const double current_cost = SetMotionVector(data, current_MV, update_GUI);
+      cost_map(MVToMatrixPosition(current_MV)) = current_cost;
+      if (update_GUI)
+        waitKey(ME_step_delay);
     }
   }
-  SetMotionVector(data, best_MV);
+  return cost_map;
+}
+
+static void SetBestMV(ME_data &data, const Mat_<double> &cost_map)
+{
+  assert(!cost_map.empty());
+  const auto min_it = min_element(cost_map.begin(), cost_map.end());
+  const auto min_position = min_it.pos();
+  const auto min_MV = MatrixPositionToMV(min_position);
+  SetMotionVector(data, min_MV);
+}
+
+static Mat MakeGrayscaleMap(const Mat_<double> &cost_map)
+{
+  Mat grayscale_map(cost_map.size(), CV_8UC1);
+  normalize(cost_map, grayscale_map, 0, 255, NORM_MINMAX, CV_8UC1); //Shift and scale the map values so that the minimum becomes 0 and the maximum becomes 255
+  return grayscale_map;
 }
 
 static void ShowImages(const Mat &reference_image, const Mat &image, const Point &block_center)
@@ -186,7 +232,9 @@ static void ShowImages(const Mat &reference_image, const Mat &image, const Point
                                         if (!data.running)
                                         {
                                           data.running = true;
-                                          PerformMotionEstimation(data);
+                                          const auto cost_map = PerformMotionEstimation(data);
+                                          if (data.running) //If the user did not abort...
+                                            SetBestMV(data, cost_map); //... set the best MV from the search
                                           data.running = false;
                                         }
                                       }, (void*)&data, QT_PUSH_BUTTON);
@@ -196,6 +244,31 @@ static void ShowImages(const Mat &reference_image, const Mat &image, const Point
                                      auto &data = *((ME_data * const)user_data);
                                      data.running = false;
                                    }, (void*)&data, QT_PUSH_BUTTON);
+  constexpr auto map_button_name = "Show map of costs";
+  createButton(map_button_name, [](const int, void * const user_data)
+                                  {
+                                    auto &data = *((ME_data * const)user_data);
+                                    if (data.running) //Abort when the ME is already running
+                                      return;
+                                    auto cost_map = PerformMotionEstimation(data, false);
+                                    const auto grayscale_map = MakeGrayscaleMap(cost_map);
+                                    constexpr auto map_window_name = "Cost map (SSD values)";
+                                    namedWindow(map_window_name, WINDOW_NORMAL); //Disable auto-size to enable zooming
+                                    resizeWindow(map_window_name, search_pixels * 10, search_pixels * 10); //10x zoom
+                                    moveWindow(map_window_name, 2 * data.image.cols + 3 + 3, block_size * 30 + 3 + 50); //Move right beside ME window (offsets see above) and below MC window (zoomed image plus 3 border pixels plus additional distance)
+                                    imshow(map_window_name, grayscale_map);
+                                    setMouseCallback(map_window_name, 
+                                                     [](const int event, const int x, const int y, const int, void * const userdata)
+                                                        {
+                                                          auto &data = *((ME_data * const)userdata);
+                                                          if (!data.running && event == EVENT_LBUTTONUP) //Only react when the left mouse button is being pressed while no motion estimation is running
+                                                          {
+                                                            const Point mouse_point(x, y);
+                                                            const Point MV = MatrixPositionToMV(mouse_point);
+                                                            SetMotionVector(data, MV);
+                                                          }
+                                                        }, (void*)&data);
+                                  }, (void*)&data, QT_PUSH_BUTTON);
   SetMotionVector(data, Point()); //Set MV to (0, 0) (implies imshow)
 }
 

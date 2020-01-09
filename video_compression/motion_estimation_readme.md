@@ -19,9 +19,9 @@ In order to code a block (indicated by a blue rectangle in the *Motion estimatio
 Usage
 -----
 
-Change the motion vector (see parameters below) to see the different resulting residuals and their sum of squared differences (SSDs). Start the automatic motion estimation process (see actions below) to see all possible blocks and subsequently the best match, i.e., the one whose residual yields the smallest SSD. For the default program parameters, observe that the found block is very similar to the original block and thus the residual to be coded is very small.
+Change the motion vector (see parameters below) to see the different resulting residuals and their sum of squared differences (SSDs). Start the automatic motion estimation process (see actions below) to see all possible blocks and subsequently the best match, i.e., the one whose residual yields the smallest SSD. For the default program parameters, observe that the found block is very similar to the original block and thus the residual to be coded is very small. The cost map (see actions below) illustrates the distribution of SSD values among all possible block positions.
 
-![Screenshot after performing motion estimation](../screenshots/motion_estimation_perform.png)
+![Screenshot after performing motion estimation and showing the cost map](../screenshots/motion_estimation_perform.png)
 
 Available actions
 -----------------
@@ -40,11 +40,12 @@ Program parameters
 * **Reference image**: File path of the frame to perform motion estimation in.
 * **Input image**: File path of the frame containing the block to be coded, i.e., whose pixels to search for. *Note: Only a small block of the image is used for searching.*
 * **Block center coordinates**: Center X and Y coordinates of the block from the input image to search.
+* **Show cost map**: Iterates through all valid block positions at once, i.e., without intermediate visualizations, and shows a map of costs (SSD) after finishing. Dark pixels indicate block positions with low costs, while bright pixels indicate the opposite. Clicking on pixels in the map sets the block position (motion vector) in the main window (see interactive parameters above). *Note: The map will not be computed during a running ME.*
 
 Hard-coded parameters
 ---------------------
 
-* `search_radius`: Number of pixels in each direction around the original block used for motion estimation.
+* `search_radius`: Number of pixels in each direction around the original block (center) used for motion estimation.
 * `block_size`: x and y dimension of the block used for the search.
 * `border_size`: Width of the borders highlighting the blocks. *Note: Larger values might make it difficult to see where the inner and outer parts of a highlighted block are exactly.*
 * `ME_step_delay` (local to `PerformMotionEstimation`): Delay in milliseconds between consecutive motion vector positions for the automatic motion estimation process.
@@ -58,7 +59,7 @@ Known issues
 Missing features
 ----------------
 
-* **Cost map illustration**: There is no option to illustrate the SSD values of all possible search positions in a separate window.
+None
 
 License
 -------
