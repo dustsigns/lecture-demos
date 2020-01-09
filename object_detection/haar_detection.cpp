@@ -216,6 +216,8 @@ static void ShowImage(const Mat &feature_image, const Mat &image)
   createButton(map_button_name, [](const int, void * const user_data)
                                   {
                                     auto &data = *((haar_data * const)user_data);
+                                    if (data.running) //Abort when the search is already running
+                                      return;
                                     auto diff_map = PerformSearch(data, false);
                                     const auto color_map = MakeColorMap(diff_map);
                                     constexpr auto map_window_name = "Difference map";

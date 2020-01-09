@@ -17,7 +17,7 @@ In order to detect basic objects in an image (window *Image with objects to dete
 Usage
 -----
 
-Change the window position (see parameters below) to see the different resulting feature values. Start the automatic search process (see actions below) to see all positions where objects can be found, i.e., the ones where the feature value of the window exceeds the pre-defined threshold (highlighted in green). For the default program parameters, observe that the region around the eyes contains several successful detections, while few other regions exhibit detections which do not contain pairs of eyes. The map of differences (see actions below) highlights allows for distinguishing these areas by color.
+Change the window position (see parameters below) to see the different resulting feature values. Start the automatic search process (see actions below) to see all positions where objects can be found, i.e., the ones where the feature value of the window exceeds the pre-defined threshold (highlighted in green). For the default program parameters, observe that the region around the eyes contains several successful detections, while few other regions exhibit detections which do not contain pairs of eyes. The map of differences (see actions below) allows for distinguishing these areas by color.
 
 ![Screenshot after selecting a region around the eyes](../screenshots/haar_detection_eyes.png)
 
@@ -27,7 +27,7 @@ Available actions
 * **Clear detections** (button): Removes all successful detections (green windows) found so far.
 * **Search whole image** (button): Iterates through all valid window positions and highlights all detections in the process. *Note: Starting always restarts the process from the top-left-most position.*
 * **Stop search** (button): Halts the process initiated by *Search whole image* without removing the successful detections. *Note: Stopping after completion or when the process has not been started yet does not do anything.*
-* **Show map of differences**: Iterates through all valid window positions at once, i.e., without intermediate visualizations, and shows a map of differences after finishing. Green pixels indicate window positions which are successful detections, while red pixels indicate the opposite. The stronger the color is, the further away the computed difference is from the pre-defined threshold. Clicking on pixels in the map sets the window position in the main window (see interactive parameters below). *Note: Computing the map might take some time initially.*
+* **Show map of differences**: Iterates through all valid window positions at once, i.e., without intermediate visualizations, and shows a map of differences after finishing. Green pixels indicate window positions which are successful detections, while red pixels indicate the opposite. The stronger the color is, the further away the computed difference is from the pre-defined threshold. Clicking on pixels in the map sets the window position in the main window (see interactive parameters below). *Note: Computing the map might take some time initially. The map will not be computed during a running search.*
 
 Interactive parameters
 ----------------------
