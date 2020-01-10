@@ -22,7 +22,7 @@ Prerequisites
 These demonstrations require
 
 * A C++14 compiler, e.g., recent versions of *g++*,
-* [*OpenCV* 4.1.0](https://github.com/opencv/opencv/archive/4.1.0.zip) with the `viz` module, *QT* support, `pkg-config` support and non-free modules enabled as well as the [contributed modules](https://github.com/opencv/opencv_contrib/archive/4.1.0.zip) `xfeatures2d`, `stitching` and `sfm` included (see [recommended build command](opencv_config.md)),
+* [*OpenCV* 4.2.0](https://github.com/opencv/opencv/archive/4.2.0.zip) with the `viz` module, *QT* support, `pkg-config` support and non-free modules enabled as well as the [contributed modules](https://github.com/opencv/opencv_contrib/archive/4.2.0.zip) `xfeatures2d`, `stitching` and `sfm` included (see [recommended build command](opencv_config.md)),
 * [*libao*  1.2.0](http://downloads.xiph.org/releases/ao/libao-1.2.0.zip) with *ALSA* output for all audio-related demonstrations, and
 * *make*, *gdb* and *pkg-config*.
 
