@@ -1,5 +1,5 @@
 //Illustration of SIFT matching for finding a perspective transform
-// Andreas Unterweger, 2019
+// Andreas Unterweger, 2019-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -7,7 +7,6 @@
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
-#include <opencv2/xfeatures2d.hpp>
 #include <opencv2/calib3d.hpp>
 #include <opencv2/imgproc.hpp>
 
@@ -17,7 +16,6 @@
 using namespace std;
 
 using namespace cv;
-using namespace cv::xfeatures2d;
 
 using namespace imgutils;
 
