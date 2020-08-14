@@ -46,11 +46,9 @@ static Mat CompressImage(const Mat &image, const unsigned char quality, unsigned
 
 static Mat GetYChannelFromRGBImage(const Mat &image)
 {
-  Mat image_ycrcb;
-  cvtColor(image, image_ycrcb, COLOR_BGR2YCrCb); //Convert to YCbCr color space
-  Mat ycrcb_image_parts[3]; //TODO: Avoid the splitting overhead (is there a direct conversion?)
-  split(image_ycrcb, ycrcb_image_parts);
-  return ycrcb_image_parts[0]; //Extract Y channel (ignore Cr and Cb)
+  Mat gray;
+  cvtColor(image, gray, COLOR_BGR2GRAY); //Identical to COLOR_BGR2YCrCb with just the luma channel (see https://docs.opencv.org/master/de/d25/imgproc_color_conversions.html#color_convert_rgb_ycrcb)
+  return gray;
 }
 
 static void ShowDifferenceImage(const string &window_name, const Mat &image, const Mat &compressed_image)
