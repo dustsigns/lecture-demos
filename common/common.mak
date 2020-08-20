@@ -1,5 +1,5 @@
 #Common base for all Makefiles
-# Andreas Unterweger, 2016-2018
+# Andreas Unterweger, 2016-2020
 #This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #The directory that this file is contained in ($(CURDIR) does not change on include)
@@ -36,8 +36,7 @@ endif
 ifneq ($(filter 3d,$(PARTS)),)
   SRCDEP += $(wildcard $(COMMONPATH)/3dutils/*.cpp)
   CXXFLAGS += -I$(COMMONPATH)/3dutils
-  LIBS += opencv4 eigen3
-  #TODO: Remove eigen3 as soon as it is added as a dependency in OpenCV's pkg-config file
+  LIBS += opencv4
 endif
 OBJDEP := $(SRCDEP:.cpp=.o)
 

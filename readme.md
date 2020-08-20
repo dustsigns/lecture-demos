@@ -61,11 +61,6 @@ Sample files
 
 These demonstrations come with a set of sample files. They are located in the [testdata/](testdata/) directory and grouped into subfolders by type. For each type, a file named `sources.txt` lists the source (URL) for all sample files and optional instructions on how to convert them to the format they are in. If there are no sample files in the [testdata/](testdata/) directory, the instructions can be used to (re-)create them. *Note: Some conversions require special software. For convenience, their Ubuntu package names are specified so that they can be installed before executing the commands.*
 
-Known issues
-------------
-
-* **Additional *Eigen* 3 dependency** (*OpenCV* bug): *Eigen* 3 is manually added as a dependency for some demonstrations since *OpenCV*'s *pkg-config* file does not include it (see [*OpenCV* issue #10942](https://github.com/opencv/opencv/issues/10942)). *Note: This does not impact the functionality of the demonstrations. The provided Makefile works around this issue, but might not work with future versions of *OpenCV*.*
-
 License
 -------
 
