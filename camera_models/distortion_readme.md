@@ -5,7 +5,7 @@ Non-linear distortion
 
 **Author**: Andreas Unterweger
 
-**Status**: Work in progress (internal bugs unfixed and features missing)
+**Status**: Done
 
 Overview
 --------
@@ -24,16 +24,15 @@ Change the distortion coefficients (see parameters below) to see the distorted i
 Available actions
 -----------------
 
-None
+* **Reset** (button): Sets all coefficients to zero (0).
 
 Interactive parameters
 ----------------------
 
-* **k1** (track bar in the *Undistorted vs. distorted* window): Allows changing the quadratic radial distortion coefficient between -100 (for negative coefficients) and 100 with a scaling factor of 10^(-7).
-* **k2** (track bar in the *Undistorted vs. distorted* window): Allows changing the quartic (bi-quadratic) radial distortion coefficient between -100 (for negative coefficients) and 100 with a scaling factor of 10^(-10).
-* **p1** (track bar in the *Undistorted vs. distorted* window): Allows changing the quadratic tangential distortion coefficient between -100 (for negative coefficients) and 100 with a scaling factor of 10^(-5).
-* **p2** (track bar in the *Undistorted vs. distorted* window): Allows changing the linear tangential distortion coefficient between -100 (for negative coefficients) and 100 with a scaling factor of 10^(-5).
-* **Negative distortion coefficients** (check box): Allows setting all distortion coefficients to their negative counterparts, e.g., 10 to -10, if checked.
+* **k1*10^(-7)** (track bar in the *Undistorted vs. distorted* window): Allows changing the quadratic radial distortion coefficient between -100 and 100 with a scaling factor of 10^(-7).
+* **k2*10^(-10)** (track bar in the *Undistorted vs. distorted* window): Allows changing the quartic (bi-quadratic) radial distortion coefficient between -100 and 100 with a scaling factor of 10^(-10).
+* **p1*10^(-5)** (track bar in the *Undistorted vs. distorted* window): Allows changing the quadratic tangential distortion coefficient between -100 and 100 with a scaling factor of 10^(-5).
+* **p2*10^(-5)** (track bar in the *Undistorted vs. distorted* window): Allows changing the linear tangential distortion coefficient between -100 and 100 with a scaling factor of 10^(-5).
 
 Program parameters
 ------------------
@@ -43,17 +42,20 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-None. *Note: The scaling factors for the coefficients are hard-coded, but the range of meaningful values is very limited. Thus, it is not recommended to change the scaling factors explicitly.*
+* `max_negative_value` (local to `AddControls`): Absolute value of the minimum coefficient value that can be set via the trackbars
+* `max_positive_value` (local to `AddControls`): The maximum coefficient value that can be set via the trackbars
+
+*Note: The scaling factors for the coefficients are hard-coded, but the range of meaningful values is very limited. Thus, it is not recommended to change the scaling factors explicitly.*
 
 Known issues
 ------------
 
-* **Use of `undistort`**: The `undistort` function is used instead of a `distort` function to calculate the distorted image, potentially showing incorrect results. There is a `distortPoints` function in *OpenCV's* `fisheye` namespace, but its use is unclear (see [*OpenCV* issue #10947](https://github.com/opencv/opencv/issues/10947)).
+* **Use of `undistort`**: The `undistort` function is used instead of a `distort` function to calculate the distorted image, potentially showing incorrect results. However, the current implementation illustrates the basic effect of the parameters well enough in principle.
 
 Missing features
 ----------------
 
-* **Scaling factors are not displayed**: The naming convention of the distortion coefficients follows that of [*OpenCV*'s model parameters](https://docs.opencv.org/3.4.0/d9/d0c/group__calib3d.html) and does not explicitly show the scaling factors.
+None
 
 License
 -------

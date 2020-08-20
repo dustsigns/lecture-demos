@@ -1,5 +1,5 @@
 //Illustration of non-linear lense distortion
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -17,17 +17,37 @@ using namespace cv;
 
 using namespace imgutils;
 
+struct distortion_coefficient
+{
+  const string name;
+  const int scaling_factor;
+  
+  int value;
+  
+  distortion_coefficient(const string &name, const double scaling_factor) 
+   : name(name), scaling_factor(scaling_factor),
+     value(0) { }
+  
+  double GetCoefficientValue() const
+  {
+    return value * pow(10, scaling_factor);
+  }
+};
+
+static constexpr auto number_of_coefficients = 4; //Number of coefficients supported by the undistort function below
+
 struct distortion_data
 {
   const Mat image;
-  int k1, k2, p1, p2;
-  bool negative_coefficients;
+  array<distortion_coefficient, number_of_coefficients> distortion_coefficients {distortion_coefficient("k1", -7),
+                                                                                 distortion_coefficient("k2", -10),
+                                                                                 distortion_coefficient("p1", -5),
+                                                                                 distortion_coefficient("p2", -5)};
   
   const string window_name;
   
   distortion_data(const Mat &image, const string &window_name)
    : image(image),
-     k1(0), k2(0), p1(0), p2(0), negative_coefficients(false),
      window_name(window_name) { }
 };
 
@@ -39,34 +59,56 @@ static Mat GetStandardCameraMatrix(Size2i image_size)
   return camera_matrix;
 }
 
+template<size_t... Is>
+static constexpr array<double, sizeof...(Is)> GetCoefficientArray(const array<distortion_coefficient, sizeof...(Is)> &coeffs, const index_sequence<Is...>&)
+{
+  return {{ coeffs[Is].GetCoefficientValue()... }}; //Continued in this pattern for every available index/coefficient
+}
+
+static array<double, number_of_coefficients> GetCoefficients(const array<distortion_coefficient, number_of_coefficients> &coeffs)
+{
+  return GetCoefficientArray(coeffs, make_index_sequence<number_of_coefficients>{}); //Create coefficients by iterating through all (coefficient) array indices
+}
+
 static void ShowDistortedImages(const int, void * const user_data)
 {
   auto &data = *((const distortion_data * const)user_data);
   const Mat &image = data.image;
-  const array<double, 4> distortion_vector { data.k1 * 1e-7, data.k2 * 1e-10, data.p1 * 1e-5, data.p2 * 1e-5 }; //TODO: Display scaling factors
+  const auto distortion_vector = GetCoefficients(data.distortion_coefficients);
   const auto standard_camera_matrix = GetStandardCameraMatrix(image.size());
   Mat distorted_image;
-  if (data.negative_coefficients) //TODO: Is there a (working!) distort function (unlike the one in the fisheye namespace) which actually inverts the process?
-    undistort(image, distorted_image, standard_camera_matrix, -Mat(distortion_vector));
-  else
-    undistort(image, distorted_image, standard_camera_matrix, distortion_vector);
+  undistort(image, distorted_image, standard_camera_matrix, distortion_vector);
   const Mat combined_image = CombineImages({image, distorted_image}, Horizontal);
   imshow(data.window_name, combined_image);
 }
 
-static const char *AddControls(distortion_data &data)
+static string GetTrackbarTitle(const distortion_coefficient &coeff)
 {
-  createTrackbar("k1", data.window_name, &data.k1, 100, ShowDistortedImages, (void*)&data);
-  createTrackbar("k2", data.window_name, &data.k2, 100, ShowDistortedImages, (void*)&data);
-  createTrackbar("p1", data.window_name, &data.p1, 100, ShowDistortedImages, (void*)&data);
-  createTrackbar("p2", data.window_name, &data.p2, 100, ShowDistortedImages, (void*)&data);
-  createButton("Negative distortion coefficients", [](const int state, void * const user_data)
-                                                     {
-                                                       auto &data = *((distortion_data * const)user_data);
-                                                       data.negative_coefficients = state != 0;
-                                                       ShowDistortedImages(state, user_data);
-                                                     }, (void*)&data, QT_CHECKBOX);
-  return "k1";
+  return coeff.name + "*10^(" + to_string(coeff.scaling_factor) + ")";
+}
+
+static string AddControls(distortion_data &data)
+{
+  constexpr auto max_negative_value = 100;
+  constexpr auto max_positive_value = 100;
+  
+  for (auto &coeff : data.distortion_coefficients)
+  {
+    const auto title = GetTrackbarTitle(coeff);
+    createTrackbar(title, data.window_name, &coeff.value, max_negative_value + max_positive_value, ShowDistortedImages, (void*)&data);
+    setTrackbarMin(title, data.window_name, -max_negative_value);
+    setTrackbarMax(title, data.window_name, max_positive_value);
+  }
+  createButton("Reset", [](const int, void * const user_data)
+                          {
+                            auto &data = *((distortion_data * const)user_data);
+                            for (auto &coeff : data.distortion_coefficients)
+                            {
+                              const auto title = GetTrackbarTitle(coeff);
+                              setTrackbarPos(title, data.window_name, 0);
+                            }
+                          }, (void*)&data, QT_PUSH_BUTTON);
+  return GetTrackbarTitle(data.distortion_coefficients[0]);
 }
 
 static void ShowImages(const Mat &image)
@@ -76,7 +118,7 @@ static void ShowImages(const Mat &image)
   moveWindow(window_name, 0, 0);
   static distortion_data data(image, window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
   const auto main_parameter_trackbar_name = AddControls(data);
-  setTrackbarPos(main_parameter_trackbar_name, window_name, 50); //Implies imshow with k1 = 5e-6
+  setTrackbarPos(main_parameter_trackbar_name, window_name, 50); //Implies imshow with 50% of the first coefficient set
 }
 
 int main(const int argc, const char * const argv[])
