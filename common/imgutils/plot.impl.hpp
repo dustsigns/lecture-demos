@@ -13,8 +13,8 @@ namespace imgutils
   using namespace cv;
 
   template<typename T>
-  PointSet::PointSet(const vector<T> &y_coordinates, const double x_scale, const Vec3b &point_color, const bool interconnect_points, const bool draw_samples, const bool draw_sample_bars, const unsigned int line_width)
-   : point_color(point_color), interconnect_points(interconnect_points), draw_samples(draw_samples), draw_sample_bars(draw_sample_bars),
+  PointSet::PointSet(const vector<T> &y_coordinates, const double x_scale, const Vec3b &point_color, const bool interconnect_points, const bool draw_sample_bars, const unsigned int line_width)
+   : point_color(point_color), interconnect_points(interconnect_points), draw_sample_bars(draw_sample_bars),
      line_width(line_width)
   {
     size_t i = 0;

@@ -73,7 +73,7 @@ static Mat PlotHistograms(const histogram_data &data)
     vector<float> histogram;
     GetChannelHistogram(plane, data.number_of_bins, histogram);
     const auto bin_size = 256.0 / data.number_of_bins; //Size of each bin
-    PointSet pointset(histogram, bin_size, color, false, true, false, data.image.rows / data.number_of_bins - 1); //Don't interconnect points, but draw samples without sample bars instead
+    PointSet pointset(histogram, bin_size, color, false, false, data.image.rows / data.number_of_bins - 1); //Don't interconnect points, but draw rectangles (samples without sample bars and a width proportional to the bin size) instead
     histograms.push_back(pointset);
   }
   Plot plot(histograms);

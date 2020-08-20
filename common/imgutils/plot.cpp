@@ -20,8 +20,8 @@ namespace imgutils
   
   using namespace comutils;
 
-  PointSet::PointSet(const vector<Point2d> &points, const Vec3b &point_color, const bool interconnect_points, const bool draw_samples, const bool draw_sample_bars, const unsigned int line_width)
-   : points(points), point_color(point_color), interconnect_points(interconnect_points), draw_samples(draw_samples), draw_sample_bars(draw_sample_bars),
+  PointSet::PointSet(const vector<Point2d> &points, const Vec3b &point_color, const bool interconnect_points, const bool draw_sample_bars, const unsigned int line_width)
+   : points(points), point_color(point_color), interconnect_points(interconnect_points), draw_sample_bars(draw_sample_bars),
      line_width(line_width) { }
    
   Tick::Tick(const double position, const string &text, const bool text_visible) : position(position), text(text), text_visible(text_visible) { }
@@ -109,14 +109,14 @@ namespace imgutils
     plotting = true;
   }
   
-  Point Plot::ConvertPoint(const Point2d &point) const
+  Point Plot::ConvertPoint(const Point2d &point, const unsigned int additional_scaling_factor) const
   {
     assert(plotting); //If autoscaling is enabled, the parameters have had to be set so that they are sane
     Point2d converted_point(point - min_point);
     converted_point.x *= scaling_factor.width;
     converted_point.y *= scaling_factor.height;
-    const Point integer_point(converted_point.x, height - 1 - converted_point.y); //Y axis is inverted (image would be upside down unless corrected)
-    assert(integer_point.x >= 0 && integer_point.y >= 0 && integer_point.x < (int)width && integer_point.y < (int)height);
+    const Point integer_point(converted_point.x * additional_scaling_factor, (height - 1 - converted_point.y) * additional_scaling_factor); //Y axis is inverted (image would be upside down unless corrected)
+    assert(integer_point.x >= 0 && integer_point.y >= 0 && integer_point.x < static_cast<int>(width * additional_scaling_factor) && integer_point.y < static_cast<int>(height * additional_scaling_factor));
     return integer_point;
   }
   
@@ -129,8 +129,7 @@ namespace imgutils
   {
     const auto difference = to - from;
     const auto arrow_length = sqrt(difference.ddot(difference)); //Length is square root of inner product
-    arrowedLine(image, from, to, color, 1, LINE_4, 0, arrow_size / arrow_length); //Work around bug where tip pixels are not drawn when using anti-aliasing
-    arrowedLine(image, from, to, color, 1, LINE_AA, 0, arrow_size / arrow_length); //TODO: Get rid of extra drawing with LINE_4
+    arrowedLine(image, from, to, color, 1, LINE_AA, 0, arrow_size / arrow_length);
   }
   
   void Plot::DrawLabel(Mat_<Vec3b> &image, const string &text, const Point &point, const TextAlignment alignment, const Vec3b &color) const
@@ -189,21 +188,29 @@ namespace imgutils
     {
       const auto &points = point_set.points;
       vector<Point> converted_points(points.size());
-      transform(points.begin(), points.end(), converted_points.begin(), [this](const Point2d &point)
-                                                                              {
-                                                                                return this->ConvertPoint(point);
-                                                                              });
       if (point_set.interconnect_points) //Draw line from points
-        polylines(image, converted_points, false, point_set.point_color, 1, LINE_AA); //TODO: Shift coordinates by one bit each for half-pixel accuracy
-      if (point_set.draw_samples) //Draw each sample
       {
+        constexpr auto additional_accuracy_bits = 2u; //Quarter-pixel accuracy (2 bits)
+        constexpr auto additional_accuracy_factor = 1u << additional_accuracy_bits;
+        transform(points.begin(), points.end(), converted_points.begin(), [this](const Point2d &point)
+                                                                                {
+                                                                                  return this->ConvertPoint(point, additional_accuracy_factor);
+                                                                                });
+        polylines(image, converted_points, false, point_set.point_color, 1, LINE_AA, additional_accuracy_bits); //Shift coordinates by multiple bits each for fractional pixel accuracy
+      }
+      else //Separate points (samples)
+      {
+        transform(points.begin(), points.end(), converted_points.begin(), [this](const Point2d &point)
+                                                                                {
+                                                                                  return this->ConvertPoint(point);
+                                                                                });
         for (const auto &point : converted_points)
         {
           const Point origin = ConvertPoint(Point2d(0, 0));
           const Point value_axis_position(point.x, origin.y);
           if (point_set.line_width == 1 || point_set.draw_sample_bars)
             line(image, value_axis_position, point, point_set.point_color, point_set.line_width); //Axis to point
-          else
+          else //Filled rectangle
           {
             const Point rect_start(value_axis_position.x, value_axis_position.y);
             const Point rect_end(point.x + point_set.line_width, point.y);

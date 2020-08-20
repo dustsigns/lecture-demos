@@ -27,19 +27,17 @@ namespace imgutils
       Vec3b point_color;
       //Determines whether the points are interconnected by lines when visualized
       bool interconnect_points;
-      //Determines whether the points are illustrated as sampling values when visualized
-      bool draw_samples;
-      //Determines whether sample bars at drawn at the points when draw_samples is enabled
+      //Determines whether sample bars are drawn at the points when interconnect_points is disabled
       bool draw_sample_bars;
       
-      //Determines the width of the line used when drawing lines for this point set, e.g., during interconnecting
+      //Determines the width of the line used when drawing lines for this point set, e.g., during interconnecting. When draw_sample_bars is disabled, a line_width greater than 1 will draw a rectangle
       unsigned int line_width;
     
       //Creates a new point set from the given points with the specified visualization parameters
-      PointSet(const vector<Point2d> &points, const Vec3b &point_color = Vec3b(0, 0, 255), const bool interconnect_points = true, const bool draw_samples = false, const bool draw_sample_bars = true, const unsigned int line_width = 1);
+      PointSet(const vector<Point2d> &points, const Vec3b &point_color = Vec3b(0, 0, 255), const bool interconnect_points = true, const bool draw_sample_bars = true, const unsigned int line_width = 1);
       //Creates a new point set from the given Y coordinates with the specified visualization parameters. The corresponding X coordinates are assumed to be 0..(points.size()-1) * x_scale.
       template<typename T>
-      PointSet(const vector<T> &y_coordinates, const double x_scale = 1.0, const Vec3b &point_color = Vec3b(0, 0, 255), const bool interconnect_points = true, const bool draw_samples = false, const bool draw_sample_bars = true, const unsigned int line_width = 1);
+      PointSet(const vector<T> &y_coordinates, const double x_scale = 1.0, const Vec3b &point_color = Vec3b(0, 0, 255), const bool interconnect_points = true, const bool draw_sample_bars = true, const unsigned int line_width = 1);
   };
   
   //Represents an axis mark with its position, associated text and the information whether the latter should be displayed
@@ -104,7 +102,7 @@ namespace imgutils
       Size2d scaling_factor;
       
       void SetMinMaxPoints();
-      Point ConvertPoint(const Point2d &point) const;
+      Point ConvertPoint(const Point2d &point, const unsigned int additional_scaling_factor = 1) const;
       void SetPlottingContext(const unsigned int width, const unsigned int height);
       void DrawArrow(Mat_<Vec3b> &image, const Point &from, const Point &to, const Vec3b &color) const;
       void DrawLabel(Mat_<Vec3b> &image, const string &text, const Point &point, const TextAlignment alignment, const Vec3b &color) const;
