@@ -1,5 +1,5 @@
 //Illustration of chrominance subsampling
-// Andreas Unterweger, 2016-2019
+// Andreas Unterweger, 2016-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -28,10 +28,10 @@ struct color_format
    : name(name), conversion_id(conversion_id), back_conversion_id(back_conversion_id) { }
 };
 
-static const color_format color_formats[] {{"4:4:4", COLOR_BGR2YUV, COLOR_YUV2BGR},
-                                           {"4:2:0", COLOR_BGR2YUV_I420, COLOR_YUV2BGR_I420},
-                                           /*{"4:2:2", COLOR_BGR2YUV_Y422, COLOR_YUV2BGR_Y422},*/ //TODO: Find a conversion ID for BGR to YCbCr 4:2:2 and change order
-                                           {"4:0:0", COLOR_BGR2GRAY, COLOR_GRAY2BGR}};
+static const color_format color_formats[] {color_format("4:4:4", COLOR_BGR2YUV, COLOR_YUV2BGR),
+                                           color_format("4:2:0", COLOR_BGR2YUV_I420, COLOR_YUV2BGR_I420),
+                                           /*color_format("4:2:2", COLOR_BGR2YUV_Y422, COLOR_YUV2BGR_Y422)*/ //TODO: Find a conversion ID for BGR to YCbCr 4:2:2 and change order
+                                           color_format("4:0:0", COLOR_BGR2GRAY, COLOR_GRAY2BGR)};
 
 const auto &default_color_format = color_formats[1]; //4:2:0 by default
 
