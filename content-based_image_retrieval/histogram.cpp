@@ -1,5 +1,5 @@
 //Illustration of image histograms
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -73,7 +73,7 @@ static Mat PlotHistograms(const histogram_data &data)
     vector<float> histogram;
     GetChannelHistogram(plane, data.number_of_bins, histogram);
     const auto bin_size = 256.0 / data.number_of_bins; //Size of each bin
-    PointSet pointset(histogram, bin_size, color, false, true, false); //Don't interconnect points, but draw samples without sample bars instead //TODO: Visualize bin size in terms of width
+    PointSet pointset(histogram, bin_size, color, false, true, false, data.image.rows / data.number_of_bins - 1); //Don't interconnect points, but draw samples without sample bars instead
     histograms.push_back(pointset);
   }
   Plot plot(histograms);

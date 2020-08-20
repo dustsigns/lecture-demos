@@ -1,5 +1,5 @@
 //Helper class for plotting points and lines (header)
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -36,10 +36,10 @@ namespace imgutils
       unsigned int line_width;
     
       //Creates a new point set from the given points with the specified visualization parameters
-      PointSet(const vector<Point2d> &points, const Vec3b &point_color = Vec3b(0, 0, 255), const bool interconnect_points = true, const bool draw_samples = false, const bool draw_sample_bars = true);
+      PointSet(const vector<Point2d> &points, const Vec3b &point_color = Vec3b(0, 0, 255), const bool interconnect_points = true, const bool draw_samples = false, const bool draw_sample_bars = true, const unsigned int line_width = 1);
       //Creates a new point set from the given Y coordinates with the specified visualization parameters. The corresponding X coordinates are assumed to be 0..(points.size()-1) * x_scale.
       template<typename T>
-      PointSet(const vector<T> &y_coordinates, const double x_scale = 1.0, const Vec3b &point_color = Vec3b(0, 0, 255), const bool interconnect_points = true, const bool draw_samples = false, const bool draw_sample_bars = true);
+      PointSet(const vector<T> &y_coordinates, const double x_scale = 1.0, const Vec3b &point_color = Vec3b(0, 0, 255), const bool interconnect_points = true, const bool draw_samples = false, const bool draw_sample_bars = true, const unsigned int line_width = 1);
   };
   
   //Represents an axis mark with its position, associated text and the information whether the latter should be displayed
@@ -83,8 +83,13 @@ namespace imgutils
       //Sets the X and Y axes' labels
       void SetAxesLabels(const string &x_axis_label, const string &y_axis_label);
       
+      //Determines the default width of the output plot in pixels
+      static constexpr auto default_width = 640u;
+      //Determines the default height of the output plot in pixels
+      static constexpr auto default_height = 480u;
+      
       //Draws the plot onto an RGB image with 8 bits per channel. If autoscaling is deactivated, all plotted coordinates must be visible since no clipping is performed.
-      void DrawTo(Mat_<Vec3b> &rgb_image, const unsigned int width = 640, const unsigned height = 480);
+      void DrawTo(Mat_<Vec3b> &rgb_image, const unsigned int width = default_width, const unsigned int height = default_height);
     
     private:
       bool autoscale;

@@ -1,5 +1,5 @@
 //Helper class for plotting points and lines
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <algorithm>
@@ -20,9 +20,9 @@ namespace imgutils
   
   using namespace comutils;
 
-  PointSet::PointSet(const vector<Point2d> &points, const Vec3b &point_color, const bool interconnect_points, const bool draw_samples, const bool draw_sample_bars)
+  PointSet::PointSet(const vector<Point2d> &points, const Vec3b &point_color, const bool interconnect_points, const bool draw_samples, const bool draw_sample_bars, const unsigned int line_width)
    : points(points), point_color(point_color), interconnect_points(interconnect_points), draw_samples(draw_samples), draw_sample_bars(draw_sample_bars),
-     line_width(1) { }
+     line_width(line_width) { }
    
   Tick::Tick(const double position, const string &text, const bool text_visible) : position(position), text(text), text_visible(text_visible) { }
   
@@ -201,7 +201,14 @@ namespace imgutils
         {
           const Point origin = ConvertPoint(Point2d(0, 0));
           const Point value_axis_position(point.x, origin.y);
-          line(image, value_axis_position, point, point_set.point_color, point_set.line_width); //Axis to point
+          if (point_set.line_width == 1 || point_set.draw_sample_bars)
+            line(image, value_axis_position, point, point_set.point_color, point_set.line_width); //Axis to point
+          else
+          {
+            const Point rect_start(value_axis_position.x, value_axis_position.y);
+            const Point rect_end(point.x + point_set.line_width, point.y);
+            rectangle(image, rect_start, rect_end, point_set.point_color, FILLED);
+          }
           if (point_set.draw_sample_bars)
           {
             const Point bar_start(point.x - point_set.line_width / 2 - sample_bar_width / 2, point.y); //Left point of bar
