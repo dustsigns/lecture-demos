@@ -5,7 +5,7 @@ Non-linear distortion
 
 **Author**: Andreas Unterweger
 
-**Status**: Done
+**Status**: Complete
 
 Overview
 --------
