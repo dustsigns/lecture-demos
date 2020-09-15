@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <numeric>
 
 #include <opencv2/imgproc.hpp>
 
@@ -132,22 +133,36 @@ namespace imgutils
       const auto &max_tick = *min_max_x.second;
       const auto min_x = min_tick.position;
       const auto max_x = max_tick.position;
-      const bool any_label_visible = find_if(x_axis_ticks.begin(), x_axis_ticks.end(), [](const Tick &a) //Determine whether any label text is visible
-                                                                                         {
-                                                                                           return a.text_visible;
-                                                                                         }) != x_axis_ticks.end();
-      auto min_y_correction_px = tick_length / 2; //Tick length in both directions (half size each)
-      const auto max_y_correction_px = tick_length / 2;
-      if (any_label_visible)
+      if (min_tick.text_visible)
       {
         const auto min_tick_text_size = getTextSize(min_tick.text, label_font, label_font_size, 1, NULL);
+        const auto min_x_correction_px = min_tick_text_size.width / 2; //Consider width of first (centered) label
+        const coordinate_limits min_tick_limits(largest_coordinate, min_x, smallest_coordinate, min_x, min_x_correction_px, 0, 0, 0);
+        limits.push_back(min_tick_limits);
+      }
+      if (max_tick.text_visible)
+      {
         const auto max_tick_text_size = getTextSize(max_tick.text, label_font, label_font_size, 1, NULL);
-        const auto max_text_height = max(min_tick_text_size.height, max_tick_text_size.height);
-        min_y_correction_px += max_text_height;
-      }      
-      coordinate_limits x_ticks_limits(min_x, 0, max_x, 0, 0, min_y_correction_px, 0, max_y_correction_px);
+        const auto max_x_correction_px = max_tick_text_size.height / 2; //Consider width of last (centered) label
+        const coordinate_limits max_tick_limits(largest_coordinate, max_x, smallest_coordinate, max_x, 0, 0, max_x_correction_px, 0);
+        limits.push_back(max_tick_limits);
+      }
+
+      auto min_y_correction_px = tick_length / 2; //Tick length in both directions (half size each)
+      const auto max_y_correction_px = tick_length / 2;
+      const auto max_text_height = accumulate(y_axis_ticks.begin(), y_axis_ticks.end(), 0,
+                                             [](int max_text_height, const Tick &a)
+                                               {
+                                                 if (!a.text_visible) //Ignore tick if its text is invisible
+                                                   return max_text_height;
+                                                 const auto a_text_size = getTextSize(a.text, label_font, label_font_size, 1, NULL);
+                                                 return max(max_text_height, a_text_size.height);
+                                               }); 
+      min_y_correction_px += (max_text_height == 0 ? 0 : label_offset + max_text_height); //Consider height of highest tick label (plus offset)
+      const coordinate_limits x_ticks_limits(min_x, 0, max_x, 0, 0, min_y_correction_px, 0, max_y_correction_px);
       limits.push_back(x_ticks_limits);
     }
+    
     if (!y_axis_ticks.empty())
     {    
       const auto min_max_y = minmax_element(y_axis_ticks.begin(), y_axis_ticks.end(), [](const Tick &a, const Tick &b) //Find smallest and largest Y coordinates
@@ -158,20 +173,33 @@ namespace imgutils
       const auto &max_tick = *min_max_y.second;
       const auto min_y = min_tick.position;
       const auto max_y = max_tick.position;
-      auto min_x_correction_px = tick_length / 2; //Tick length in both directions (half size each)
-      const auto max_x_correction_px = tick_length / 2;
-      const bool any_label_visible = find_if(y_axis_ticks.begin(), y_axis_ticks.end(), [](const Tick &a) //Determine whether any label text is visible
-                                                                                         {
-                                                                                           return a.text_visible;
-                                                                                         }) != y_axis_ticks.end();
-      if (any_label_visible)
+      if (min_tick.text_visible)
       {
         const auto min_tick_text_size = getTextSize(min_tick.text, label_font, label_font_size, 1, NULL);
+        const auto min_y_correction_px = min_tick_text_size.height / 2; //Consider height of first (centered) label
+        const coordinate_limits min_tick_limits(largest_coordinate, min_y, smallest_coordinate, min_y, 0, min_y_correction_px, 0, 0);
+        limits.push_back(min_tick_limits);
+      }
+      if (max_tick.text_visible)
+      {
         const auto max_tick_text_size = getTextSize(max_tick.text, label_font, label_font_size, 1, NULL);
-        const auto max_text_width = max(min_tick_text_size.width, max_tick_text_size.width);
-        min_x_correction_px += max_text_width;
-      }   
-      coordinate_limits y_ticks_limits(0, min_y, 0, max_y, min_x_correction_px, 0, max_x_correction_px, 0);
+        const auto max_y_correction_px = max_tick_text_size.height / 2; //Consider height of last (centered) label
+        const coordinate_limits max_tick_limits(largest_coordinate, max_y, smallest_coordinate, max_y, 0, 0, 0, max_y_correction_px);
+        limits.push_back(max_tick_limits);
+      }
+      
+      auto min_x_correction_px = tick_length / 2; //Tick length in both directions (half size each)
+      const auto max_x_correction_px = tick_length / 2;
+      const auto max_text_width = accumulate(y_axis_ticks.begin(), y_axis_ticks.end(), 0,
+                                            [](int max_text_width, const Tick &a)
+                                              {
+                                                if (!a.text_visible) //Ignore tick if its text is invisible
+                                                  return max_text_width;
+                                                const auto a_text_size = getTextSize(a.text, label_font, label_font_size, 1, NULL);
+                                                return max(max_text_width, a_text_size.width);
+                                              }); 
+      min_x_correction_px += (max_text_width == 0 ? 0 : label_offset + max_text_width); //Consider width of longest tick label (plus offset)
+      const coordinate_limits y_ticks_limits(0, min_y, 0, max_y, min_x_correction_px, 0, max_x_correction_px, 0);
       limits.push_back(y_ticks_limits);
     }
   }
@@ -322,7 +350,7 @@ namespace imgutils
     
     SetVisibleRange(Point2d(current_limit.min_x, current_limit.min_y), Point2d(current_limit.max_x, current_limit.max_y));
     SetScalingFactor();
-    //assert(VerifyLimits(limits)); //TODO: Some edge cases still fail the verification
+    assert(VerifyLimits(limits));
   }
   
   void Plot::SetScalingFactor()
