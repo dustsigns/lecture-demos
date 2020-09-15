@@ -9,7 +9,7 @@ include $(COMMONPATH)/tools.mak
 
 DEBUG ?= 1
 
-CXXFLAGS += -c -std=c++14
+CXXFLAGS += -c -std=c++17
 ifeq ($(DEBUG), 1)
   CXXFLAGS += -g -Wall -Wextra -Wpedantic -Werror
 else
