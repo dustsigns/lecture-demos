@@ -40,22 +40,41 @@ namespace imgutils
   }
   
   Plot::Plot(const vector<PointSet> &point_sets, const bool autoscale)
-   : point_sets(point_sets), autoscale(autoscale),
+   : point_sets(point_sets), autoscale(autoscale), small_borders(false),
      x_axis_label("x"), y_axis_label("y"),
      plotting(false) { }
-     
+
   void Plot::SetVisibleRange(const Point2d &bottom_left, const Point2d &top_right)
   {
-    constexpr double additional_border_factor = 0.1;
-    static_assert(additional_border_factor > 0 && additional_border_factor < 1, "The absolute border size cannot be negative");
+    SetCoordinateRange(bottom_left, top_right); 
+  }
+  
+  void Plot::SetCoordinateRange(const Point2d &bottom_left, const Point2d &top_right, const bool consider_border)
+  {
     assert(bottom_left.x <= top_right.x && bottom_left.y <= top_right.y);
-    min_point = bottom_left - additional_border_factor * (top_right - bottom_left);
-    max_point = top_right + additional_border_factor * (top_right - bottom_left);
+    if (consider_border)
+    {
+      static constexpr auto default_border_factor = 0.1; //10% border
+      static_assert(default_border_factor >= 0 && default_border_factor < 1, "The absolute border size cannot be negative");
+      const auto additional_border_factor = small_borders ? 0.25 * default_border_factor : default_border_factor; //Reduce border to one quarter for small borders
+      min_point = bottom_left - additional_border_factor * (top_right - bottom_left);
+      max_point = top_right + additional_border_factor * (top_right - bottom_left);      
+    }
+    else
+    {
+      min_point = bottom_left;
+      max_point = top_right;
+    }
   }
   
   void Plot::SetAutoscale(const bool autoscale)
   {
     this->autoscale = autoscale;
+  }
+  
+  void Plot::SetSmallBorders(const bool small_borders)
+  {
+    this->small_borders = small_borders;
   }
   
   void Plot::SetAxesLabels(const string &x_axis_label, const string &y_axis_label)
@@ -64,40 +83,250 @@ namespace imgutils
     this->y_axis_label = y_axis_label;
   }
   
-  void Plot::SetMinMaxPoints()
+  void Plot::GetPointSetsLimits(vector<coordinate_limits> &limits) const
   {
-    constexpr auto max_double = numeric_limits<double>::max();
-    double min_x = max_double, min_y = max_double;
-    double max_x = -max_double, max_y = -max_double;
     for (const auto &point_set : point_sets)
     {
+      if (point_set.points.empty())
+        continue;
       const auto min_max_x = minmax_element(point_set.points.begin(), point_set.points.end(), [](const Point2d &a, const Point2d &b) //Find smallest and largest X coordinates
                                                                                                 {
                                                                                                   return a.x < b.x;
                                                                                                 });
-      min_x = min(min_x, min_max_x.first->x);
-      max_x = max(max_x, min_max_x.second->x);
+      const auto min_x = min_max_x.first->x;
+      const auto max_x = min_max_x.second->x;
       const auto min_max_y = minmax_element(point_set.points.begin(), point_set.points.end(), [](const Point2d &a, const Point2d &b) //Find smallest and largest Y coordinates
                                                                                                 {
                                                                                                   return a.y < b.y;
                                                                                                 });
-      min_y = min(min_y, min_max_y.first->y);
-      max_y = max(max_y, min_max_y.second->y);
+      const auto min_y = min_max_y.first->y;
+      const auto max_y = min_max_y.second->y;
+      const int min_x_correction_px = point_set.draw_sample_bars ? (sample_bar_width / 2 + (point_set.line_width - 1)) : (point_set.interconnect_points ? (point_set.line_width - 1) : 0); //Bar width in both directions (half size each) for samples, considering thick line width; thick line width for interconnected points; nothing for rectangles
+      const int max_x_correction_px = point_set.draw_sample_bars ? (sample_bar_width / 2 + (point_set.line_width - 1)) : (point_set.interconnect_points ? (point_set.line_width - 1) : point_set.line_width); //Bar width in both directions (half size each) for samples, considering thick line width; thick line width for interconnected points; rectangle width for rectangles
+      const int min_y_correction_px = point_set.draw_sample_bars || point_set.interconnect_points ? point_set.line_width - 1 : 0; //Consider thick line width only for samples and interconnected points
+      const int max_y_correction_px = point_set.draw_sample_bars || point_set.interconnect_points ? point_set.line_width - 1 : 0; //Consider thick line width only for samples and interconnected points
+      const coordinate_limits limit(min_x, min_y, max_x, max_y, min_x_correction_px, min_y_correction_px, max_x_correction_px, max_y_correction_px);
+      limits.push_back(limit);
     }
-    min_x -= sample_bar_width / 2; //Consider bar width at the borders (worst case) when drawing samples
-    max_x += sample_bar_width / 2;
-    SetVisibleRange(Point2d(min_x, min_y), Point2d(max_x, max_y)); //TODO: Make sure axes are always visible; otherwise, drawing may fail later
   }
   
-  void Plot::SetPlottingContext(const unsigned int width, const unsigned int height)
+  void Plot::GetAxesLimits(vector<coordinate_limits> &limits) const
   {
-    assert(width > 0);
-    assert(height > 0);
-    this->width = width;
-    this->height = height;
-   
-    if (autoscale)
-      SetMinMaxPoints();
+    const auto diagonal_arrow_size = static_cast<int>(ceil(sqrt(2) * arrow_size / 2));
+    const auto x_axis_label_size = getTextSize(x_axis_label, label_font, label_font_size, 1, NULL);
+    const auto x_axis_label_height = axis_label_offset + x_axis_label_size.height; //TODO: Consider width
+    const coordinate_limits x_axis_limits(largest_coordinate, 0, smallest_coordinate, 0, 0, max(diagonal_arrow_size, x_axis_label_height), 0, diagonal_arrow_size); //X axis is at y_min = y_max = 0 with y-facing arrows in both directions (the one with the smallest y coordinate is where the axis label is)
+    limits.push_back(x_axis_limits);
+    const auto y_axis_label_size = getTextSize(y_axis_label, label_font, label_font_size, 1, NULL);
+    const auto y_axis_label_width = label_offset + y_axis_label_size.width; //TODO: Consider height
+    const coordinate_limits y_axis_limits(0, largest_coordinate, 0, smallest_coordinate, max(diagonal_arrow_size, y_axis_label_width), 0, diagonal_arrow_size, 0); //X axis is at x_min = x_max = 0 with x-facing arrows in both directions (the one with the smallest x coordinate is where the axis label is)
+    limits.push_back(y_axis_limits);
+    
+    if (!x_axis_ticks.empty())
+    {
+      const auto min_max_x = minmax_element(x_axis_ticks.begin(), x_axis_ticks.end(), [](const Tick &a, const Tick &b) //Find smallest and largest X coordinates
+                                                                                        {
+                                                                                          return a.position < b.position;
+                                                                                        });
+      const auto &min_tick = *min_max_x.first;
+      const auto &max_tick = *min_max_x.second;
+      const auto min_x = min_tick.position;
+      const auto max_x = max_tick.position;
+      const bool any_label_visible = find_if(x_axis_ticks.begin(), x_axis_ticks.end(), [](const Tick &a) //Determine whether any label text is visible
+                                                                                         {
+                                                                                           return a.text_visible;
+                                                                                         }) != x_axis_ticks.end();
+      auto min_y_correction_px = tick_length / 2; //Tick length in both directions (half size each)
+      const auto max_y_correction_px = tick_length / 2;
+      if (any_label_visible)
+      {
+        const auto min_tick_text_size = getTextSize(min_tick.text, label_font, label_font_size, 1, NULL);
+        const auto max_tick_text_size = getTextSize(max_tick.text, label_font, label_font_size, 1, NULL);
+        const auto max_text_height = max(min_tick_text_size.height, max_tick_text_size.height);
+        min_y_correction_px += max_text_height;
+      }      
+      coordinate_limits x_ticks_limits(min_x, 0, max_x, 0, 0, min_y_correction_px, 0, max_y_correction_px);
+      limits.push_back(x_ticks_limits);
+    }
+    if (!y_axis_ticks.empty())
+    {    
+      const auto min_max_y = minmax_element(y_axis_ticks.begin(), y_axis_ticks.end(), [](const Tick &a, const Tick &b) //Find smallest and largest Y coordinates
+                                                                                        {
+                                                                                          return a.position < b.position;
+                                                                                        });
+      const auto &min_tick = *min_max_y.first;
+      const auto &max_tick = *min_max_y.second;
+      const auto min_y = min_tick.position;
+      const auto max_y = max_tick.position;
+      auto min_x_correction_px = tick_length / 2; //Tick length in both directions (half size each)
+      const auto max_x_correction_px = tick_length / 2;
+      const bool any_label_visible = find_if(y_axis_ticks.begin(), y_axis_ticks.end(), [](const Tick &a) //Determine whether any label text is visible
+                                                                                         {
+                                                                                           return a.text_visible;
+                                                                                         }) != y_axis_ticks.end();
+      if (any_label_visible)
+      {
+        const auto min_tick_text_size = getTextSize(min_tick.text, label_font, label_font_size, 1, NULL);
+        const auto max_tick_text_size = getTextSize(max_tick.text, label_font, label_font_size, 1, NULL);
+        const auto max_text_width = max(min_tick_text_size.width, max_tick_text_size.width);
+        min_x_correction_px += max_text_width;
+      }   
+      coordinate_limits y_ticks_limits(0, min_y, 0, max_y, min_x_correction_px, 0, max_x_correction_px, 0);
+      limits.push_back(y_ticks_limits);
+    }
+  }
+  
+  vector<Plot::coordinate_limits> Plot::GetLimits() const
+  {
+    vector<coordinate_limits> limits;
+    GetPointSetsLimits(limits);
+    GetAxesLimits(limits);
+    return limits;
+  }
+  
+  bool Plot::VerifyLimits(const vector<coordinate_limits> &limits) const
+  {
+    unsigned int below_min, above_max;
+    for (const auto &limit : limits)
+    {
+      if (limit.min_x != largest_coordinate)
+      {
+        const auto min_border_x = TryConvertXCoordinate(limit.min_x);
+        const auto min_x = min_border_x - limit.min_x_correction_px;
+        if (!CheckConvertedXCoordinate(min_x))
+        {
+          GetConvertedXCoordinateLimits(min_x, below_min, above_max);
+          if (below_min != 0 || above_max != 0)
+            return false;
+        }
+      }
+      if (limit.max_x != smallest_coordinate)
+      {
+        const auto max_border_x = TryConvertXCoordinate(limit.max_x);
+        const auto max_x = max_border_x + limit.max_x_correction_px;
+        if (!CheckConvertedXCoordinate(max_x))
+        {
+          GetConvertedXCoordinateLimits(max_x, below_min, above_max);
+          if (below_min != 0 || above_max != 0)
+            return false;
+        }
+      }
+      if (limit.min_y != largest_coordinate)
+      {
+        const auto min_border_y = TryConvertYCoordinate(limit.min_y);
+        const auto min_y = min_border_y + limit.min_y_correction_px;
+        if (!CheckConvertedYCoordinate(min_y))
+        {
+          GetConvertedYCoordinateLimits(min_y, below_min, above_max);
+          if (below_min != 0 || above_max != 0)
+            return false;
+        }
+      }
+      if (limit.max_y != smallest_coordinate)
+      {
+        const auto max_border_y = TryConvertYCoordinate(limit.max_y);
+        const auto max_y = max_border_y - limit.max_y_correction_px;
+        if (!CheckConvertedYCoordinate(max_y))
+        {
+          GetConvertedYCoordinateLimits(max_y, below_min, above_max);
+          if (below_min != 0 || above_max != 0)
+            return false;
+        }
+      }
+    }
+    return true;
+  }
+  
+  void Plot::SetAutomaticLimits()
+  {
+    const auto limits = GetLimits();
+    coordinate_limits current_limit;
+    for (const auto &limit : limits) //Determine limits without considering additional pixel limits at first
+    {
+      current_limit.min_x = min(current_limit.min_x, limit.min_x);
+      current_limit.min_y = min(current_limit.min_y, limit.min_y);
+      current_limit.max_x = max(current_limit.max_x, limit.max_x);
+      current_limit.max_y = max(current_limit.max_y, limit.max_y);
+    }
+    SetCoordinateRange(Point2d(current_limit.min_x, current_limit.min_y), Point2d(current_limit.max_x, current_limit.max_y), false); //Set limits without border
+    SetScalingFactor();
+    
+    unsigned int below_min, above_max;
+    for (const auto &limit : limits) //Check how many actual pixels of overflow exist in each direction
+    {
+      if (limit.min_x != largest_coordinate)
+      {
+        const auto min_border_x = TryConvertXCoordinate(limit.min_x);
+        const auto min_x = min_border_x - static_cast<int>(limit.min_x_correction_px);
+        if (!CheckConvertedXCoordinate(min_x))
+        {
+          GetConvertedXCoordinateLimits(min_x, below_min, above_max);
+          assert(above_max == 0);
+          current_limit.min_x_correction_px = max(current_limit.min_x_correction_px, below_min);
+        }
+      }
+      if (limit.max_x != smallest_coordinate)
+      {
+        const auto max_border_x = TryConvertXCoordinate(limit.max_x);
+        const auto max_x = max_border_x + static_cast<int>(limit.max_x_correction_px);
+        if (!CheckConvertedXCoordinate(max_x))
+        {
+          GetConvertedXCoordinateLimits(max_x, below_min, above_max);
+          assert(below_min == 0);
+          current_limit.max_x_correction_px = max(current_limit.max_x_correction_px, above_max);
+        }
+      }
+      if (limit.min_y != largest_coordinate)
+      {
+        const auto min_border_y = TryConvertYCoordinate(limit.min_y);
+        const auto min_y = min_border_y + static_cast<int>(limit.min_y_correction_px);
+        if (!CheckConvertedYCoordinate(min_y))
+        {
+          GetConvertedYCoordinateLimits(min_y, below_min, above_max);
+          assert(below_min == 0);
+          current_limit.min_y_correction_px = max(current_limit.min_y_correction_px, above_max);
+        }
+      }
+      if (limit.max_y != smallest_coordinate)
+      {
+        const auto max_border_y = TryConvertYCoordinate(limit.max_y);
+        const auto max_y = max_border_y - static_cast<int>(limit.max_y_correction_px);
+        if (!CheckConvertedYCoordinate(max_y))
+        {
+          GetConvertedYCoordinateLimits(max_y, below_min, above_max);
+          assert(above_max == 0);
+          current_limit.max_y_correction_px = max(current_limit.max_y_correction_px, below_min);
+        }
+      }
+    }
+
+    //Set new x and y limits based on additional pixel limits.
+    //The basic idea is to consider that min_x has to be reduced by min_x_correction_px, but in the new coordinate system with the new scaling factor, i.e.,
+    //min_x' = min_x - min_x_correction_px / scaling_factor'.
+    //Analogously, the same is true for max_x. The new scaling factor, scaling_factor', will be determined by the total new width, i.e.,
+    //scaling_factor.width = max_x' - min_x'.
+    //Thus, min_x' and max_x' become
+    //min_x' = min_x - min_x_correction_px * (max_x' - min_x') / (w - 1)
+    //max_x' = max_x + max_x_correction_px * (max_x' - min_x') / (w - 1)
+    //Solving the two equations together yields the formulae below. The procedure for the Y limits is the same in principle.
+    const auto denominator_x = static_cast<int>(current_limit.min_x_correction_px) + static_cast<int>(current_limit.max_x_correction_px) - static_cast<int>(width) + 1;
+    const auto nominator_min_x = current_limit.max_x * static_cast<int>(current_limit.min_x_correction_px) + current_limit.min_x * static_cast<int>(current_limit.max_x_correction_px) - current_limit.min_x * static_cast<int>(width) - current_limit.min_x;
+    const auto nominator_max_x = current_limit.max_x * static_cast<int>(current_limit.min_x_correction_px) - current_limit.max_x * static_cast<int>(width) + current_limit.max_x + current_limit.min_x * static_cast<int>(current_limit.max_x_correction_px);
+    const auto denominator_y = static_cast<int>(current_limit.min_y_correction_px) + static_cast<int>(current_limit.max_y_correction_px) - static_cast<int>(height) + 1;
+    const auto nominator_min_y = current_limit.max_y * static_cast<int>(current_limit.min_y_correction_px) + current_limit.min_y * static_cast<int>(current_limit.max_y_correction_px) - current_limit.min_y * static_cast<int>(height) - current_limit.min_y;
+    const auto nominator_max_y = current_limit.max_y * static_cast<int>(current_limit.min_y_correction_px) - current_limit.max_y * static_cast<int>(height) + current_limit.max_y + current_limit.min_y * static_cast<int>(current_limit.max_y_correction_px);
+    current_limit.min_x = static_cast<double>(nominator_min_x) / static_cast<double>(denominator_x);
+    current_limit.max_x = static_cast<double>(nominator_max_x) / static_cast<double>(denominator_x);
+    current_limit.min_y = static_cast<double>(nominator_min_y) / static_cast<double>(denominator_y);
+    current_limit.max_y = static_cast<double>(nominator_max_y) / static_cast<double>(denominator_y);
+    
+    SetVisibleRange(Point2d(current_limit.min_x, current_limit.min_y), Point2d(current_limit.max_x, current_limit.max_y));
+    SetScalingFactor();
+    //assert(VerifyLimits(limits)); //TODO: Some edge cases still fail the verification
+  }
+  
+  void Plot::SetScalingFactor()
+  {
     constexpr auto inf = numeric_limits<double>::infinity();
     const double plot_width = max_point.x - min_point.x;
     const double plot_height = max_point.y - min_point.y;
@@ -105,19 +334,67 @@ namespace imgutils
     const Size2d scaling_factor((width - 1) / plot_width, (height - 1) / plot_height);
     assert(scaling_factor.width != 0 && scaling_factor.height != 0 && scaling_factor.width < inf && scaling_factor.height < inf);
     this->scaling_factor = scaling_factor;
-    
+  }
+  
+  void Plot::SetPlottingContext(const unsigned int width, const unsigned int height)
+  {
+    assert(width > 1);
+    assert(height > 1);
+    this->width = width;
+    this->height = height;
+    if (autoscale)
+      SetAutomaticLimits();
+    else
+      SetScalingFactor();
     plotting = true;
+  }
+  
+  void Plot::GetConvertedXCoordinateLimits(const int &x, unsigned int &px_below_min, unsigned int &px_above_max, const unsigned int additional_scaling_factor) const
+  {
+    px_below_min = x >= 0 ? 0 : static_cast<unsigned int>(-x);
+    px_above_max = x < static_cast<int>(width * additional_scaling_factor) ? 0 : static_cast<unsigned int>(x - (width - 1) * additional_scaling_factor);
+  }
+  
+  void Plot::GetConvertedYCoordinateLimits(const int &y, unsigned int &px_below_min, unsigned int &px_above_max, const unsigned int additional_scaling_factor) const
+  {
+    px_below_min = y >= 0 ? 0 : static_cast<unsigned int>(-y);
+    px_above_max = y < static_cast<int>(height * additional_scaling_factor) ? 0 : static_cast<unsigned int>(y - (height - 1) * additional_scaling_factor);
+  }
+  
+  bool Plot::CheckConvertedXCoordinate(const int &x, const unsigned int additional_scaling_factor) const
+  {
+    return x >= 0 && x < static_cast<int>(width * additional_scaling_factor);
+  }
+  
+  bool Plot::CheckConvertedYCoordinate(const int &y, const unsigned int additional_scaling_factor) const
+  {
+    return y >= 0 && y < static_cast<int>(height * additional_scaling_factor);
+  }
+
+  int Plot::TryConvertXCoordinate(const double &x, const unsigned int additional_scaling_factor) const
+  {
+    const auto x_shifted = x - min_point.x;
+    const auto x_scaled = x_shifted * scaling_factor.width;
+    const int x_converted = round(x_scaled * additional_scaling_factor);
+    return x_converted;
+  }
+  
+  int Plot::TryConvertYCoordinate(const double &y, const unsigned int additional_scaling_factor) const
+  {
+    const auto y_shifted = y - min_point.y;
+    const auto y_scaled = y_shifted * scaling_factor.height;
+    const int y_converted = round((height - 1 - y_scaled) * additional_scaling_factor); //Y axis is inverted (image would be upside down unless corrected)
+    return y_converted;
   }
   
   Point Plot::ConvertPoint(const Point2d &point, const unsigned int additional_scaling_factor) const
   {
     assert(plotting); //If autoscaling is enabled, the parameters have had to be set so that they are sane
-    Point2d converted_point(point - min_point);
-    converted_point.x *= scaling_factor.width;
-    converted_point.y *= scaling_factor.height;
-    const Point integer_point(converted_point.x * additional_scaling_factor, (height - 1 - converted_point.y) * additional_scaling_factor); //Y axis is inverted (image would be upside down unless corrected)
-    assert(integer_point.x >= 0 && integer_point.y >= 0 && integer_point.x < static_cast<int>(width * additional_scaling_factor) && integer_point.y < static_cast<int>(height * additional_scaling_factor));
-    return integer_point;
+    const auto x = TryConvertXCoordinate(point.x, additional_scaling_factor);
+    const auto y = TryConvertYCoordinate(point.y, additional_scaling_factor);
+    assert(CheckConvertedXCoordinate(x, additional_scaling_factor) && CheckConvertedYCoordinate(y, additional_scaling_factor));
+    const Point converted_point(x, y);
+    return converted_point;
   }
   
   void Plot::UnsetPlottingContext()
@@ -134,9 +411,7 @@ namespace imgutils
   
   void Plot::DrawLabel(Mat_<Vec3b> &image, const string &text, const Point &point, const TextAlignment alignment, const Vec3b &color) const
   {
-    constexpr auto font = FONT_HERSHEY_TRIPLEX;
-    constexpr auto font_size = 0.5;
-    DrawText(image, text, point, alignment, color, font, font_size);
+    DrawText(image, text, point, alignment, color, label_font, label_font_size);
   }
   
   void Plot::DrawAxes(Mat_<Vec3b> &image) const
@@ -170,7 +445,7 @@ namespace imgutils
     if (tick.text_visible)
     {
       const auto label_position = x_tick ? (tick_end + Point(0, label_offset)) : (tick_start + Point(-label_offset, 0)); //Below (X) or left (Y)
-      DrawLabel(image, tick.text, label_position, x_tick ? BottomCenter : MiddleRight, ticks_color);
+      DrawLabel(image, tick.text, label_position, x_tick ? BottomCenter : MiddleRight, ticks_color); 
     }
   }
   

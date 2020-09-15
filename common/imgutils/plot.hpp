@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include "drawtext.hpp"
 
@@ -60,7 +61,7 @@ namespace imgutils
   //Plots points and lines
   class Plot
   {
-    public:    
+    public:
       //Represents a list of point sets to be plotted
       vector<PointSet> point_sets;
       
@@ -72,11 +73,14 @@ namespace imgutils
       //Creates a new plot from the given point sets
       Plot(const vector<PointSet> &point_sets, const bool autoscale = true);
       
-      //Sets the bottom-left and top-right visible points when autoscaling is deactivated
+      //Sets the bottom-left and top-right visible points when autoscaling is deactivated. By default, a border is added. Its size can be reduced by calling SetSmallBorders.
       void SetVisibleRange(const Point2d &bottom_left, const Point2d &top_right);
       
       //Enables or disables autoscaling. When autoscaling is disabled, SetVisibleRange has to be called before drawing.
-      void SetAutoscale(const bool autoscale);
+      void SetAutoscale(const bool autoscale = true);
+      
+      //Enables or disables small borders when drawing.
+      void SetSmallBorders(const bool small_borders = true);
       
       //Sets the X and Y axes' labels
       void SetAxesLabels(const string &x_axis_label, const string &y_axis_label);
@@ -91,6 +95,7 @@ namespace imgutils
     
     private:
       bool autoscale;
+      bool small_borders;
       string x_axis_label;
       string y_axis_label;
       
@@ -101,22 +106,50 @@ namespace imgutils
       Point2d max_point;
       Size2d scaling_factor;
       
-      void SetMinMaxPoints();
+      static constexpr auto max_double = numeric_limits<double>::max();
+      static constexpr auto smallest_coordinate = -max_double;
+      static constexpr auto largest_coordinate = max_double;
+      
+      struct coordinate_limits
+      {
+        double min_x, min_y, max_x, max_y;
+        unsigned int min_x_correction_px, min_y_correction_px, max_x_correction_px, max_y_correction_px;
+        
+        coordinate_limits(const double min_x = largest_coordinate, const double min_y = largest_coordinate, const double max_x = smallest_coordinate, const double max_y = smallest_coordinate, const unsigned int min_x_correction_px = 0, const unsigned int min_y_correction_px = 0, const unsigned int max_x_correction_px = 0, const unsigned int max_y_correction_px = 0) : min_x(min_x), min_y(min_y), max_x(max_x), max_y(max_y), min_x_correction_px(min_x_correction_px), min_y_correction_px(min_y_correction_px), max_x_correction_px(max_x_correction_px), max_y_correction_px(max_y_correction_px) { }
+      };
+      
+      void GetPointSetsLimits(vector<coordinate_limits> &limits) const;
+      void GetAxesLimits(vector<coordinate_limits> &limits) const;
+      vector<coordinate_limits> GetLimits() const;
+      bool VerifyLimits(const vector<coordinate_limits> &limits) const;
+      void SetAutomaticLimits();
+      void SetScalingFactor();
+      void SetCoordinateRange(const Point2d &bottom_left, const Point2d &top_right, const bool consider_border = true);
+      void GetConvertedXCoordinateLimits(const int &x, unsigned int &px_below_min, unsigned int &px_above_max, const unsigned int additional_scaling_factor = 1) const;
+      void GetConvertedYCoordinateLimits(const int &y, unsigned int &px_below_min, unsigned int &px_above_max, const unsigned int additional_scaling_factor = 1) const;
+      bool CheckConvertedXCoordinate(const int &x, const unsigned int additional_scaling_factor = 1) const;
+      bool CheckConvertedYCoordinate(const int &y, const unsigned int additional_scaling_factor = 1) const;
+      int TryConvertXCoordinate(const double &x, const unsigned int additional_scaling_factor = 1) const;
+      int TryConvertYCoordinate(const double &y, const unsigned int additional_scaling_factor = 1) const;
       Point ConvertPoint(const Point2d &point, const unsigned int additional_scaling_factor = 1) const;
+      double TryConvertXCoordinateBack(const int &x, const unsigned int additional_scaling_factor = 1) const;
+      double TryConvertYCoordinateBack(const int &y, const unsigned int additional_scaling_factor = 1) const;
       void SetPlottingContext(const unsigned int width, const unsigned int height);
+      void UnsetPlottingContext();
       void DrawArrow(Mat_<Vec3b> &image, const Point &from, const Point &to, const Vec3b &color) const;
       void DrawLabel(Mat_<Vec3b> &image, const string &text, const Point &point, const TextAlignment alignment, const Vec3b &color) const;
       void DrawAxes(Mat_<Vec3b> &image) const;
       void DrawTick(Mat_<Vec3b> &image, const Tick &tick, const bool x_tick) const;
       void DrawTicks(Mat_<Vec3b> &image) const;
       void DrawPointSets(Mat_<Vec3b> &image) const;
-      void UnsetPlottingContext();
       
       static constexpr auto arrow_size = 10; //Arrow size in pixels
       static constexpr auto axis_label_offset = 10; //Offset in pixels
       static constexpr auto label_offset = 10 / 2; //Offset in pixels
       static constexpr auto tick_length = 10; //Tick length in pixels
-      static constexpr auto sample_bar_width = 10;
+      static constexpr auto sample_bar_width = 10; //Sample bar width in pixels
+      static constexpr auto label_font = FONT_HERSHEY_TRIPLEX; //Font for axis and tick labels
+      static constexpr auto label_font_size = 0.5; //Font size for axis and tick labels
   };
 }
 

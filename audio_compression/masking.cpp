@@ -1,5 +1,5 @@
 //Illustration of frequency masking
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -58,9 +58,7 @@ static Mat PlotWaves(const audio_data &data)
   
   Plot plot({PointSet(samples[0], 1, Red),
              PointSet(samples[1], 1, Blue),
-             PointSet(samples[2], 1, Purple)},
-             false); //No autoscaling
-  plot.SetVisibleRange(Point2d(0, numeric_limits<short>::min()), Point2d(displayed_samples, numeric_limits<short>::max()));
+             PointSet(samples[2], 1, Purple)});
   plot.SetAxesLabels("t [ms]", "I(t)");
   Tick::GenerateTicks(plot.x_axis_ticks, 0, displayed_samples, 0.001 * sampling_frequency, 1, 0, 1000.0 / sampling_frequency); //Mark and label every ms with no decimal places and a relative scale (1000 for ms)
   plot.x_axis_ticks.pop_back(); //Remove last tick and label so that the axis label is not overwritten
@@ -74,9 +72,7 @@ static Mat PlotSpectrum(const audio_data &data)
 {
   constexpr auto max_frequency = frequencies[1] * 1.5;
   Plot plot({PointSet({Point2d(frequencies[0], -data.levels_percent[0])}, Red, false, true), //No lines, but samples
-             PointSet({Point2d(frequencies[1], -data.levels_percent[1])}, Blue, false, true)},
-            false); //No autoscaling
-  plot.SetVisibleRange(Point2d(-100, -100), Point2d(max_frequency, 0)); //More negative X space for axis label; more Y space to see frequencies more clearly
+             PointSet({Point2d(frequencies[1], -data.levels_percent[1])}, Blue, false, true)});
   plot.SetAxesLabels("f [Hz]", "A(f) [dB]");
   Tick::GenerateTicks(plot.x_axis_ticks, 0, max_frequency, 100, 2); //Mark every 100 Hz, label every 200 Hz (0 - max. frequency)
   Tick::GenerateTicks(plot.y_axis_ticks, 0, -100, -10, 2); //Mark every 10 dB, label every 20 dB (0 - -100)

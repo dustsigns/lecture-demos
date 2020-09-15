@@ -5,7 +5,7 @@ RGB image histograms
 
 **Author**: Andreas Unterweger
 
-**Status**: Work in progress (bugs unfixed)
+**Status**: Complete
 
 Overview
 --------
@@ -44,7 +44,7 @@ None
 Known issues
 ------------
 
-* **Crash for small number of bins**: The program crashes when the number of bins is set to 10 or lower. This is due to a bug in the plotting functions which underestimate the drawing area required for the coordinate axes and their labels.
+None
 
 Missing features
 ----------------

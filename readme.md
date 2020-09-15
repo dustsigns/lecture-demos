@@ -21,7 +21,7 @@ Prerequisites
 
 These demonstrations require
 
-* A C++14 compiler, e.g., recent versions of *g++*,
+* A C++17 compiler, e.g., recent versions of *g++*,
 * [*OpenCV* 4.4.0](https://github.com/opencv/opencv/archive/4.4.0.zip) with *QT* support and `pkg-config` support as well as the [contributed modules](https://github.com/opencv/opencv_contrib/archive/4.4.0.zip) `viz`, `stitching` and `sfm` included (see [recommended build command](opencv_config.md)),
 * [*libao*  1.2.0](http://downloads.xiph.org/releases/ao/libao-1.2.0.zip) with *ALSA* output for all audio-related demonstrations, and
 * *make*, *gdb* and *pkg-config*.
@@ -41,7 +41,7 @@ Build parameters (optional)
 The following parameters allow changing advanced build options. They are optional and have reasonable defaults.
 
 * **Release mode**: To disable debug builds (which are the default) and enable release builds (with optimizations enabled) instead, set the `DEBUG` flag to `0` when invoking `make`, e.g., `make DEBUG=0`. *Note: The build process does not track debug/release flags of individual files. It is not recommended to build different components with different values of the `DEBUG` flag. Instead, `make clean` should be called in the root folder to clean all intermediate files before switching from debug to release mode or vice versa.*
-* **Toolchain**: The file [common/tools.mak](common/tools.mak) specifies variables for all build tools used to build the demonstrations. They can be changed either in this file (not recommended) or by setting the corresponding variables when invoking `make`, e.g., `make CXX=/usr/bin/g++-5`.
+* **Toolchain**: The file [common/tools.mak](common/tools.mak) specifies variables for all build tools used to build the demonstrations. They can be changed either in this file (not recommended) or by setting the corresponding variables when invoking `make`, e.g., `make CXX=/usr/bin/g++-7`.
 
 Usage
 -----

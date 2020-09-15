@@ -77,10 +77,11 @@ static Mat PlotHistograms(const histogram_data &data)
     histograms.push_back(pointset);
   }
   Plot plot(histograms);
-  plot.SetAxesLabels("Val.", "Freq.");
+  plot.SetAxesLabels("I", "Freq.(I)");
   Tick::GenerateTicks(plot.x_axis_ticks, 0, 255, 10, 5); //Mark every 10 values, label every 50 (0-255)
   Mat_<Vec3b> image;
-  plot.DrawTo(image, data.image.cols, data.image.rows); //TODO: Fix crash for small values (<=10) of number_of_bins
+  plot.SetSmallBorders();
+  plot.DrawTo(image, data.image.cols, data.image.rows);
   return image;
 }
 

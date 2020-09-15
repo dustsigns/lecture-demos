@@ -1,5 +1,5 @@
 //Illustration of frequency-dependent intensity sensitivity
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -61,8 +61,7 @@ static Mat PlotWaves(const audio_data &data)
   constexpr size_t displayed_samples = sampling_frequency / 10; //100 ms
   vector<short> samples(displayed_samples);
   data.generator.GetRepresentativeSamples(samples.size(), samples.data());  
-  Plot plot({PointSet(samples, 1, Blue)}, false); //No autoscaling
-  plot.SetVisibleRange(Point2d(0, numeric_limits<short>::min()), Point2d(displayed_samples, numeric_limits<short>::max()));
+  Plot plot({PointSet(samples, 1, Blue)});
   plot.SetAxesLabels("t [ms]", "I(t)");
   Tick::GenerateTicks(plot.x_axis_ticks, 0, displayed_samples, 0.01 * sampling_frequency, 1, 0, 1000.0 / sampling_frequency); //Mark and label every 10 ms with no decimal places and a relative scale (1000 for ms)
   plot.x_axis_ticks.pop_back(); //Remove last tick and label so that the axis label is not overwritten
