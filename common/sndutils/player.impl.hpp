@@ -48,8 +48,8 @@ namespace sndutils
           static_assert(is_integral<T>(), "T (WaveFormGenerator sample type) must be an integral type");
           using U = typename conditional<is_signed<T>::value, long, unsigned long>::type; //Use long for signed chars, ints etc. and unsigned long for the rest
           static_assert(sizeof(T) <= sizeof(U), "T (WaveFormGenerator sample type) cannot be larger than (unsigned) long"); //Since (unsigned) long is used for shifting below, the type's size has to be smaller than that of an (unsigned) long
-          const auto current_value = static_cast<U>(this->generator.GetNextSample());
-          for (size_t channel = 0; channel < this->number_of_channels; channel++) //Fill all channels with the same samples
+          const auto current_value = static_cast<U>(generator.GetNextSample());
+          for (size_t channel = 0; channel < number_of_channels; channel++) //Fill all channels with the same samples
           {
             for (size_t sample_byte = 0; sample_byte < sample_size; sample_byte++)
             {
