@@ -114,8 +114,9 @@ namespace imgutils
   void Plot::GetAxesLimits(vector<coordinate_limits> &limits) const
   {
     const auto diagonal_arrow_size = static_cast<int>(ceil(sqrt(2) * arrow_size / 2));
-    const auto x_axis_label_size = getTextSize(x_axis_label, label_font, label_font_size, 1, NULL);
-    const auto x_axis_label_height = axis_label_offset + x_axis_label_size.height; //TODO: Consider width
+    int baseline;
+    const auto x_axis_label_size = getTextSize(x_axis_label, label_font, label_font_size, 1, &baseline);
+    const auto x_axis_label_height = axis_label_offset + x_axis_label_size.height + baseline; //TODO: Consider width
     const coordinate_limits x_axis_limits(largest_coordinate, 0, smallest_coordinate, 0, 0, max(diagonal_arrow_size, x_axis_label_height), 0, diagonal_arrow_size); //X axis is at y_min = y_max = 0 with y-facing arrows in both directions (the one with the smallest y coordinate is where the axis label is)
     limits.push_back(x_axis_limits);
     const auto y_axis_label_size = getTextSize(y_axis_label, label_font, label_font_size, 1, NULL);
@@ -155,8 +156,9 @@ namespace imgutils
                                                {
                                                  if (!a.text_visible) //Ignore tick if its text is invisible
                                                    return max_text_height;
-                                                 const auto a_text_size = getTextSize(a.text, label_font, label_font_size, 1, NULL);
-                                                 return max(max_text_height, a_text_size.height);
+                                                 int baseline;
+                                                 const auto a_text_size = getTextSize(a.text, label_font, label_font_size, 1, &baseline);
+                                                 return max(max_text_height, a_text_size.height + baseline);
                                                }); 
       min_y_correction_px += (max_text_height == 0 ? 0 : label_offset + max_text_height); //Consider height of highest tick label (plus offset)
       const coordinate_limits x_ticks_limits(min_x, 0, max_x, 0, 0, min_y_correction_px, 0, max_y_correction_px);
@@ -175,15 +177,17 @@ namespace imgutils
       const auto max_y = max_tick.position;
       if (min_tick.text_visible)
       {
-        const auto min_tick_text_size = getTextSize(min_tick.text, label_font, label_font_size, 1, NULL);
-        const auto min_y_correction_px = min_tick_text_size.height / 2; //Consider height of first (centered) label
+        int baseline;
+        const auto min_tick_text_size = getTextSize(min_tick.text, label_font, label_font_size, 1, &baseline);
+        const auto min_y_correction_px = min_tick_text_size.height / 2 + baseline; //Consider height of first (centered) label
         const coordinate_limits min_tick_limits(largest_coordinate, min_y, smallest_coordinate, min_y, 0, min_y_correction_px, 0, 0);
         limits.push_back(min_tick_limits);
       }
       if (max_tick.text_visible)
       {
-        const auto max_tick_text_size = getTextSize(max_tick.text, label_font, label_font_size, 1, NULL);
-        const auto max_y_correction_px = max_tick_text_size.height / 2; //Consider height of last (centered) label
+        int baseline;
+        const auto max_tick_text_size = getTextSize(max_tick.text, label_font, label_font_size, 1, &baseline);
+        const auto max_y_correction_px = max_tick_text_size.height / 2 + baseline; //Consider height of last (centered) label
         const coordinate_limits max_tick_limits(largest_coordinate, max_y, smallest_coordinate, max_y, 0, 0, 0, max_y_correction_px);
         limits.push_back(max_tick_limits);
       }
@@ -197,7 +201,7 @@ namespace imgutils
                                                   return max_text_width;
                                                 const auto a_text_size = getTextSize(a.text, label_font, label_font_size, 1, NULL);
                                                 return max(max_text_width, a_text_size.width);
-                                              }); 
+                                              });
       min_x_correction_px += (max_text_width == 0 ? 0 : label_offset + max_text_width); //Consider width of longest tick label (plus offset)
       const coordinate_limits y_ticks_limits(0, min_y, 0, max_y, min_x_correction_px, 0, max_x_correction_px, 0);
       limits.push_back(y_ticks_limits);
