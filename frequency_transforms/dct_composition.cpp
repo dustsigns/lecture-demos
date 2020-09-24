@@ -87,7 +87,7 @@ static void AddSumWave(DCT_data &data, vector<PointSet> &point_sets)
   for (size_t i = 0; i < (size_t)data.visible_coefficients; i++)
     data.mixer.SetGenerator(i, &data.generators[i]);
   for (size_t i = (size_t)data.visible_coefficients; i < N; i++) //Disable remaining coefficients
-    data.mixer.SetGenerator(i, NULL);
+    data.mixer.SetGenerator(i, nullptr);
     
   vector<double> added_samples(N);
   data.mixer.GetRepresentativeSamples(added_samples.size(), added_samples.data());

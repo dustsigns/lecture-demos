@@ -84,11 +84,11 @@ namespace sndutils
     sample_format.channels = static_cast<int>(number_of_channels);
     sample_format.rate = static_cast<int>(sampling_rate);
     sample_format.byte_format = AO_FMT_LITTLE; //Use little endian
-    sample_format.matrix = NULL;
+    sample_format.matrix = nullptr;
     
     ao_initialize();
     const int driver_id = ao_default_driver_id();
-    if (!(playback_device = ao_open_live(driver_id, &sample_format, NULL)))
+    if (!(playback_device = ao_open_live(driver_id, &sample_format, nullptr)))
       throw runtime_error("Could not open playback device");
   }
 

@@ -85,7 +85,7 @@ int main(const int argc, const char * const argv[])
     cout << "Usage: " << argv[0] << " [3-D model (PLY) file name]" << endl;
     return 1;
   }
-  const auto model_filename = (argc == 2) ? argv[1] : NULL;
+  const auto model_filename = (argc == 2) ? argv[1] : nullptr;
   constexpr auto visualization_window_name = "3-D scaling";
   constexpr auto control_window_name = "3-D scaling parameters";
   ConfigurableVisualization visualization(visualization_window_name, control_window_name);

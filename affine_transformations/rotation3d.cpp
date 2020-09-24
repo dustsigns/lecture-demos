@@ -88,8 +88,8 @@ int main(const int argc, const char * const argv[])
     cout << "Usage: " << argv[0] << " [3-D model (PLY) file name]" << endl;
     return 1;
   }
-  const auto model_filename = (argc == 2) ? argv[1] : NULL;
-  const bool use_model = model_filename != NULL;
+  const auto model_filename = (argc == 2) ? argv[1] : nullptr;
+  const bool use_model = model_filename != nullptr;
   constexpr auto visualization_window_name = "3-D rotation";
   constexpr auto control_window_name = "3-D rotation parameters";
   ConfigurableVisualization visualization(visualization_window_name, control_window_name);

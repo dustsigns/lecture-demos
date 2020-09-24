@@ -68,6 +68,6 @@ int main(const int argc, const char * const argv[])
   constexpr auto control_window_name = "Quantization parameters";
   ConfigurableVisualization visualization(visualization_window_name, control_window_name);
   AddControls(visualization);
-  visualization.ShowWindows(NULL);
+  visualization.ShowWindows(nullptr);
   return 0;
 }
