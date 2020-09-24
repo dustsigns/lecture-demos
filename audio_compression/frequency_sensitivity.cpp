@@ -26,12 +26,14 @@ static constexpr unsigned int default_frequency = 440;
 static constexpr unsigned int max_frequency = 8000;
 static_assert(default_frequency <= max_frequency, "The default frequency cannot exceed the maximum frequency.");
 
+using audio_type = short; //May be signed char (for 8 bits), short (16) or int (32)
+
 struct audio_data
 {
   int frequency;
   int level_percent;
-  SineWaveGenerator<short> generator;
-  AudioPlayer player;
+  SineWaveGenerator<audio_type> generator;
+  AudioPlayer<audio_type> player;
   
   const string window_name;
   const string frequency_trackbar_name;
@@ -59,13 +61,13 @@ static Mat PlotWaves(const audio_data &data)
 {
   constexpr size_t sampling_frequency = 48000;
   constexpr size_t displayed_samples = sampling_frequency / 10; //100 ms
-  vector<short> samples(displayed_samples);
-  data.generator.GetRepresentativeSamples(samples.size(), samples.data());  
+  vector<audio_type> samples(displayed_samples);
+  data.generator.GetRepresentativeSamples(samples.size(), samples.data());
   Plot plot({PointSet(samples, 1, Blue)});
   plot.SetAxesLabels("t [ms]", "I(t)");
   Tick::GenerateTicks(plot.x_axis_ticks, 0, displayed_samples, 0.01 * sampling_frequency, 1, 0, 1000.0 / sampling_frequency); //Mark and label every 10 ms with no decimal places and a relative scale (1000 for ms)
   plot.x_axis_ticks.pop_back(); //Remove last tick and label so that the axis label is not overwritten
-  Tick::GenerateTicks(plot.y_axis_ticks, numeric_limits<short>::min() + 1, numeric_limits<short>::max(), numeric_limits<short>::max() / 2.0, 1, 1, 1.0 / numeric_limits<short>::max()); //Mark and label every 0.5 units (0-1) with 1 decimal place and a relative scale (where the maximum is 1)
+  Tick::GenerateTicks(plot.y_axis_ticks, numeric_limits<audio_type>::min() + 1, numeric_limits<audio_type>::max(), numeric_limits<audio_type>::max() / 2.0, 1, 1, 1.0 / numeric_limits<audio_type>::max()); //Mark and label every 0.5 units (0-1) with 1 decimal place and a relative scale (where the maximum is 1)
   Mat_<Vec3b> image;
   plot.DrawTo(image);
   return image;

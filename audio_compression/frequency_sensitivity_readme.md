@@ -43,11 +43,12 @@ Hard-coded parameters
 
 * `default_frequency`: Initial signal frequency in Hertz when the program is started. *Note: This frequency must be smaller than or equal to `max_frequency`.*
 * `max_frequency`: Maximum frequency in Hertz allowed to be configured for playback. *Note: The actual maximum frequency may be limited by the sound card, the driver and/or the speakers.*
+* `audio_type`: Data type used for audio samples during generation and playback. 8-bit, 16-bit and 32-bit data types are supported.
 
 Known issues
 ------------
 
-None. *Note: Playback is limited to 16-bit audio output.*
+None.
 
 Missing features
 ----------------

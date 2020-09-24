@@ -44,11 +44,12 @@ Hard-coded parameters
 ---------------------
 
 * `frequencies`: Frequencies of the two sinusodial tones in Hertz. *Note: This array must contain exactly two frequencies, the first of which must be smaller than the second.*
+* `audio_type`: Data type used for audio samples during generation and playback. 8-bit, 16-bit and 32-bit data types are supported.
 
 Known issues
 ------------
 
-None. *Note: Playback is limited to 16-bit audio output.*
+None.
 
 Missing features
 ----------------

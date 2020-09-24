@@ -30,19 +30,21 @@ static constexpr unsigned int frequencies[2] {400, 440};
 static_assert(arraysize(frequencies) == 2, "This application can only illustrate masking for two frequencies in total");
 static_assert(frequencies[1] > frequencies[0], "The second frequency has to be larger than the first");
 
+using audio_type = short; //May be signed char (for 8 bits), short (16) or int (32)
+
 struct audio_data
 {
   int levels_percent[2];
-  SineWaveGenerator<short> generators[2];
-  WaveFormMixer<short, 2> mixer;
-  AudioPlayer player;
+  SineWaveGenerator<audio_type> generators[2];
+  WaveFormMixer<audio_type, 2> mixer;
+  AudioPlayer<audio_type> player;
   
   const string window_name;
   const string trackbar_names[2];
   
   audio_data(const string &window_name, const string &trackbar1_name, const string &trackbar2_name) 
    : levels_percent { 0, 0 },
-     generators{SineWaveGenerator<short>(frequencies[0]), SineWaveGenerator<short>(frequencies[1])},
+     generators{SineWaveGenerator<audio_type>(frequencies[0]), SineWaveGenerator<audio_type>(frequencies[1])},
      mixer({&generators[0], &generators[1]}),
      window_name(window_name), trackbar_names{trackbar1_name, trackbar2_name} { }
 };
@@ -51,7 +53,7 @@ static Mat PlotWaves(const audio_data &data)
 {
   constexpr size_t sampling_frequency = 48000;
   constexpr size_t displayed_samples = 5 * (sampling_frequency / frequencies[0]) + 1; //About five periods of the higher-frequency wave form plus one sample
-  array<vector<short>, 3> samples { vector<short>(displayed_samples), vector<short>(displayed_samples), vector<short>(displayed_samples) };
+  array<vector<audio_type>, 3> samples { vector<audio_type>(displayed_samples), vector<audio_type>(displayed_samples), vector<audio_type>(displayed_samples) };
   for (const auto &i : {0, 1})
     data.generators[i].GetRepresentativeSamples(samples[i].size(), samples[i].data());
   data.mixer.GetRepresentativeSamples(samples[2].size(), samples[2].data());
@@ -62,7 +64,7 @@ static Mat PlotWaves(const audio_data &data)
   plot.SetAxesLabels("t [ms]", "I(t)");
   Tick::GenerateTicks(plot.x_axis_ticks, 0, displayed_samples, 0.001 * sampling_frequency, 1, 0, 1000.0 / sampling_frequency); //Mark and label every ms with no decimal places and a relative scale (1000 for ms)
   plot.x_axis_ticks.pop_back(); //Remove last tick and label so that the axis label is not overwritten
-  Tick::GenerateTicks(plot.y_axis_ticks, numeric_limits<short>::min() + 1, numeric_limits<short>::max(), numeric_limits<short>::max() / 2.0, 1, 1, 1.0 / numeric_limits<short>::max()); //Mark and label every 0.5 units (0-1) with 1 decimal place and a relative scale (where the maximum is 1)
+  Tick::GenerateTicks(plot.y_axis_ticks, numeric_limits<audio_type>::min() + 1, numeric_limits<audio_type>::max(), numeric_limits<audio_type>::max() / 2.0, 1, 1, 1.0 / numeric_limits<audio_type>::max()); //Mark and label every 0.5 units (0-1) with 1 decimal place and a relative scale (where the maximum is 1)
   Mat_<Vec3b> image;
   plot.DrawTo(image);
   return image;

@@ -73,11 +73,14 @@ namespace sndutils
       unsigned char *buffer;
   };
 
-  AudioPlayer::AudioPlayer(const unsigned int sampling_rate, const size_t number_of_channels) : playing(false), paused(false)
+  template<typename T>
+  AudioPlayer<T>::AudioPlayer(const unsigned int sampling_rate, const size_t number_of_channels) : playing(false), paused(false)
   {
     assert(sampling_rate > 0);
     
-    sample_format.bits = 16; //TODO: Make variable
+    constexpr size_t sample_bits = 8 * WaveFormConverter<T>::sample_size;
+    static_assert(sample_bits == 8 || sample_bits == 16 || sample_bits == 32, "Only 8-bit, 16-bit and 32-bit types are supported"); //TODO: Support 24 bit types?
+    sample_format.bits = sample_bits;
     sample_format.channels = static_cast<int>(number_of_channels);
     sample_format.rate = static_cast<int>(sampling_rate);
     sample_format.byte_format = AO_FMT_LITTLE; //Use little endian
@@ -90,9 +93,8 @@ namespace sndutils
   }
 
   template<typename T>
-  void AudioPlayer::Play(WaveFormGenerator<T> &generator)
+  void AudioPlayer<T>::Play(WaveFormGenerator<T> &generator)
   {
-    static_assert(WaveFormConverter<T>::sample_size == 2, "Only 16-bit samples are currently supported");
     if (playing)
       throw runtime_error("Already playing. Stop playback first.");
     playing = true;
@@ -121,7 +123,8 @@ namespace sndutils
                     });
   }
 
-  void AudioPlayer::Stop()
+  template<typename T>
+  void AudioPlayer<T>::Stop()
   {
     if (!playing)
       return;
@@ -129,31 +132,36 @@ namespace sndutils
     worker.join();
   }
 
-  void AudioPlayer::Pause()
+  template<typename T>
+  void AudioPlayer<T>::Pause()
   {
     if (!playing)
       throw runtime_error("Not playing. Start playback first.");
     paused = true;
   }
 
-  void AudioPlayer::Resume()
+  template<typename T>
+  void AudioPlayer<T>::Resume()
   {
     if (!playing)
       throw runtime_error("Not playing. Start playback first.");
     paused = false;
   }
 
-  bool AudioPlayer::IsPlaying() const
+  template<typename T>
+  bool AudioPlayer<T>::IsPlaying() const
   {
     return playing;
   }
 
-  bool AudioPlayer::IsPlayingBack() const
+  template<typename T>
+  bool AudioPlayer<T>::IsPlayingBack() const
   {
     return playing && !paused;
   }
 
-  AudioPlayer::~AudioPlayer()
+  template<typename T>
+  AudioPlayer<T>::~AudioPlayer()
   {
     Stop();
     ao_close(playback_device);

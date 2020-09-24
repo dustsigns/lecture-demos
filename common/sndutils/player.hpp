@@ -17,7 +17,8 @@ namespace sndutils
   
   using namespace comutils;
   
-  //Plays back raw audio streams on the default playback device
+  //Plays back raw audio streams of base type T on the default playback device
+  template<typename T>
   class AudioPlayer
   {  
     public:
@@ -26,7 +27,7 @@ namespace sndutils
       ~AudioPlayer();
       
       //Plays back the wave form produced by the specified generator asynchronously until Stop() is called
-      template<typename T> void Play(WaveFormGenerator<T> &generator);
+      void Play(WaveFormGenerator<T> &generator);
       //Halts previously started playback
       void Stop();
       //Pauses previusly started playback
