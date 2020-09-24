@@ -137,14 +137,14 @@ namespace imgutils
       {
         const auto min_tick_text_size = getTextSize(min_tick.text, label_font, label_font_size, 1, NULL);
         const auto min_x_correction_px = min_tick_text_size.width / 2; //Consider width of first (centered) label
-        const coordinate_limits min_tick_limits(largest_coordinate, min_x, smallest_coordinate, min_x, min_x_correction_px, 0, 0, 0);
+        const coordinate_limits min_tick_limits(min_x, largest_coordinate, min_x, smallest_coordinate, min_x_correction_px, 0, 0, 0);
         limits.push_back(min_tick_limits);
       }
       if (max_tick.text_visible)
       {
         const auto max_tick_text_size = getTextSize(max_tick.text, label_font, label_font_size, 1, NULL);
         const auto max_x_correction_px = max_tick_text_size.height / 2; //Consider width of last (centered) label
-        const coordinate_limits max_tick_limits(largest_coordinate, max_x, smallest_coordinate, max_x, 0, 0, max_x_correction_px, 0);
+        const coordinate_limits max_tick_limits(max_x, largest_coordinate, max_x, smallest_coordinate, 0, 0, max_x_correction_px, 0);
         limits.push_back(max_tick_limits);
       }
 
