@@ -28,7 +28,7 @@ namespace comutils
       unsigned int GetSamplingRate() const;
       
     protected:
-      static constexpr T min_amplitude = numeric_limits<T>::lowest();
+      static constexpr T min_amplitude = numeric_limits<T>::min();
       static constexpr T max_amplitude = numeric_limits<T>::max();
       
       unsigned int sampling_rate;
