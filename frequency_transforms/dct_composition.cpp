@@ -1,5 +1,5 @@
 //Illustration of the signal composition through the 1-D IDCT
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -24,7 +24,6 @@ using namespace std;
 using namespace cv;
 
 using namespace comutils;
-using namespace sndutils; //TODO: Remove dependency by moving generators?
 using namespace imgutils;
 
 constexpr double coefficients[] { 0.25, 0.5, 0.0, -0.5 };

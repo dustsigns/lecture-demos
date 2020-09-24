@@ -1,12 +1,12 @@
 //Cosine wave generator class (template implementation)
-// Andreas Unterweger, 2017
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <cmath>
 
 //#include "coswave.hpp"
 
-namespace sndutils
+namespace comutils
 {
   using namespace std;
 

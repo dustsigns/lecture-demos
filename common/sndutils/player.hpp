@@ -1,5 +1,5 @@
 //Audio playback helper class (header)
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -14,6 +14,8 @@
 namespace sndutils
 {
   using namespace std;
+  
+  using namespace comutils;
   
   //Plays back raw audio streams on the default playback device
   class AudioPlayer

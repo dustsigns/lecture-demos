@@ -1,12 +1,12 @@
 //Wave form generator interface (template implementation)
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <cassert>
 
 //#include "wavegen.hpp"
 
-namespace sndutils
+namespace comutils
 {
   using namespace std;
 

@@ -1,12 +1,12 @@
 //Cosine wave generator class (header)
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
 
 #include "sinewave.hpp"
 
-namespace sndutils
+namespace comutils
 {
   using namespace std;
   

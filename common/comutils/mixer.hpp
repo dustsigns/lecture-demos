@@ -1,5 +1,5 @@
 //Wave form mixer class (header)
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -8,7 +8,7 @@
 
 #include "wavegen.hpp"
 
-namespace sndutils
+namespace comutils
 {
   using namespace std;
   

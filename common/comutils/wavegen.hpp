@@ -1,12 +1,12 @@
 //Wave form generator interface (header)
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
 
 #include <cstddef>
 
-namespace sndutils
+namespace comutils
 {
   using namespace std;
   

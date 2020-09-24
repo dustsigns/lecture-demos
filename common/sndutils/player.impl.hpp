@@ -1,5 +1,5 @@
 //Audio playback helper class (template implementation)
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <cassert>
@@ -15,6 +15,8 @@
 namespace sndutils
 {
   using namespace std;
+  
+  using namespace comutils;
 
   template<typename T>
   class WaveFormConverter

@@ -1,3 +1,3 @@
-PARTS = sound images
+PARTS = images
 
 include ../common/appbase.mak
