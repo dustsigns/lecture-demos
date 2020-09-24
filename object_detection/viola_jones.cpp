@@ -1,5 +1,5 @@
 //Illustration of Viola-Jones object detection
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -25,7 +25,7 @@ static bool InitClassifier(CascadeClassifier &classifier)
   return successful;
 }
 
-static void FindFaces(const Mat &image, /*const*/ CascadeClassifier &classifier, vector<Rect> &faces) //TODO: detectMultiScale should be const, but is not
+static void FindFaces(const Mat &image, /*const*/ CascadeClassifier &classifier, vector<Rect> &faces)
 {
   classifier.detectMultiScale(image, faces);
 }
