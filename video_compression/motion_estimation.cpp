@@ -241,13 +241,13 @@ static void ShowImages(const Mat &reference_image, const Mat &image, const Point
   constexpr auto stop_button_name = "Stop ME";
   createButton(stop_button_name, [](const int, void * const user_data)
                                    {
-                                     auto &data = *((ME_data * const)user_data);
+                                     auto &data = *(static_cast<ME_data*>(user_data));
                                      data.running = false;
                                    }, static_cast<void*>(&data), QT_PUSH_BUTTON);
   constexpr auto map_button_name = "Show map of costs";
   createButton(map_button_name, [](const int, void * const user_data)
                                   {
-                                    auto &data = *((ME_data * const)user_data);
+                                    auto &data = *(static_cast<ME_data*>(user_data));
                                     if (data.running) //Abort when the ME is already running
                                       return;
                                     auto cost_map = PerformMotionEstimation(data, false);
