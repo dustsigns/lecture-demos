@@ -40,13 +40,12 @@ struct audio_data
   AudioPlayer<audio_type> player;
   
   const string window_name;
-  const string trackbar_names[2];
   
-  audio_data(const string &window_name, const string &trackbar1_name, const string &trackbar2_name) 
+  audio_data(const string &window_name)
    : levels_percent { 0, 0 },
      generators{SineWaveGenerator<audio_type>(frequencies[0]), SineWaveGenerator<audio_type>(frequencies[1])},
      mixer({&generators[0], &generators[1]}),
-     window_name(window_name), trackbar_names{trackbar1_name, trackbar2_name} { }
+     window_name(window_name) { }
 };
 
 static Mat PlotWaves(const audio_data &data)
@@ -83,9 +82,10 @@ static Mat PlotSpectrum(const audio_data &data)
   return image;
 }
 
-static void TrackbarEvent(const size_t trackbar_id, void * const user_data)
+template<size_t trackbar_id>
+static void TrackbarEvent(const int, void* user_data)
 {
-  assert(trackbar_id == 0 || trackbar_id == 1);
+  static_assert(trackbar_id == 0 || trackbar_id == 1, "Trackbar ID must be 0 or 1");
   auto &data = *(static_cast<audio_data*>(user_data));
   if (data.player.IsPlaying())
     data.player.Stop();
@@ -101,23 +101,23 @@ static void TrackbarEvent(const size_t trackbar_id, void * const user_data)
   imshow(data.window_name, combined_image);
 }
 
+template<size_t i>
+static string AddTrackbar(audio_data &data)
+{
+  constexpr auto unit_name = " Hz level [-dB]";
+  const auto trackbar_name = to_string(frequencies[i]) + unit_name;
+  createTrackbar(trackbar_name, data.window_name, &data.levels_percent[i], 100, TrackbarEvent<i>, static_cast<void*>(&data));
+  return trackbar_name;
+}
+
 static void ShowControls()
 {
   constexpr auto window_name = "Attenuation";
   namedWindow(window_name);
   moveWindow(window_name, 0, 0);
-  constexpr auto unit_name = " Hz level [-dB]";
-  const string trackbar_names[2] {to_string(frequencies[0]) + unit_name,
-                                  to_string(frequencies[1]) + unit_name};
-  static audio_data data(window_name, trackbar_names[0], trackbar_names[1]); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
-  createTrackbar(trackbar_names[0], window_name, &data.levels_percent[0], 100, [](const int, void * const user_data)
-                                                                                 {
-                                                                                   TrackbarEvent(0, user_data);
-                                                                                 }, static_cast<void*>(&data));
-  createTrackbar(trackbar_names[1], window_name, &data.levels_percent[1], 100, [](const int, void * const user_data)
-                                                                                 {
-                                                                                   TrackbarEvent(1, user_data);
-                                                                                 }, static_cast<void*>(&data));
+  static audio_data data(window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
+  AddTrackbar<0>(data);
+  const auto last_trackbar_name = AddTrackbar<1>(data);
   createButton("Mute", [](const int, void * const user_data)
                        {
                          auto &data = *(static_cast<audio_data*>(user_data));
@@ -126,7 +126,7 @@ static void ShowControls()
                          else
                            data.player.Resume();
                        }, static_cast<void*>(&data), QT_CHECKBOX);
-  setTrackbarPos(trackbar_names[1], window_name, 20); //Implies imshow with second level at -20 dB
+  setTrackbarPos(last_trackbar_name, window_name, 20); //Implies imshow with second level at -20 dB
 }
 
 int main(const int argc, const char * const argv[])
