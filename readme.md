@@ -23,10 +23,10 @@ These demonstrations require
 
 * A C++17 compiler, e.g., recent versions of *g++*,
 * [*OpenCV* 4.5.0](https://github.com/opencv/opencv/archive/4.5.0.zip) with *QT* support and `pkg-config` support as well as the [contributed modules](https://github.com/opencv/opencv_contrib/archive/4.5.0.zip) `viz`, `stitching` and `sfm` included (see [recommended build command](opencv_config.md)),
-* [*libao*  1.2.0](http://downloads.xiph.org/releases/ao/libao-1.2.0.zip) with *ALSA* output for all audio-related demonstrations, and
+* [*libao* 1.2.0](http://downloads.xiph.org/releases/ao/libao-1.2.0.zip) with *ALSA* output for all audio-related demonstrations, and
 * *make*, *gdb* and *pkg-config*.
 
-All demonstrations have been tested on a [64-bit *Ubuntu* 18.04.5 minimal](http://archive.ubuntu.com/ubuntu/dists/bionic-updates/main/installer-amd64/current/images/netboot/mini.iso) system with a *Xubuntu minimal installation* and the following installed packages: `build-essential` (for *g++* 7.4.0 and *make*), `gdb`, `pkg-config`, `qt5-default` (for *QT* 5.9.5), `libvtk7-dev` (for *VTK* 7.1.1 which is required for *OpenCV*'s `viz` module), `libeigen3-dev`, `libgflags-dev`, `libgoogle-glog-dev` (all of which are required for *OpenCV*'s `sfm` module) and `libasound2-dev` (for *ALSA*).
+All demonstrations have been tested on a [64-bit *Ubuntu* 18.04.5 minimal](http://archive.ubuntu.com/ubuntu/dists/bionic-updates/main/installer-amd64/current/images/netboot/mini.iso) system with a *Xubuntu minimal installation* and the following installed packages: `build-essential` (for *g++* 7.4.0 and *make*), `gdb`, `pkg-config`, `cmake` (only required for building *OpenCV*), `qt5-default` (for *QT* 5.9.5), `libvtk7-dev` (for *VTK* 7.1.1 which is required for *OpenCV*'s `viz` module), `libeigen3-dev`, `libgflags-dev`, `libgoogle-glog-dev` (all of which are required for *OpenCV*'s `sfm` module) and `libasound2-dev` (for *ALSA*).
 
 Building
 --------
