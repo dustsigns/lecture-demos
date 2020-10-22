@@ -153,7 +153,7 @@ static void ResetImage(haar_data &data)
 
 static void SelectPointInImage(const int event, const int x, const int y, const int, void * const userdata)
 {
-  auto &data = *((haar_data * const)userdata);
+  auto &data = *(static_cast<haar_data*>(userdata));
   if (!data.running && event == EVENT_LBUTTONUP) //Only react when the left mouse button is being pressed while no motion estimation is running
   {
     const Point mouse_point(x + border_size, y + border_size); //Assume mouse position is in the top-left of the search block (on the outside border which is border_size pixels in width)
@@ -187,35 +187,35 @@ static void ShowImage(const Mat &feature_image, const Mat &image)
   namedWindow(window_name);
   moveWindow(window_name, 0, 0);
   static haar_data data(feature_image, image, window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
-  setMouseCallback(window_name, SelectPointInImage, (void*)&data);
+  setMouseCallback(window_name, SelectPointInImage, static_cast<void*>(&data));
   constexpr auto clear_button_name = "Clear detections";
   createButton(clear_button_name, [](const int, void * const user_data)
                                     {
-                                      auto &data = *((haar_data * const)user_data);
+                                      auto &data = *(static_cast<haar_data*>(user_data));
                                       data.ResetAnnotatedImage();
                                       ResetImage(data); //Force redraw
-                                    }, (void*)&data, QT_PUSH_BUTTON);
+                                    }, static_cast<void*>(&data), QT_PUSH_BUTTON);
   constexpr auto perform_button_name = "Search whole image";
   createButton(perform_button_name, [](const int, void * const user_data)
                                       {
-                                        auto &data = *((haar_data * const)user_data);
+                                        auto &data = *(static_cast<haar_data*>(user_data));
                                         if (!data.running)
                                         {
                                           data.running = true;
                                           PerformSearch(data);
                                           data.running = false;
                                         }
-                                      }, (void*)&data, QT_PUSH_BUTTON);
+                                      }, static_cast<void*>(&data), QT_PUSH_BUTTON);
   constexpr auto stop_button_name = "Stop search";
   createButton(stop_button_name, [](const int, void * const user_data)
                                    {
-                                     auto &data = *((haar_data * const)user_data);
+                                     auto &data = *(static_cast<haar_data*>(user_data));
                                      data.running = false;
-                                   }, (void*)&data, QT_PUSH_BUTTON);
+                                   }, static_cast<void*>(&data), QT_PUSH_BUTTON);
   constexpr auto map_button_name = "Show map of differences";
   createButton(map_button_name, [](const int, void * const user_data)
                                   {
-                                    auto &data = *((haar_data * const)user_data);
+                                    auto &data = *(static_cast<haar_data*>(user_data));
                                     if (data.running) //Abort when the search is already running
                                       return;
                                     auto diff_map = PerformSearch(data, false);
@@ -224,8 +224,8 @@ static void ShowImage(const Mat &feature_image, const Mat &image)
                                     namedWindow(map_window_name);
                                     moveWindow(map_window_name, data.original_image.cols + 3, 0); //Move difference window right of the main window (image size plus 3 border pixels)
                                     imshow(map_window_name, color_map);
-                                    setMouseCallback(map_window_name, SelectPointInImage, (void*)&data); //Perform the same action as in the main window
-                                  }, (void*)&data, QT_PUSH_BUTTON);
+                                    setMouseCallback(map_window_name, SelectPointInImage, static_cast<void*>(&data)); //Perform the same action as in the main window
+                                  }, static_cast<void*>(&data), QT_PUSH_BUTTON);
   ResetImage(data); //Implies imshow with default position
 }
 

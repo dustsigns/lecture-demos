@@ -1,5 +1,5 @@
 //Illustration of SIFT keypoint matching
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -101,7 +101,7 @@ static void ShowImages(const Mat &first_image, const Mat &second_image)
   constexpr auto trackbar_name = "Match index";
   createTrackbar(trackbar_name, window_name, &data.visible_match, matches.size(), [](const int, void * const user_data)
                                                                                     {
-                                                                                      auto &data = *((const match_data * const)user_data);
+                                                                                      auto &data = *(static_cast<const match_data*>(user_data));
                                                                                       const Mat original_images = CombineImages({data.first_image, data.second_image}, Horizontal);
                                                                                       assert(data.visible_match >= 0 && data.visible_match <= static_cast<int>(data.matches.size()));
                                                                                       const auto match_iterator = data.matches.begin() + data.visible_match - 1;
@@ -109,7 +109,7 @@ static void ShowImages(const Mat &first_image, const Mat &second_image)
                                                                                       const Mat match_image = VisualizeMatches(data, single_match);
                                                                                       const Mat combined_image = CombineImages({original_images, match_image}, Vertical);
                                                                                       imshow(window_name, combined_image);
-                                                                                    }, (void*)&data);
+                                                                                    }, static_cast<void*>(&data));
 
   setTrackbarPos(trackbar_name, window_name, matches.size() - 1); //Implies imshow with last match
 }

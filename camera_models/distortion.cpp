@@ -72,7 +72,7 @@ static array<double, number_of_coefficients> GetCoefficients(const array<distort
 
 static void ShowDistortedImages(const int, void * const user_data)
 {
-  auto &data = *((const distortion_data * const)user_data);
+  auto &data = *(static_cast<distortion_data*>(user_data));
   const Mat &image = data.image;
   const auto distortion_vector = GetCoefficients(data.distortion_coefficients);
   const auto standard_camera_matrix = GetStandardCameraMatrix(image.size());
@@ -95,19 +95,19 @@ static string AddControls(distortion_data &data)
   for (auto &coeff : data.distortion_coefficients)
   {
     const auto title = GetTrackbarTitle(coeff);
-    createTrackbar(title, data.window_name, &coeff.value, max_negative_value + max_positive_value, ShowDistortedImages, (void*)&data);
+    createTrackbar(title, data.window_name, &coeff.value, max_negative_value + max_positive_value, ShowDistortedImages, static_cast<void*>(&data));
     setTrackbarMin(title, data.window_name, -max_negative_value);
     setTrackbarMax(title, data.window_name, max_positive_value);
   }
   createButton("Reset", [](const int, void * const user_data)
                           {
-                            auto &data = *((distortion_data * const)user_data);
+                            auto &data = *(static_cast<distortion_data*>(user_data));
                             for (auto &coeff : data.distortion_coefficients)
                             {
                               const auto title = GetTrackbarTitle(coeff);
                               setTrackbarPos(title, data.window_name, 0);
                             }
-                          }, (void*)&data, QT_PUSH_BUTTON);
+                          }, static_cast<void*>(&data), QT_PUSH_BUTTON);
   return GetTrackbarTitle(data.distortion_coefficients[0]);
 }
 

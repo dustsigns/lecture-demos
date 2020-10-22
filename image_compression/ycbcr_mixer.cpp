@@ -1,5 +1,5 @@
 //Illustration of YCbCr color mixing
-// Andreas Unterweger, 2018-2019
+// Andreas Unterweger, 2018-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -39,7 +39,7 @@ static Mat GenerateColorImage(const int y, const int cr, const int cb)
 
 static void UpdateImage(const int, void * const user_data)
 {
-  auto &data = *((const YCbCr_data * const)user_data);
+  auto &data = *(static_cast<const YCbCr_data*>(user_data));
   const Mat ycrcb_image = GenerateColorImage(data.y_portion, data.cr_portion, data.cb_portion);
   Mat rgb_image;
   cvtColor(ycrcb_image, rgb_image, COLOR_YCrCb2BGR);
@@ -53,11 +53,11 @@ static void ShowImage()
   moveWindow(window_name, 0, 0);
   static YCbCr_data data(window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
   constexpr auto y_trackbar_name = "Y portion";
-  createTrackbar(y_trackbar_name, window_name, &data.y_portion, 255, UpdateImage, (void*)&data);
+  createTrackbar(y_trackbar_name, window_name, &data.y_portion, 255, UpdateImage, static_cast<void*>(&data));
   constexpr auto cb_trackbar_name = "Cb portion";
-  createTrackbar(cb_trackbar_name, window_name, &data.cb_portion, 255, UpdateImage, (void*)&data);
+  createTrackbar(cb_trackbar_name, window_name, &data.cb_portion, 255, UpdateImage, static_cast<void*>(&data));
   constexpr auto cr_trackbar_name = "Cr portion";
-  createTrackbar(cr_trackbar_name, window_name, &data.cr_portion, 255, UpdateImage, (void*)&data);
+  createTrackbar(cr_trackbar_name, window_name, &data.cr_portion, 255, UpdateImage, static_cast<void*>(&data));
   setTrackbarPos(y_trackbar_name, window_name, 255); //Implies imshow with white (Y=255, Cb=128, Cr=128)
 }
 

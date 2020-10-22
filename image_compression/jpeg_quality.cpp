@@ -1,5 +1,5 @@
 //Illustration of JPEG quality levels
-// Andreas Unterweger, 2016-2019
+// Andreas Unterweger, 2016-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -76,7 +76,7 @@ static void ShowImages(const Mat &image)
   createTrackbar(trackbar_name, image_window_name, &data.quality, 100,
     [](const int, void * const user_data)
       {
-        auto &data = *((const JPEG_data * const)user_data);
+        auto &data = *(static_cast<const JPEG_data*>(user_data));
         const Mat &image = data.image;
         const auto uncompressed_size = image.total() * image.elemSize();
         unsigned int compressed_size;
@@ -87,7 +87,7 @@ static void ShowImages(const Mat &image)
         const Mat combined_image = CombineImages({image, compressed_image}, Horizontal);
         imshow(data.image_window_name, combined_image);
         ShowDifferenceImage(data.difference_window_name, image, compressed_image);
-      }, (void*)&data);
+      }, static_cast<void*>(&data));
   setTrackbarPos(trackbar_name, image_window_name, 50); //Implies imshow with 50%
 }
 

@@ -95,11 +95,11 @@ static void ShowImages(const Mat &image)
   static histogram_data data(image, window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
   createTrackbar(trackbar_name, window_name, &data.number_of_bins, 256, [](const int, void * const user_data)
                                                                           {
-                                                                              auto &data = *((histogram_data * const)user_data);
+                                                                              auto &data = *(static_cast<histogram_data*>(user_data));
                                                                               const Mat histogram_image = PlotHistograms(data);
                                                                               const Mat combined_image = CombineImages({data.image, histogram_image}, Horizontal);
                                                                               imshow(data.window_name, combined_image);
-                                                                          }, (void*)&data);
+                                                                          }, static_cast<void*>(&data));
   setTrackbarMin(trackbar_name, window_name, 2); //A histogram with less than two bins does not make sense
   setTrackbarPos(trackbar_name, window_name, 256); //Implies imshow with 256 bins
 }

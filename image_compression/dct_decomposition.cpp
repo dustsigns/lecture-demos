@@ -1,5 +1,5 @@
 //Illustration of the decomposition of a block into 2-D DCT basis functions and their recomposition
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -205,7 +205,7 @@ static void ShowImages(const Mat &image)
   constexpr auto trackbar_name = "log2(transform size)";
   createTrackbar(trackbar_name, window_name, &data.log_block_size, log_max_block_size, [](const int, void * const user_data)
                                                                                          {
-                                                                                           auto &data = *((DCT_data * const)user_data);
+                                                                                           auto &data = *(static_cast<DCT_data*>(user_data));
                                                                                            data.running = false; //Make sure the animation is stopped
                                                                                            Mat empty_sum(data.GetBlockSize(), data.GetBlockSize(), CV_8UC1, Scalar(ReverseLevelShift(0))); //Create level-shifted zero image
                                                                                            imshow(data.sum_window_name, empty_sum); //Show all-grey image
@@ -218,10 +218,10 @@ static void ShowImages(const Mat &image)
                                                                                            moveWindow(data.detail_window_name, 2 * displayed_window_size + 3, 0); //Move basis function window right beside the DCT window (window width plus additional distance)
                                                                                            resizeWindow(data.sum_window_name, displayed_window_size, displayed_window_size);
                                                                                            moveWindow(data.sum_window_name, 2 * (2 * displayed_window_size + 3), 0); //Move basis function window right beside the DCT and basis function windows (two window widths plus additional distance, each)
-                                                                                          }, (void*)&data);
+                                                                                          }, static_cast<void*>(&data));
   setMouseCallback(window_name, [](const int event, const int x, const int y, const int, void * const userdata)
                                   {
-                                    auto &data = *((const DCT_data * const)userdata);
+                                    auto &data = *(static_cast<const DCT_data*>(userdata));
                                     if (event == EVENT_LBUTTONUP) //Only react when the left mouse button is being pressed
                                     {
                                       const auto block_size = data.GetBlockSize();
@@ -230,24 +230,24 @@ static void ShowImages(const Mat &image)
                                       if (relative_x >= 0 && static_cast<unsigned int>(relative_x) < block_size && relative_y >= 0 && static_cast<unsigned int>(relative_y) < block_size)
                                         SetFocusedCoefficient(relative_x, relative_y, data);
                                     }
-                                  }, (void*)&data);
+                                  }, static_cast<void*>(&data));
   constexpr auto start_button_name = "Add weighted basis functions";
   createButton(start_button_name, [](const int, void * const user_data)
                                     {
-                                      auto &data = *((DCT_data * const)user_data);
+                                      auto &data = *(static_cast<DCT_data*>(user_data));
                                       if (!data.running)
                                       {
                                         data.running = true;
                                         AddWeightedBasisFunctions(data);
                                         data.running = false;
                                       }
-                                    }, (void*)&data, QT_PUSH_BUTTON);
+                                    }, static_cast<void*>(&data), QT_PUSH_BUTTON);
   constexpr auto stop_button_name = "Stop animation";
   createButton(stop_button_name, [](const int, void * const user_data)
                                    {
-                                     auto &data = *((DCT_data * const)user_data);
+                                     auto &data = *(static_cast<DCT_data*>(user_data));
                                      data.running = false;
-                                   }, (void*)&data, QT_PUSH_BUTTON);
+                                   }, static_cast<void*>(&data), QT_PUSH_BUTTON);
   setTrackbarPos(trackbar_name, window_name, log_default_block_size); //Implies imshow with DCT size of 8
 }
 

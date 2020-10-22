@@ -68,7 +68,7 @@ static void ShowImage(const Mat &original_image)
         {
           if (!state) //Ignore radio button events where the button becomes unchecked
             return;
-          auto &format = *((const color_format * const)user_data);
+          auto &format = *(static_cast<const color_format*>(user_data));
           auto &image = data.image;
           auto &window_name = data.window_name;
           const auto uncompressed_size = image.total() * image.elemSize();
@@ -79,7 +79,7 @@ static void ShowImage(const Mat &original_image)
           displayStatusBar(window_name, status_text);
           const Mat combined_image = CombineImages({image, converted_image}, Horizontal);
           imshow(window_name, combined_image);
-        }, (void*)&format, QT_RADIOBOX, &format == &default_color_format); //Make radio button corresponding to default color format checked
+        }, const_cast<void*>(static_cast<const void*>(&format)), QT_RADIOBOX, &format == &default_color_format); //Make radio button corresponding to default color format checked
   }
   //The first radio button is checked by default, triggering an update event implying imshow
 }

@@ -1,5 +1,5 @@
 //Illustration of intra prediction and the effect of residuals on transforms
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -253,7 +253,7 @@ static void ShowImages(const Mat &region)
                                              if (!state) //Ignore radio button events where the button becomes unchecked
                                                return;
                                             imshow(data.original_window_name, data.image); //Show original image
-                                            auto &prediction_method = *((const prediction_function_data * const)user_data);
+                                            auto &prediction_method = *(static_cast<const prediction_function_data*>(user_data));
                                             auto &data = prediction_method.data;
                                             Mat original_block, predicted_block;
                                             ShowPrediction(data.image, data.predicted_window_name, prediction_method.function, original_block, predicted_block);
@@ -261,7 +261,7 @@ static void ShowImages(const Mat &region)
                                             const Mat difference = SubtractImages(original_block, predicted_block);
                                             ShowDifferenceAndDCT(difference, data.predicted_transformed_window_name, true);
                                             ShowPredictionIllustration(data.image, data.prediction_window_name, prediction_method.illustration_function);
-                                          }, (void*)&prediction_method, QT_RADIOBOX, &prediction_method == &prediction_methods[arraysize(prediction_methods) - 1]); //Make last radio button checked
+                                          }, const_cast<void*>(static_cast<const void*>(&prediction_method)), QT_RADIOBOX, &prediction_method == &prediction_methods[arraysize(prediction_methods) - 1]); //Make last radio button checked
   }
   AlignWindows(data);
   //The first radio button is checked by default, triggering an update event implying imshow

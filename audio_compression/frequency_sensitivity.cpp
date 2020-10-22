@@ -75,7 +75,7 @@ static Mat PlotWaves(const audio_data &data)
 
 static void TrackbarEvent(const int, void * const user_data)
 {
-  auto &data = *((audio_data * const)user_data);
+  auto &data = *(static_cast<audio_data*>(user_data));
   ResetGenerator(data);
   Mat image = PlotWaves(data);
   imshow(data.window_name, image);
@@ -89,17 +89,17 @@ static void ShowControls()
   constexpr auto frequency_trackbar_name = "Frequency [Hz]";
   constexpr auto level_trackbar_name = "Level [-dB]";
   static audio_data data(window_name, frequency_trackbar_name, level_trackbar_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
-  createTrackbar(frequency_trackbar_name, window_name, &data.frequency, max_frequency, TrackbarEvent, (void*)&data);
-  createTrackbar(level_trackbar_name, window_name, &data.level_percent, 100, TrackbarEvent, (void*)&data);
+  createTrackbar(frequency_trackbar_name, window_name, &data.frequency, max_frequency, TrackbarEvent, static_cast<void*>(&data));
+  createTrackbar(level_trackbar_name, window_name, &data.level_percent, 100, TrackbarEvent, static_cast<void*>(&data));
   constexpr auto checkbox_name = "Mute";
   createButton(checkbox_name, [](const int, void * const user_data)
                               {
-                                auto &data = *((audio_data * const)user_data);
+                                auto &data = *(static_cast<audio_data*>(user_data));
                                 if (data.player.IsPlayingBack())
                                   data.player.Pause();
                                 else
                                   data.player.Resume();
-                              }, (void*)&data, QT_CHECKBOX);
+                              }, static_cast<void*>(&data), QT_CHECKBOX);
   setTrackbarPos(level_trackbar_name, window_name, 20); //Implies imshow with level at -20 dB
 }
 

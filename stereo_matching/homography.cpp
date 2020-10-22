@@ -1,5 +1,5 @@
 //Illustration of plane-to-plane warping with a homography
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -76,7 +76,7 @@ static void ShowImages(const Mat &source_image, const Mat &target_image)
                                          {
                                            if (event != EVENT_LBUTTONDOWN) //Only react on mouse down
                                              return;
-                                           auto &data = *((homography_data * const)user_data);
+                                           auto &data = *(static_cast<homography_data*>(user_data));
                                            if (data.target_corners.size() < 4)
                                              data.target_corners.push_back(Point2f(x, y));
                                            const auto corner_image = DrawCorners(data.target_image, data.target_corners);
@@ -86,14 +86,14 @@ static void ShowImages(const Mat &source_image, const Mat &target_image)
                                              const auto warped_image = WarpImage(data.source_image, data.target_image, data.target_corners);
                                              imshow(data.target_window_name, warped_image);
                                            }
-                                         }, (void*)&data);
+                                         }, static_cast<void*>(&data));
   auto clear_button_name = "Clear selection";
   createButton(clear_button_name, [](const int, void * const user_data)
                                     {
-                                      auto &data = *((homography_data * const)user_data);
+                                      auto &data = *(static_cast<homography_data*>(user_data));
                                       data.target_corners.clear();
                                       imshow(data.target_window_name, data.target_image); //Redraw original image
-                                    }, (void*)&data);
+                                    }, static_cast<void*>(&data));
   imshow(source_window_name, source_image);
   imshow(target_window_name, target_image);
 }

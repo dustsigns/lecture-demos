@@ -217,18 +217,18 @@ static void ShowImages(const Mat &reference_image, const Mat &image, const Point
   static ME_data data(reference_image, image, ExtendRect(block_center, search_radius), ExtendRect(block_center, block_size / 2), me_window_name, mc_window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
   setMouseCallback(me_window_name, [](const int event, const int x, const int y, const int, void * const userdata)
                                      {
-                                       auto &data = *((ME_data * const)userdata);
+                                       auto &data = *(static_cast<ME_data*>(userdata));
                                        if (!data.running && event == EVENT_LBUTTONUP) //Only react when the left mouse button is being pressed while no motion estimation is running
                                        {
                                          const Point mouse_point(x + border_size, y + border_size); //Assume mouse position is in the top-left of the search block (on the outside border which is border_size pixels in width)
                                          if (LimitRect(data.search_area, block_size).contains(mouse_point)) //If the mouse is within the search area (minus the positions on the bottom which would lead to the search block exceeding the borders)...
                                            SetMotionVector(data, mouse_point - data.reference_block.tl()); //... set the search position according to the mouse position
                                        }
-                                     }, (void*)&data);
+                                     }, static_cast<void*>(&data));
   constexpr auto perform_button_name = "Perform ME";
   createButton(perform_button_name, [](const int, void * const user_data)
                                       {
-                                        auto &data = *((ME_data * const)user_data);
+                                        auto &data = *(static_cast<ME_data*>(user_data));
                                         if (!data.running)
                                         {
                                           data.running = true;
@@ -237,13 +237,13 @@ static void ShowImages(const Mat &reference_image, const Mat &image, const Point
                                             SetBestMV(data, cost_map); //... set the best MV from the search
                                           data.running = false;
                                         }
-                                      }, (void*)&data, QT_PUSH_BUTTON);
+                                      }, static_cast<void*>(&data), QT_PUSH_BUTTON);
   constexpr auto stop_button_name = "Stop ME";
   createButton(stop_button_name, [](const int, void * const user_data)
                                    {
                                      auto &data = *((ME_data * const)user_data);
                                      data.running = false;
-                                   }, (void*)&data, QT_PUSH_BUTTON);
+                                   }, static_cast<void*>(&data), QT_PUSH_BUTTON);
   constexpr auto map_button_name = "Show map of costs";
   createButton(map_button_name, [](const int, void * const user_data)
                                   {
@@ -260,15 +260,15 @@ static void ShowImages(const Mat &reference_image, const Mat &image, const Point
                                     setMouseCallback(map_window_name, 
                                                      [](const int event, const int x, const int y, const int, void * const userdata)
                                                         {
-                                                          auto &data = *((ME_data * const)userdata);
+                                                          auto &data = *(static_cast<ME_data*>(userdata));
                                                           if (!data.running && event == EVENT_LBUTTONUP) //Only react when the left mouse button is being pressed while no motion estimation is running
                                                           {
                                                             const Point mouse_point(x, y);
                                                             const Point MV = MatrixPositionToMV(mouse_point);
                                                             SetMotionVector(data, MV);
                                                           }
-                                                        }, (void*)&data);
-                                  }, (void*)&data, QT_PUSH_BUTTON);
+                                                        }, static_cast<void*>(&data));
+                                  }, static_cast<void*>(&data), QT_PUSH_BUTTON);
   SetMotionVector(data, Point()); //Set MV to (0, 0) (implies imshow)
 }
 

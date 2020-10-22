@@ -1,5 +1,5 @@
 //Illustration of epipolar lines
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -182,9 +182,9 @@ Viz3d &ShowWindows(const char * const model_filename)
                                        {
                                          if (event != EVENT_MOUSEMOVE) //Only react on mouse move
                                            return;
-                                         auto &data = *((const epipolar_data * const)userdata);
+                                         auto &data = *(static_cast<const epipolar_data*>(userdata));
                                          RenderViews(data, x, y);
-                                       }, (void*)&data);
+                                       }, static_cast<void*>(&data));
   moveWindow(data.left_window_name, 0, 0);
   moveWindow(data.right_window_name, epipolar_data::window_width + 3, 0); //Move window right beside visualization (window size plus 3 border pixels)
   data.global_visualization.spinOnce(1, true);

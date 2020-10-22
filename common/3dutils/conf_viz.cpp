@@ -1,5 +1,5 @@
 //3-D visualization window with accompanying configuration window
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <opencv2/highgui.hpp>
@@ -62,9 +62,9 @@ namespace vizutils
       auto &control = control_pair.second;
       createTrackbar(control_name, control_window_name, &control.parameter, control.max_parameter, [](const int, void * const userdata)
                                                                                                      {
-                                                                                                       auto &window_control = *(WindowControl * const)userdata;
+                                                                                                       auto &window_control = *(static_cast<WindowControl*>(userdata));
                                                                                                        window_control.callback(window_control.parent);
-                                                                                                     }, (void*)&control);
+                                                                                                     }, static_cast<void*>(&control));
       setTrackbarMin(control_name, control_window_name, control.min_parameter);
       setTrackbarMax(control_name, control_window_name, control.max_parameter);
     }

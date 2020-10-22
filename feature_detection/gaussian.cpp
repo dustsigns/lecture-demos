@@ -1,5 +1,5 @@
 //Illustration of Gaussian filtering
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -38,14 +38,14 @@ static const char *AddControls(Gaussian_data &data)
   createTrackbar(scaling_trackbar_name, data.window_name, &data.sigma_percent, max_sigma * 100,
                  [](const int, void * const user_data)
                    {
-                     auto &data = *((const Gaussian_data * const)user_data);
+                     auto &data = *(static_cast<const Gaussian_data*>(user_data));
                      const Mat &image = data.image;
                      const double sigma = data.sigma_percent / 100.0;
                      Mat blurred_image;
                      GaussianBlur(image, blurred_image, Size(), sigma);
                      const Mat combined_image = CombineImages({image, blurred_image}, Horizontal);
                      imshow(data.window_name, combined_image);
-                   }, (void*)&data);
+                   }, static_cast<void*>(&data));
   setTrackbarMin(scaling_trackbar_name, data.window_name, 1);
   return scaling_trackbar_name;
 }

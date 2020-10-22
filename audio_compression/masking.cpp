@@ -86,7 +86,7 @@ static Mat PlotSpectrum(const audio_data &data)
 static void TrackbarEvent(const size_t trackbar_id, void * const user_data)
 {
   assert(trackbar_id == 0 || trackbar_id == 1);
-  auto &data = *((audio_data * const)user_data);
+  auto &data = *(static_cast<audio_data*>(user_data));
   if (data.player.IsPlaying())
     data.player.Stop();
   for (const auto &i : {0, 1})
@@ -112,19 +112,19 @@ static void ShowControls()
   createTrackbar(trackbar_names[0], window_name, &data.levels_percent[0], 100, [](const int, void * const user_data)
                                                                                  {
                                                                                    TrackbarEvent(0, user_data);
-                                                                                 }, (void*)&data);
+                                                                                 }, static_cast<void*>(&data));
   createTrackbar(trackbar_names[1], window_name, &data.levels_percent[1], 100, [](const int, void * const user_data)
                                                                                  {
                                                                                    TrackbarEvent(1, user_data);
-                                                                                 }, (void*)&data);
+                                                                                 }, static_cast<void*>(&data));
   createButton("Mute", [](const int, void * const user_data)
                        {
-                         auto &data = *((audio_data * const)user_data);
+                         auto &data = *(static_cast<audio_data*>(user_data));
                          if (data.player.IsPlayingBack())
                            data.player.Pause();
                          else
                            data.player.Resume();
-                       }, (void*)&data, QT_CHECKBOX);
+                       }, static_cast<void*>(&data), QT_CHECKBOX);
   setTrackbarPos(trackbar_names[1], window_name, 20); //Implies imshow with second level at -20 dB
 }
 

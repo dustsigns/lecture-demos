@@ -138,12 +138,12 @@ static void ShowControls()
   static DCT_data data(window_name, trackbar_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
   createTrackbar(trackbar_name, window_name, &data.visible_coefficients, N, [](const int, void * const user_data)
                                                                               {
-                                                                                auto &data = *((DCT_data * const)user_data);
+                                                                                auto &data = *(static_cast<DCT_data*>(user_data));
                                                                                 const Mat wave_image = PlotWaves(data);
                                                                                 const Mat spectrum_image = PlotSpectrum(data);
                                                                                 const Mat combined_image = CombineImages({wave_image, spectrum_image}, Horizontal);
                                                                                 imshow(data.window_name, combined_image);
-                                                                              }, (void*)&data);
+                                                                              }, static_cast<void*>(&data));
   setTrackbarPos(trackbar_name, window_name, N); //Implies imshow with all visible components
 }
 

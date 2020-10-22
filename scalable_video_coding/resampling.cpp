@@ -1,5 +1,5 @@
 //Illustration of downsampling and upsampling
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -39,7 +39,7 @@ constexpr pair<const char*, int> resampling_algorithms[] {make_pair("Nearest nei
 
 static void ShowResampledImages(const int, void * const user_data)
 {
-  auto &data = *((const resampling_data * const)user_data);
+  auto &data = *(static_cast<const resampling_data*>(user_data));
   const Mat &image = data.image;
   const double scaling_factor = sqrt(data.scaling_factor_percent / 100.0);
   Mat downsampled_image;
@@ -55,7 +55,7 @@ static void SetResamplingAlgorithm(const int state, void * const user_data)
 {
   if (!state) //Ignore radio button events where the button becomes unchecked
     return;
-  auto &data = *((resampling_data * const)user_data);
+  auto &data = *(static_cast<resampling_data*>(user_data));
   data.resampling_algorithm = A;
   ShowResampledImages(state, user_data);
 }
@@ -78,9 +78,9 @@ static void CreateAllButtons(void * const data)
 static const char *AddControls(resampling_data &data)
 {
   constexpr auto scaling_trackbar_name = "Scaling [%]";
-  createTrackbar(scaling_trackbar_name, data.window_name, &data.scaling_factor_percent, 100, ShowResampledImages, (void*)&data);
+  createTrackbar(scaling_trackbar_name, data.window_name, &data.scaling_factor_percent, 100, ShowResampledImages, static_cast<void*>(&data));
   setTrackbarMin(scaling_trackbar_name, data.window_name, 1);
-  CreateAllButtons((void*)&data);
+  CreateAllButtons(static_cast<void*>(&data));
   return scaling_trackbar_name;
 }
 

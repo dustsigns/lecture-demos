@@ -1,5 +1,5 @@
 //Illustration of DoG computation
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2020
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -43,7 +43,7 @@ static void ShowDifferenceImage(const string &window_name, const Mat &first_imag
 
 static void UpdateImages(const int, void * const user_data)
 {
-  auto &data = *((const DoG_data * const)user_data);
+  auto &data = *(static_cast<const DoG_data*>(user_data));
   const Mat &image = data.image;
   const double sigma = data.sigma_percent / 100.0;
   const double k = data.k_percent / 100.0;
@@ -61,10 +61,10 @@ static const char *AddControls(DoG_data &data)
   constexpr auto max_k = 5;
   
   constexpr auto sigma_trackbar_name = "Sigma [%]";
-  createTrackbar(sigma_trackbar_name, data.image_window_name, &data.sigma_percent, max_sigma * 100, UpdateImages, (void*)&data);
+  createTrackbar(sigma_trackbar_name, data.image_window_name, &data.sigma_percent, max_sigma * 100, UpdateImages, static_cast<void*>(&data));
   setTrackbarMin(sigma_trackbar_name, data.image_window_name, 1);
   constexpr auto k_trackbar_name = "k [%]";
-  createTrackbar(k_trackbar_name, data.image_window_name, &data.k_percent, max_k * 100, UpdateImages, (void*)&data);
+  createTrackbar(k_trackbar_name, data.image_window_name, &data.k_percent, max_k * 100, UpdateImages, static_cast<void*>(&data));
   setTrackbarMin(k_trackbar_name, data.image_window_name, 1);
   return k_trackbar_name;
 }
