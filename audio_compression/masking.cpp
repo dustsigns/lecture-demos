@@ -26,7 +26,7 @@ using namespace comutils;
 using namespace sndutils;
 using namespace imgutils;
 
-static constexpr unsigned int frequencies[2] {400, 440};
+static constexpr unsigned int frequencies[] {400, 440};
 static_assert(arraysize(frequencies) == 2, "This application can only illustrate masking for two frequencies in total");
 static_assert(frequencies[1] > frequencies[0], "The second frequency has to be larger than the first");
 
@@ -106,8 +106,9 @@ static void ShowControls()
   constexpr auto window_name = "Attenuation";
   namedWindow(window_name);
   moveWindow(window_name, 0, 0);
-  const string trackbar_names[2] {to_string(frequencies[0]) + " Hz level [-dB]",
-                                  to_string(frequencies[1]) + " Hz level [-dB]"};
+  constexpr auto unit_name = " Hz level [-dB]";
+  const string trackbar_names[2] {to_string(frequencies[0]) + unit_name,
+                                  to_string(frequencies[1]) + unit_name};
   static audio_data data(window_name, trackbar_names[0], trackbar_names[1]); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
   createTrackbar(trackbar_names[0], window_name, &data.levels_percent[0], 100, [](const int, void * const user_data)
                                                                                  {
