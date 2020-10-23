@@ -67,7 +67,7 @@ static Mat PlotWaves(const audio_data &data)
   plot.SetAxesLabels("t [ms]", "I(t)");
   Tick::GenerateTicks(plot.x_axis_ticks, 0, displayed_samples, 0.01 * sampling_frequency, 1, 0, 1000.0 / sampling_frequency); //Mark and label every 10 ms with no decimal places and a relative scale (1000 for ms)
   plot.x_axis_ticks.pop_back(); //Remove last tick and label so that the axis label is not overwritten
-  Tick::GenerateTicks(plot.y_axis_ticks, numeric_limits<audio_type>::min() + 1, numeric_limits<audio_type>::max(), numeric_limits<audio_type>::max() / 2.0, 1, 1, 1.0 / numeric_limits<audio_type>::max()); //Mark and label every 0.5 units (0-1) with 1 decimal place and a relative scale (where the maximum is 1)
+  Tick::GenerateTicks(plot.y_axis_ticks, numeric_limits<audio_type>::lowest() + 1, numeric_limits<audio_type>::max(), numeric_limits<audio_type>::max() / 2.0, 1, 1, 1.0 / numeric_limits<audio_type>::max()); //Mark and label every 0.5 units (0-1) with 1 decimal place and a relative scale (where the maximum is 1)
   Mat_<Vec3b> image;
   plot.DrawTo(image);
   return image;
