@@ -65,8 +65,7 @@ static void CreateButtons(void * const data, const index_sequence<Is...>&)
 {
   constexpr auto index_limit = arraysize(resampling_algorithms);
   static_assert(sizeof...(Is) <= index_limit, "Number of array indices is out of bounds");
-  using dummy = const int[];
-  dummy { (createButton(resampling_algorithms[Is].first, SetResamplingAlgorithm<resampling_algorithms[Is].second>, data, QT_RADIOBOX, Is == 0), 0)... }; //Make first radio button checked
+  ((void)createButton(resampling_algorithms[Is].first, SetResamplingAlgorithm<resampling_algorithms[Is].second>, data, QT_RADIOBOX, Is == 0), ...); //Make first radio button checked
 }
 
 static void CreateAllButtons(void * const data)
