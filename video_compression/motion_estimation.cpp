@@ -210,7 +210,7 @@ static void ShowImages(const Mat &reference_image, const Mat &image, const Point
   constexpr auto me_window_name = "Motion estimation";
   namedWindow(me_window_name);
   moveWindow(me_window_name, 0, 0);
-  constexpr auto mc_window_name = "Original block vs. found block vs. motion compensation";
+  constexpr auto mc_window_name = "Found block vs. original block vs. motion compensation";
   namedWindow(mc_window_name, WINDOW_NORMAL); //Disable auto-size to enable zooming
   resizeWindow(mc_window_name, (3 * block_size + 2) * 30, block_size * 30); //>30x zoom to illustrate values (MC image shows 3 blocks and two border pixels) //TODO: Why is x30 not sufficient?
   moveWindow(mc_window_name, 2 * image.cols + 3 + 3, 0); //Move MC window right beside the ME window (2 images plus 3 border pixels plus additional distance)
