@@ -3,7 +3,7 @@ List of available demonstrations
 
 The following is a list of all available demonstrations, grouped by folders, and their names in parentheses. Links to detailed descriptions are provided for all demonstrations.
 
-*Notes: The folder structure is based on the original structure of Andreas Unterweger's *Media Technology* and *Media Technology* lectures. Demonstrations are only available for selected parts of the lectures. Both, the folders and the demonstrations in them are listed in alphabetical order, i.e., they are sorted by their names rather than being in the chronological order of the lectures.*
+*Notes: The folder structure is based on the original structure of Andreas Unterweger's *Media Technology* and *Media Informatics* lectures. Demonstrations are only available for selected parts of the lectures. Both, the folders and the demonstrations in them are listed in alphabetical order, i.e., they are sorted by their names rather than being in the chronological order of the lectures.*
 
 Affine transformations (`affine_transformations`)
 -------------------------------------------------
