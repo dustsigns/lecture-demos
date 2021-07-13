@@ -1,5 +1,5 @@
 //Illustration of SIFT keypoint matching
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -75,8 +75,9 @@ static void GetMatches(const Mat &first_image, vector<KeyPoint> &first_keypoints
 
 static Mat DrawMatches(const Mat &first_image, const vector<KeyPoint> &first_keypoints, const Mat &second_image, const vector<KeyPoint> &second_keypoints, const vector<DMatch> &matches)
 {
+  constexpr auto line_width = 3;
   Mat match_image;
-  drawMatches(first_image, first_keypoints, second_image, second_keypoints, matches, match_image, Scalar::all(-1), Scalar::all(-1), vector<char>(), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+  drawMatches(first_image, first_keypoints, second_image, second_keypoints, matches, match_image, line_width, Scalar::all(-1), Scalar::all(-1), vector<char>(), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
   return match_image;
 }
 

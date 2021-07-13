@@ -40,7 +40,7 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-None
+* `line_width` (local to `DrawMatches`): Width of the line connecting the supposedly-matching keypoints.
 
 Known issues
 ------------
