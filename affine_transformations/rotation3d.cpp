@@ -6,6 +6,7 @@
 
 #include <opencv2/viz.hpp>
 
+#include "common.hpp"
 #include "math.hpp"
 #include "conf_viz.hpp"
 
@@ -55,28 +56,38 @@ static void AddObjects(ConfigurableVisualization &visualization, const char * co
   Add3DObjects(visualization, model_filename);
 }
 
-static constexpr auto x_angle_trackbar_name = "X angle [°]";
-static constexpr auto y_angle_trackbar_name = "Y angle [°]";
-static constexpr auto z_angle_trackbar_name = "Z angle [°]";
+static constexpr char axes[] = {'X', 'Y', 'Z'};
 
-static constexpr decltype(x_angle_trackbar_name) trackbar_names[] { x_angle_trackbar_name, y_angle_trackbar_name, z_angle_trackbar_name };
+static string GetTrackbarName(const char axis)
+{
+  const auto trackbar_name = ""s + axis + " angle [°]";
+  return trackbar_name;
+}
 
 static void ApplyTransformations(ConfigurableVisualization &visualization)
 {
-  const auto x_angle_degrees = visualization.GetTrackbarValue(x_angle_trackbar_name);
-  const auto y_angle_degrees = visualization.GetTrackbarValue(y_angle_trackbar_name);
-  const auto z_angle_degrees = visualization.GetTrackbarValue(z_angle_trackbar_name);
-  Affine3d transformation(Vec3d(DegreesToRadians(x_angle_degrees), 0, 0));
-  transformation = transformation.rotate(Vec3d(0, DegreesToRadians(y_angle_degrees), 0));
-  transformation = transformation.rotate(Vec3d(0, 0, DegreesToRadians(z_angle_degrees)));
+  Affine3d transformation;
+  for (size_t i = 0; i < arraysize(axes); i++)
+  {
+    const auto &axis = axes[i];
+    const auto trackbar_name = GetTrackbarName(axis);
+    const auto rotation_degrees = visualization.GetTrackbarValue(trackbar_name);
+    const auto rotation_angle = DegreesToRadians(rotation_degrees);
+    Vec3d rotation;
+    rotation[i] = rotation_angle;
+    transformation = transformation.rotate(rotation);
+  }
   auto &transformed_object = visualization.objects[transformed_object_name];
   transformed_object.setPose(transformation);
 }
 
 static void AddControls(ConfigurableVisualization &visualization)
 {
-  for (const auto &trackbar_name : trackbar_names)
+  for (const auto &axis : axes)
+  {
+    const auto trackbar_name = GetTrackbarName(axis);
     visualization.AddTrackbar(trackbar_name, ApplyTransformations, 360);
+  }
 }
 
 int main(const int argc, const char * const argv[])

@@ -6,6 +6,7 @@
 
 #include <opencv2/viz.hpp>
 
+#include "common.hpp"
 #include "conf_viz.hpp"
 
 using namespace std;
@@ -13,6 +14,7 @@ using namespace std;
 using namespace cv;
 using namespace viz;
 
+using namespace comutils;
 using namespace vizutils;
 
 static constexpr auto transformed_object_name = "Transformed object";
@@ -40,16 +42,25 @@ static void AddObjects(ConfigurableVisualization &visualization)
   Add2DObjects(visualization);
 }
 
-static constexpr auto x_zoom_trackbar_name = "X zoom [%]";
-static constexpr auto y_zoom_trackbar_name = "Y zoom [%]";
+static constexpr char axes[] = {'X', 'Y'};
 
-static constexpr decltype(x_zoom_trackbar_name) trackbar_names[] { x_zoom_trackbar_name, y_zoom_trackbar_name };
+static string GetTrackbarName(const char axis)
+{
+  const auto trackbar_name = ""s + axis + " zoom [%]";
+  return trackbar_name;
+}
 
 static void ApplyTransformations(ConfigurableVisualization &visualization)
 {
-  const auto x_zoom_percent = visualization.GetTrackbarValue(x_zoom_trackbar_name);
-  const auto y_zoom_percent = visualization.GetTrackbarValue(y_zoom_trackbar_name);
-  const Vec3d zoom(x_zoom_percent / 100.0, y_zoom_percent / 100.0, 1.0);
+  Vec3d zoom;
+  for (size_t i = 0; i < arraysize(axes); i++)
+  {
+    const auto &axis = axes[i];
+    const auto trackbar_name = GetTrackbarName(axis);
+    const auto zoom_percent = visualization.GetTrackbarValue(trackbar_name);
+    const auto zoom_value = zoom_percent / 100.0;
+    zoom[i] = zoom_value;
+  }
   const Affine3d transformation = Affine3d(Affine3d::Mat3::diag(zoom));
   auto &transformed_object = visualization.objects[transformed_object_name];
   transformed_object.setPose(transformation);
@@ -57,8 +68,11 @@ static void ApplyTransformations(ConfigurableVisualization &visualization)
 
 static void AddControls(ConfigurableVisualization &visualization)
 {
-  for (const auto &trackbar_name : trackbar_names)
+  for (const auto &axis : axes)
+  {
+    const auto trackbar_name = GetTrackbarName(axis);
     visualization.AddTrackbar(trackbar_name, ApplyTransformations, 200, 0, 100);
+  }
 }
 
 int main(const int argc, const char * const argv[])

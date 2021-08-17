@@ -6,6 +6,7 @@
 
 #include <opencv2/viz.hpp>
 
+#include "common.hpp"
 #include "conf_viz.hpp"
 
 using namespace std;
@@ -13,6 +14,7 @@ using namespace std;
 using namespace cv;
 using namespace viz;
 
+using namespace comutils;
 using namespace vizutils;
 
 static constexpr auto transformed_object_name = "Transformed object";
@@ -40,16 +42,25 @@ static void AddObjects(ConfigurableVisualization &visualization)
   Add2DObjects(visualization);
 }
 
-static constexpr auto x_offset_trackbar_name = "X offset";
-static constexpr auto y_offset_trackbar_name = "Y offset";
+static constexpr char axes[] = {'X', 'Y'};
 
-static constexpr decltype(x_offset_trackbar_name) trackbar_names[] { x_offset_trackbar_name, y_offset_trackbar_name };
+static string GetTrackbarName(const char axis)
+{
+  const auto trackbar_name = ""s + axis + " offset";
+  return trackbar_name;
+}
 
 static void ApplyTransformations(ConfigurableVisualization &visualization)
 {
-  const auto x_offset_percent = visualization.GetTrackbarValue(x_offset_trackbar_name);
-  const auto y_offset_percent = visualization.GetTrackbarValue(y_offset_trackbar_name);
-  const Vec3d offset(x_offset_percent / 100.0, y_offset_percent / 100.0, 0);
+  Vec3d offset;
+  for (size_t i = 0; i < arraysize(axes); i++)
+  {
+    const auto &axis = axes[i];
+    const auto trackbar_name = GetTrackbarName(axis);
+    const auto offset_percent = visualization.GetTrackbarValue(trackbar_name);
+    const auto offset_value = offset_percent / 100.0;
+    offset[i] = offset_value;
+  }
   const auto transformation = Affine3d::Identity().translate(offset);
   auto &transformed_object = visualization.objects[transformed_object_name];
   transformed_object.setPose(transformation);
@@ -57,8 +68,11 @@ static void ApplyTransformations(ConfigurableVisualization &visualization)
 
 static void AddControls(ConfigurableVisualization &visualization)
 {
-  for (const auto &trackbar_name : trackbar_names)
+  for (const auto &axis : axes)
+  {
+    const auto trackbar_name = GetTrackbarName(axis);
     visualization.AddTrackbar(trackbar_name, ApplyTransformations, 50, -50);
+  }
 }
 
 int main(const int argc, const char * const argv[])

@@ -96,9 +96,8 @@ static void UpdateCameraPose(ConfigurableVisualization &visualization)
 
 static void AddControls(ConfigurableVisualization &visualization)
 {
-  for (size_t i = 0; i < arraysize(axes); i++)
+  for (const auto &axis : axes)
   {
-    const auto &axis = axes[i];
     const auto trackbar_name = GetRotationTrackbarName(axis);
     visualization.AddTrackbar(trackbar_name, UpdateCameraPose, 360);
   }
