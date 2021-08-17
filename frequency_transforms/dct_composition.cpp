@@ -1,5 +1,5 @@
 //Illustration of the signal composition through the 1-D IDCT
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -49,7 +49,6 @@ static array<CosineWaveGenerator<double>, N> CreateAllGenerators()
 
 struct DCT_data
 {
-  int visible_coefficients;
   array<CosineWaveGenerator<double>, N> generators;
   WaveFormMixer<double, N> mixer;
   
@@ -57,17 +56,16 @@ struct DCT_data
   const string trackbar_name;
   
   DCT_data(const string &window_name, const string &trackbar_name)
-   : visible_coefficients(0),
-     generators{CreateAllGenerators()},
+   : generators{CreateAllGenerators()},
      mixer(array<WaveFormGenerator<double>*, N>{}, 1.0, N), //Add waveforms (mixer with weight 1.0); initialize with empty generators at startup (filled later)
      window_name(window_name), trackbar_name(trackbar_name) { }
 };
 
-static void AddCurrentWave(const DCT_data &data, vector<PointSet> &point_sets)
+static void AddCurrentWave(const DCT_data &data, const int visible_coefficients, vector<PointSet> &point_sets)
 {
-  if (data.visible_coefficients != N)
+  if (visible_coefficients != N)
   {
-    auto generator = data.generators[data.visible_coefficients];
+    auto generator = data.generators[visible_coefficients];
     vector<double> samples(N);
     generator.GetRepresentativeSamples(samples.size(), samples.data());
     PointSet point_set(samples, 1, Red, false, true); //No lines, but samples
@@ -82,11 +80,11 @@ static void AddCurrentWave(const DCT_data &data, vector<PointSet> &point_sets)
   }
 }
 
-static void AddSumWave(DCT_data &data, vector<PointSet> &point_sets)
+static void AddSumWave(DCT_data &data, const int visible_coefficients, vector<PointSet> &point_sets)
 {
-  for (size_t i = 0; i < (size_t)data.visible_coefficients; i++)
+  for (size_t i = 0; i < (size_t)visible_coefficients; i++)
     data.mixer.SetGenerator(i, &data.generators[i]);
-  for (size_t i = (size_t)data.visible_coefficients; i < N; i++) //Disable remaining coefficients
+  for (size_t i = (size_t)visible_coefficients; i < N; i++) //Disable remaining coefficients
     data.mixer.SetGenerator(i, nullptr);
     
   vector<double> added_samples(N);
@@ -96,11 +94,11 @@ static void AddSumWave(DCT_data &data, vector<PointSet> &point_sets)
   point_sets.push_back(point_set); //No lines, but samples
 }
 
-static Mat PlotWaves(DCT_data &data)
+static Mat PlotWaves(DCT_data &data, const int visible_coefficients)
 {
   vector<PointSet> point_sets;
-  AddSumWave(data, point_sets); //Add old sum first so that it is overdrawn if necessary
-  AddCurrentWave(data, point_sets);
+  AddSumWave(data, visible_coefficients, point_sets); //Add old sum first so that it is overdrawn if necessary
+  AddCurrentWave(data, visible_coefficients, point_sets);
   Plot plot(point_sets, false); //No autoscaling
   plot.SetVisibleRange(Point2d(0, -1), Point2d(N, 1)); //TODO: Set proper range to allow for potentially larger intermediate values
   plot.SetAxesLabels("n", "X(n)");
@@ -109,14 +107,14 @@ static Mat PlotWaves(DCT_data &data)
   return image;
 }
 
-static Mat PlotSpectrum(const DCT_data &data)
+static Mat PlotSpectrum(const int visible_coefficients)
 {
-  size_t displayed_coefficients = min(N, (size_t)data.visible_coefficients + 1); //First few coefficients plus the next one (except for the highest value - here, there is no next coefficient and all are shown again)
+  size_t displayed_coefficients = min(N, (size_t)visible_coefficients + 1); //First few coefficients plus the next one (except for the highest value - here, there is no next coefficient and all are shown again)
   vector<PointSet> separate_coefficients;
   for (size_t i = 0; i < displayed_coefficients; i++)
   {
-    PointSet point_set({ Point2d(i, coefficients[i]) }, i == (size_t)data.visible_coefficients ? Red : Purple, false, true); //No lines, but samples
-    if (i == static_cast<unsigned int>(data.visible_coefficients))
+    PointSet point_set({ Point2d(i, coefficients[i]) }, i == (size_t)visible_coefficients ? Red : Purple, false, true); //No lines, but samples
+    if (i == static_cast<unsigned int>(visible_coefficients))
       point_set.line_width = 3;
     separate_coefficients.push_back(point_set);
   }
@@ -136,14 +134,14 @@ static void ShowControls()
   moveWindow(window_name, 0, 0);
   constexpr auto trackbar_name = "Components";
   static DCT_data data(window_name, trackbar_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
-  createTrackbar(trackbar_name, window_name, &data.visible_coefficients, N, [](const int, void * const user_data)
-                                                                              {
-                                                                                auto &data = *(static_cast<DCT_data*>(user_data));
-                                                                                const Mat wave_image = PlotWaves(data);
-                                                                                const Mat spectrum_image = PlotSpectrum(data);
-                                                                                const Mat combined_image = CombineImages({wave_image, spectrum_image}, Horizontal);
-                                                                                imshow(data.window_name, combined_image);
-                                                                              }, static_cast<void*>(&data));
+  createTrackbar(trackbar_name, window_name, nullptr, N, [](const int visible_coefficients, void * const user_data)
+                                                           {
+                                                             auto &data = *(static_cast<DCT_data*>(user_data));
+                                                             const Mat wave_image = PlotWaves(data, visible_coefficients);
+                                                             const Mat spectrum_image = PlotSpectrum(visible_coefficients);
+                                                             const Mat combined_image = CombineImages({wave_image, spectrum_image}, Horizontal);
+                                                             imshow(data.window_name, combined_image);
+                                                           }, static_cast<void*>(&data));
   setTrackbarPos(trackbar_name, window_name, N); //Implies imshow with all visible components
 }
 

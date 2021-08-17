@@ -1,5 +1,5 @@
 //Illustration of frequency-dependent intensity sensitivity
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -30,8 +30,6 @@ using audio_type = short; //May be signed char (for 8 bits), short (16) or int (
 
 struct audio_data
 {
-  int frequency;
-  int level_percent;
   SineWaveGenerator<audio_type> generator;
   AudioPlayer<audio_type> player;
   
@@ -40,18 +38,15 @@ struct audio_data
   const string level_trackbar_name;
   
   audio_data(const string &window_name, const string &frequency_trackbar_name, const string &level_trackbar_name) 
-   : frequency(default_frequency),
-     level_percent(0),
-     generator(default_frequency),
+   : generator(default_frequency),
      window_name(window_name), frequency_trackbar_name(frequency_trackbar_name), level_trackbar_name(level_trackbar_name) { }
 };
 
-static void ResetGenerator(audio_data &data)
+static void ResetGenerator(audio_data &data, const int frequency, const int level_percent)
 {
   if (data.player.IsPlaying())
     data.player.Stop();
-  const auto frequency = data.frequency;
-  const auto level = GetValueFromLevel(-data.level_percent, 1); //Interpret trackbar position as (negative) level in dB (due to attenuation). The reference value is 1 since the amplitude is specified relatively, i.e., between 0 and 1.
+  const auto level = GetValueFromLevel(-level_percent, 1); //Interpret trackbar position as (negative) level in dB (due to attenuation). The reference value is 1 since the amplitude is specified relatively, i.e., between 0 and 1.
   data.generator.SetFrequency(frequency);
   data.generator.SetAmplitude(level);
   data.player.Play(data.generator);
@@ -76,7 +71,9 @@ static Mat PlotWaves(const audio_data &data)
 static void TrackbarEvent(const int, void * const user_data)
 {
   auto &data = *(static_cast<audio_data*>(user_data));
-  ResetGenerator(data);
+  const auto frequency = getTrackbarPos(data.frequency_trackbar_name, data.window_name);
+  const auto level_percent = getTrackbarPos(data.level_trackbar_name, data.window_name);
+  ResetGenerator(data, frequency, level_percent);
   Mat image = PlotWaves(data);
   imshow(data.window_name, image);
 }
@@ -89,8 +86,8 @@ static void ShowControls()
   constexpr auto frequency_trackbar_name = "Frequency [Hz]";
   constexpr auto level_trackbar_name = "Level [-dB]";
   static audio_data data(window_name, frequency_trackbar_name, level_trackbar_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
-  createTrackbar(frequency_trackbar_name, window_name, &data.frequency, max_frequency, TrackbarEvent, static_cast<void*>(&data));
-  createTrackbar(level_trackbar_name, window_name, &data.level_percent, 100, TrackbarEvent, static_cast<void*>(&data));
+  createTrackbar(frequency_trackbar_name, window_name, nullptr, max_frequency, TrackbarEvent, static_cast<void*>(&data));
+  createTrackbar(level_trackbar_name, window_name, nullptr, 100, TrackbarEvent, static_cast<void*>(&data));
   constexpr auto checkbox_name = "Mute";
   createButton(checkbox_name, [](const int, void * const user_data)
                               {
@@ -100,6 +97,7 @@ static void ShowControls()
                                 else
                                   data.player.Resume();
                               }, static_cast<void*>(&data), QT_CHECKBOX);
+  setTrackbarPos(frequency_trackbar_name, window_name, default_frequency);
   setTrackbarPos(level_trackbar_name, window_name, 20); //Implies imshow with level at -20 dB
 }
 

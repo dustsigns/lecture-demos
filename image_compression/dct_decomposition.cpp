@@ -1,5 +1,5 @@
 //Illustration of the decomposition of a block into 2-D DCT basis functions and their recomposition
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -32,22 +32,18 @@ static_assert(log_default_block_size <= log_max_block_size, "The default block s
 struct DCT_data
 {
   const Mat image;
-  int log_block_size;
   atomic_bool running;
   
   const string window_name;
   const string detail_window_name;
   const string sum_window_name;
   
-  DCT_data(const Mat &image, const int log_block_size, const string &window_name, const string &detail_window_name, const string &sum_window_name)
-   : image(image), log_block_size(log_block_size),
+  static constexpr auto trackbar_name = "log2(transform size)";
+  
+  DCT_data(const Mat &image, const string &window_name, const string &detail_window_name, const string &sum_window_name)
+   : image(image), 
      running(false),
      window_name(window_name), detail_window_name(detail_window_name), sum_window_name(sum_window_name) { }
-   
-  unsigned int GetBlockSize() const
-  {
-    return 1 << log_block_size; //2^(log_block_size)
-  }
 };
 
 static Mat GetCenterBlock(const Mat &image, const unsigned int block_size)
@@ -108,9 +104,8 @@ static Mat ShowWeightedBasisFunctionImage(const unsigned int x_index, const unsi
   return raw_weighted_basis_function;
 }
 
-static Mat SetFocusedCoefficient(const unsigned int x_index, const unsigned int y_index, const DCT_data &data)
+static Mat SetFocusedCoefficient(const unsigned int x_index, const unsigned int y_index, const DCT_data &data, const int block_size)
 {
-  const auto block_size = data.GetBlockSize();
   const Mat image_part = GetCenterBlock(data.image, block_size);
   const auto value = ShowImageAndDCT(image_part, x_index, y_index, data.window_name);
   const auto raw_weighted_basis_function_image = ShowWeightedBasisFunctionImage(x_index, y_index, value, block_size, data.detail_window_name);
@@ -169,10 +164,9 @@ static vector<coefficient_index> ZigZagScanIndices(unsigned int block_size)
   return indices;
 }
 
-static void AddWeightedBasisFunctions(const DCT_data &data)
+static void AddWeightedBasisFunctions(const DCT_data &data, const int block_size)
 {
   constexpr auto step_delay = 5000; //Animation delay in ms
-  const auto block_size = data.GetBlockSize();
   Mat raw_sum(block_size, block_size, CV_64FC1, Scalar(0.0)); //Initialize sum with zeros
   unsigned int coefficient = 0;
   const auto indices = ZigZagScanIndices(block_size);
@@ -182,7 +176,7 @@ static void AddWeightedBasisFunctions(const DCT_data &data)
       return;
     const auto x = index.first;
     const auto y = index.second;
-    const auto raw_weighted_basis_function_image = SetFocusedCoefficient(x, y, data);
+    const auto raw_weighted_basis_function_image = SetFocusedCoefficient(x, y, data, block_size);
     raw_sum += raw_weighted_basis_function_image; //Add image to sum
     const Mat sum = ReverseImageLevelShift(raw_sum);
     imshow(data.sum_window_name, sum);
@@ -193,6 +187,11 @@ static void AddWeightedBasisFunctions(const DCT_data &data)
   }
 }
 
+static unsigned int GetBlockSize(const unsigned int log_block_size)
+{
+   return 1U << log_block_size; //2^(log_block_size)
+}
+
 static void ShowImages(const Mat &image)
 {
   constexpr auto window_name = "DCT decomposition";
@@ -201,34 +200,35 @@ static void ShowImages(const Mat &image)
   namedWindow(detail_window_name, WINDOW_NORMAL);
   constexpr auto sum_window_name = "Sum of weighted basis functions";
   namedWindow(sum_window_name, WINDOW_NORMAL);
-  static DCT_data data(image, 0, window_name, detail_window_name, sum_window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
-  constexpr auto trackbar_name = "log2(transform size)";
-  createTrackbar(trackbar_name, window_name, &data.log_block_size, log_max_block_size, [](const int, void * const user_data)
-                                                                                         {
-                                                                                           auto &data = *(static_cast<DCT_data*>(user_data));
-                                                                                           data.running = false; //Make sure the animation is stopped
-                                                                                           Mat empty_sum(data.GetBlockSize(), data.GetBlockSize(), CV_8UC1, Scalar(ReverseLevelShift(0))); //Create level-shifted zero image
-                                                                                           imshow(data.sum_window_name, empty_sum); //Show all-grey image
-                                                                                           displayStatusBar(data.sum_window_name, "Please start adding via the corresponding button.");
-                                                                                           SetFocusedCoefficient(0, 0, data); //Set focus to DC coefficient (implies imshow)
-                                                                                           constexpr auto displayed_window_size = 250;
-                                                                                           resizeWindow(data.window_name, 2 * displayed_window_size, displayed_window_size);
-                                                                                           moveWindow(data.window_name, 0, 0);
-                                                                                           resizeWindow(data.detail_window_name, 2 * displayed_window_size, displayed_window_size);
-                                                                                           moveWindow(data.detail_window_name, 2 * displayed_window_size + 3, 0); //Move basis function window right beside the DCT window (window width plus additional distance)
-                                                                                           resizeWindow(data.sum_window_name, displayed_window_size, displayed_window_size);
-                                                                                           moveWindow(data.sum_window_name, 2 * (2 * displayed_window_size + 3), 0); //Move basis function window right beside the DCT and basis function windows (two window widths plus additional distance, each)
-                                                                                          }, static_cast<void*>(&data));
+  static DCT_data data(image, window_name, detail_window_name, sum_window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
+  createTrackbar(data.trackbar_name, window_name, nullptr, log_max_block_size, [](const int log_block_size, void * const user_data)
+                                                                                 {
+                                                                                   auto &data = *(static_cast<DCT_data*>(user_data));
+                                                                                   data.running = false; //Make sure the animation is stopped
+                                                                                   const int block_size = GetBlockSize(log_block_size);
+                                                                                   Mat empty_sum(block_size, block_size, CV_8UC1, Scalar(ReverseLevelShift(0))); //Create level-shifted zero image
+                                                                                   imshow(data.sum_window_name, empty_sum); //Show all-grey image
+                                                                                   displayStatusBar(data.sum_window_name, "Please start adding via the corresponding button.");
+                                                                                   SetFocusedCoefficient(0, 0, data, block_size); //Set focus to DC coefficient (implies imshow)
+                                                                                   constexpr auto displayed_window_size = 250;
+                                                                                   resizeWindow(data.window_name, 2 * displayed_window_size, displayed_window_size);
+                                                                                   moveWindow(data.window_name, 0, 0);
+                                                                                   resizeWindow(data.detail_window_name, 2 * displayed_window_size, displayed_window_size);
+                                                                                   moveWindow(data.detail_window_name, 2 * displayed_window_size + 3, 0); //Move basis function window right beside the DCT window (window width plus additional distance)
+                                                                                   resizeWindow(data.sum_window_name, displayed_window_size, displayed_window_size);
+                                                                                   moveWindow(data.sum_window_name, 2 * (2 * displayed_window_size + 3), 0); //Move basis function window right beside the DCT and basis function windows (two window widths plus additional distance, each)
+                                                                                  }, static_cast<void*>(&data));
   setMouseCallback(window_name, [](const int event, const int x, const int y, const int, void * const userdata)
                                   {
                                     auto &data = *(static_cast<const DCT_data*>(userdata));
                                     if (event == EVENT_LBUTTONUP) //Only react when the left mouse button is being pressed
                                     {
-                                      const auto block_size = data.GetBlockSize();
+                                      const auto log_block_size = getTrackbarPos(data.trackbar_name, data.window_name);
+                                      const auto block_size = GetBlockSize(log_block_size);
                                       const int relative_x = x - block_size - 1; //Calculate relative coefficient position in image (original image and additional 1 pixel border)
                                       const int relative_y = y;
                                       if (relative_x >= 0 && static_cast<unsigned int>(relative_x) < block_size && relative_y >= 0 && static_cast<unsigned int>(relative_y) < block_size)
-                                        SetFocusedCoefficient(relative_x, relative_y, data);
+                                        SetFocusedCoefficient(relative_x, relative_y, data, block_size);
                                     }
                                   }, static_cast<void*>(&data));
   constexpr auto start_button_name = "Add weighted basis functions";
@@ -238,7 +238,9 @@ static void ShowImages(const Mat &image)
                                       if (!data.running)
                                       {
                                         data.running = true;
-                                        AddWeightedBasisFunctions(data);
+                                        const auto log_block_size = getTrackbarPos(data.trackbar_name, data.window_name);
+                                        const auto block_size = GetBlockSize(log_block_size);
+                                        AddWeightedBasisFunctions(data, block_size);
                                         data.running = false;
                                       }
                                     }, static_cast<void*>(&data), QT_PUSH_BUTTON);
@@ -248,7 +250,7 @@ static void ShowImages(const Mat &image)
                                      auto &data = *(static_cast<DCT_data*>(user_data));
                                      data.running = false;
                                    }, static_cast<void*>(&data), QT_PUSH_BUTTON);
-  setTrackbarPos(trackbar_name, window_name, log_default_block_size); //Implies imshow with DCT size of 8
+  setTrackbarPos(data.trackbar_name, window_name, log_default_block_size); //Implies imshow with DCT size of 8
 }
 
 int main(const int argc, const char * const argv[])

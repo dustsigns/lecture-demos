@@ -24,13 +24,11 @@ struct match_data
   const Mat second_image;
   const vector<KeyPoint> second_keypoints;
   const vector<DMatch> matches;
-  int visible_match;
   
   const string window_name;
   
   match_data(const Mat &first_image, const vector<KeyPoint> &first_keypoints, const Mat &second_image, const vector<KeyPoint> &second_keypoints, const vector<DMatch> &matches, const string &window_name)
    : first_image(first_image), first_keypoints(first_keypoints), second_image(second_image), second_keypoints(second_keypoints), matches(matches),
-     visible_match(1),
      window_name(window_name) {}
 };
 
@@ -100,17 +98,17 @@ static void ShowImages(const Mat &first_image, const Mat &second_image)
   assert(matches.size() > 0);
   static match_data data(first_image, first_keypoints, second_image, second_keypoints, matches, window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
   constexpr auto trackbar_name = "Match index";
-  createTrackbar(trackbar_name, window_name, &data.visible_match, matches.size(), [](const int, void * const user_data)
-                                                                                    {
-                                                                                      auto &data = *(static_cast<const match_data*>(user_data));
-                                                                                      const Mat original_images = CombineImages({data.first_image, data.second_image}, Horizontal);
-                                                                                      assert(data.visible_match >= 0 && data.visible_match <= static_cast<int>(data.matches.size()));
-                                                                                      const auto match_iterator = data.matches.begin() + data.visible_match - 1;
-                                                                                      vector<DMatch> single_match(match_iterator, match_iterator + 1);
-                                                                                      const Mat match_image = VisualizeMatches(data, single_match);
-                                                                                      const Mat combined_image = CombineImages({original_images, match_image}, Vertical);
-                                                                                      imshow(window_name, combined_image);
-                                                                                    }, static_cast<void*>(&data));
+  createTrackbar(trackbar_name, window_name, nullptr, matches.size(), [](const int visible_match, void * const user_data)
+                                                                        {
+                                                                          auto &data = *(static_cast<const match_data*>(user_data));
+                                                                          const Mat original_images = CombineImages({data.first_image, data.second_image}, Horizontal);
+                                                                          assert(visible_match >= 0 && visible_match <= static_cast<int>(data.matches.size()));
+                                                                          const auto match_iterator = data.matches.begin() + visible_match - 1;
+                                                                          vector<DMatch> single_match(match_iterator, match_iterator + 1);
+                                                                          const Mat match_image = VisualizeMatches(data, single_match);
+                                                                          const Mat combined_image = CombineImages({original_images, match_image}, Vertical);
+                                                                          imshow(window_name, combined_image);
+                                                                        }, static_cast<void*>(&data));
 
   setTrackbarPos(trackbar_name, window_name, matches.size() - 1); //Implies imshow with last match
 }

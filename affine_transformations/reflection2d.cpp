@@ -96,8 +96,8 @@ int main(const int argc, const char * const argv[])
                                               Camera camera(focal_length[0], focal_length[1], old_camera.getPrincipalPoint()[0], old_camera.getPrincipalPoint()[1], old_camera.getWindowSize());
                                               camera.setClip(Vec2d(-0.01, 0)); //Only show small portion of space (effectively hides the z axis)
                                               visualization.SetCamera(camera);
-                                              ApplyTransformations(visualization); //Refresh position of transformed letter
                                               return pose;
-                                            });
+                                            },
+                            ApplyTransformations);
   return 0;
 }

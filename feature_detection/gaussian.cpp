@@ -1,5 +1,5 @@
 //Illustration of Gaussian filtering
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -21,13 +21,11 @@ using namespace imgutils;
 struct Gaussian_data
 {
   const Mat image;
-  int sigma_percent;
   
   const string window_name;
   
   Gaussian_data(const Mat &image, const string &window_name)
    : image(image),
-     sigma_percent(100),
      window_name(window_name) { }
 };
 
@@ -35,12 +33,12 @@ static const char *AddControls(Gaussian_data &data)
 {
   constexpr auto max_sigma = 20;
   constexpr auto scaling_trackbar_name = "Sigma [%]";
-  createTrackbar(scaling_trackbar_name, data.window_name, &data.sigma_percent, max_sigma * 100,
-                 [](const int, void * const user_data)
+  createTrackbar(scaling_trackbar_name, data.window_name, nullptr, max_sigma * 100,
+                 [](const int sigma_percent, void * const user_data)
                    {
                      auto &data = *(static_cast<const Gaussian_data*>(user_data));
                      const Mat &image = data.image;
-                     const double sigma = data.sigma_percent / 100.0;
+                     const double sigma = sigma_percent / 100.0;
                      Mat blurred_image;
                      GaussianBlur(image, blurred_image, Size(), sigma);
                      const Mat combined_image = CombineImages({image, blurred_image}, Horizontal);

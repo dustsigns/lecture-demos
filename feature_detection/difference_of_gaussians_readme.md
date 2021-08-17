@@ -42,8 +42,8 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-* `max_sigma` (local to `AddControls`): Maximum value of sigma allowed to be configured for the standard deviation.
-* `max_k` (local to `AddControls`): Maximum value of k allowed to be configured for the multiplier.
+* `max_sigma` (local to `ShowImages`): Maximum value of sigma allowed to be configured for the standard deviation.
+* `max_k` (local to `ShowImages`): Maximum value of k allowed to be configured for the multiplier.
 
 Known issues
 ------------

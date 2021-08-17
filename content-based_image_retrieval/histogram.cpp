@@ -1,5 +1,5 @@
 //Illustration of image histograms
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -23,13 +23,11 @@ using namespace imgutils;
 struct histogram_data
 {
   const Mat image;
-  int number_of_bins;
   
   const string window_name;
   
   histogram_data(const Mat &image, const string &window_name) 
    : image(image),
-     number_of_bins(64),
      window_name(window_name) { }
 };
 
@@ -57,7 +55,7 @@ static void GetChannelHistogram(const Mat &image, const int number_of_bins, vect
   ComputeRelativeHistogram(histogram_matrix, histogram);
 }
 
-static Mat PlotHistograms(const histogram_data &data)
+static Mat PlotHistograms(const histogram_data &data, const int number_of_bins)
 {
   assert(data.image.type() == CV_8UC3);
   Mat bgr_planes[3];
@@ -71,9 +69,9 @@ static Mat PlotHistograms(const histogram_data &data)
     const auto &plane = plane_and_color.first;
     const auto &color = plane_and_color.second;
     vector<float> histogram;
-    GetChannelHistogram(plane, data.number_of_bins, histogram);
-    const auto bin_size = 256.0 / data.number_of_bins; //Size of each bin
-    const auto bin_size_pixels = static_cast<int>(ceil(0.8 * data.image.rows / data.number_of_bins)) - 1; //TODO: Get a better estimate how much of the drawing surface is the range [0, 255]
+    GetChannelHistogram(plane, number_of_bins, histogram);
+    const auto bin_size = 256.0 / number_of_bins; //Size of each bin
+    const auto bin_size_pixels = static_cast<int>(ceil(0.8 * data.image.rows / number_of_bins)) - 1; //TODO: Get a better estimate how much of the drawing surface is the range [0, 255]
     PointSet pointset(histogram, bin_size, color, false, false, bin_size_pixels); //Don't interconnect points, but draw rectangles (samples without sample bars and a width proportional to the bin size) instead
     histograms.push_back(pointset);
   }
@@ -93,13 +91,13 @@ static void ShowImages(const Mat &image)
   moveWindow(window_name, 0, 0);
   const string trackbar_name = "Bins";
   static histogram_data data(image, window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
-  createTrackbar(trackbar_name, window_name, &data.number_of_bins, 256, [](const int, void * const user_data)
-                                                                          {
-                                                                              auto &data = *(static_cast<histogram_data*>(user_data));
-                                                                              const Mat histogram_image = PlotHistograms(data);
-                                                                              const Mat combined_image = CombineImages({data.image, histogram_image}, Horizontal);
-                                                                              imshow(data.window_name, combined_image);
-                                                                          }, static_cast<void*>(&data));
+  createTrackbar(trackbar_name, window_name, nullptr, 256, [](const int number_of_bins, void * const user_data)
+                                                             {
+                                                                 auto &data = *(static_cast<histogram_data*>(user_data));
+                                                                 const Mat histogram_image = PlotHistograms(data, number_of_bins);
+                                                                 const Mat combined_image = CombineImages({data.image, histogram_image}, Horizontal);
+                                                                 imshow(data.window_name, combined_image);
+                                                             }, static_cast<void*>(&data));
   setTrackbarMin(trackbar_name, window_name, 2); //A histogram with less than two bins does not make sense
   setTrackbarPos(trackbar_name, window_name, 256); //Implies imshow with 256 bins
 }

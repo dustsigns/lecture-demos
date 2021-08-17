@@ -1,5 +1,5 @@
 //3-D visualization window with accompanying configuration window (header)
-// Andreas Unterweger, 2017-2019
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -44,8 +44,8 @@ namespace vizutils
       //Updates the value of the trackbar with the specified name, issuing a callback
       void UpdateTrackbarValue(const string &name, const int value);
       
-      //Shows the visualization and the control windows and waits until a key has been pressed that closes one of them, effectively closing both. This class must not be used again after this function has been called. //TODO: Find a nicer solution
-      void ShowWindows(function<ViewerTransform> transform);
+      //Shows the visualization and the control windows, calls the optional transform and initial callback, and waits until a key has been pressed that closes one of them, effectively closing both. This class must not be used again after this function has been called. //TODO: Find a nicer solution
+      void ShowWindows(function<ViewerTransform> transform = nullptr, ControlCallback initial_callback = nullptr);
       
       //Returns the visualization's camera object
       Camera GetCamera() const;
@@ -70,8 +70,8 @@ namespace vizutils
         int max_parameter;
         //The maximum value associated with the control, e.g., the maximum trackbar value
         int min_parameter;
-        //The value associated with the control, e.g., the trackbar value
-        int parameter;
+        //The initial value associated with the control, e.g., the trackbar value
+        int default_parameter;
         //The ConfigurableVisualization the WindowControl is associated with
         ConfigurableVisualization &parent;
         
@@ -85,6 +85,7 @@ namespace vizutils
       Viz3d visualization;
       
       map<string, WindowControl> controls;
+      bool ready;
       
       void ShowVisualizationWindow();
       void ShowControlWindow();

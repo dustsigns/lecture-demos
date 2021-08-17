@@ -1,11 +1,12 @@
 //Illustration of extrinsic camera parameters
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
 
 #include <opencv2/viz.hpp>
 
+#include "common.hpp"
 #include "math.hpp"
 #include "conf_viz.hpp"
 
@@ -20,6 +21,8 @@ using namespace vizutils;
 static constexpr auto parameter_accuracy = 0.01;
 
 static constexpr auto cone_length = 1.0;
+
+static constexpr char axes[] = {'x', 'y', 'z'};
 
 static auto initializing = true; //Prevents updating incomplete values during initialization
 
@@ -52,26 +55,40 @@ static Affine3d RoundCameraPose(const Affine3d &old_pose)
   return pose;
 }
 
-static constexpr auto rotation_angle_x_trackbar_name = "Rotation (x) [°]";
-static constexpr auto rotation_angle_y_trackbar_name = "Rotation (y) [°]";
-static constexpr auto rotation_angle_z_trackbar_name = "Rotation (z) [°]";
-static constexpr auto translation_x_trackbar_name = "Translation (x) [px]";
-static constexpr auto translation_y_trackbar_name = "Translation (y) [px]";
-static constexpr auto translation_z_trackbar_name = "Translation (z) [px]";
+static string GetRotationTrackbarName(const char axis)
+{
+  const auto trackbar_name = "Rotation ("s + axis + ") [°]";
+  return trackbar_name;
+}
+
+static string GetTranslationTrackbarName(const char axis)
+{
+  const auto trackbar_name = "Translation ("s + axis + ") [px]";
+  return trackbar_name;
+}
 
 static void UpdateCameraPose(ConfigurableVisualization &visualization)
 {
   if (initializing) //Don't update during initialization
     return;
 
-  const auto translation_x = visualization.GetTrackbarValue(translation_x_trackbar_name);
-  const auto translation_y = visualization.GetTrackbarValue(translation_y_trackbar_name);
-  const auto translation_z = visualization.GetTrackbarValue(translation_z_trackbar_name);
-  const auto rotation_angle_x = visualization.GetTrackbarValue(rotation_angle_x_trackbar_name);
-  const auto rotation_angle_y = visualization.GetTrackbarValue(rotation_angle_y_trackbar_name);
-  const auto rotation_angle_z = visualization.GetTrackbarValue(rotation_angle_z_trackbar_name); 
-  const Vec3d rotation(DegreesToRadians(rotation_angle_x), DegreesToRadians(rotation_angle_y), DegreesToRadians(rotation_angle_z));
-  const Vec3d translation(translation_x * parameter_accuracy, translation_y * parameter_accuracy, translation_z * parameter_accuracy);
+  double rotation_angles[arraysize(axes)], translation_offsets[arraysize(axes)];
+  for (size_t i = 0; i < arraysize(axes); i++)
+  {
+    const auto &axis = axes[i];
+    const auto trackbar_name = GetRotationTrackbarName(axis);
+    const auto rotation_degrees = visualization.GetTrackbarValue(trackbar_name);
+    rotation_angles[i] = DegreesToRadians(rotation_degrees);
+  }
+  for (size_t i = 0; i < arraysize(axes); i++)
+  { 
+    const auto &axis = axes[i];   
+    const auto trackbar_name = GetTranslationTrackbarName(axis);
+    const auto translation_unscaled = visualization.GetTrackbarValue(trackbar_name);
+    translation_offsets[i] = translation_unscaled * parameter_accuracy;
+  }
+  const Vec3d rotation(rotation_angles);
+  const Vec3d translation(translation_offsets);
   const Affine3d pose(rotation, translation);
   const Affine3d rounded_pose = RoundCameraPose(pose);
   visualization.SetViewerPose(rounded_pose);
@@ -79,24 +96,39 @@ static void UpdateCameraPose(ConfigurableVisualization &visualization)
 
 static void AddControls(ConfigurableVisualization &visualization)
 {
-  visualization.AddTrackbar(rotation_angle_x_trackbar_name, UpdateCameraPose, 360);
-  visualization.AddTrackbar(rotation_angle_y_trackbar_name, UpdateCameraPose, 360);
-  visualization.AddTrackbar(rotation_angle_z_trackbar_name, UpdateCameraPose, 360);
-  visualization.AddTrackbar(translation_x_trackbar_name, UpdateCameraPose, 50, -50);
-  visualization.AddTrackbar(translation_y_trackbar_name, UpdateCameraPose, 50, -50);
-  visualization.AddTrackbar(translation_z_trackbar_name, UpdateCameraPose, 500, -500);
+  for (size_t i = 0; i < arraysize(axes); i++)
+  {
+    const auto &axis = axes[i];
+    const auto trackbar_name = GetRotationTrackbarName(axis);
+    visualization.AddTrackbar(trackbar_name, UpdateCameraPose, 360);
+  }
+  for (size_t i = 0; i < arraysize(axes); i++)
+  {
+    const auto &axis = axes[i];
+    const auto trackbar_name = GetTranslationTrackbarName(axis);
+    const auto limit = i == arraysize(axes) - 1 ? 500: 50;
+    visualization.AddTrackbar(trackbar_name, UpdateCameraPose, limit, -limit);
+  }
 }
 
 static void InitializeControlValues(ConfigurableVisualization &visualization, const Affine3d &pose)
 {
   const auto rotation = pose.rvec();
-  visualization.UpdateTrackbarValue(rotation_angle_x_trackbar_name, RadiansToDegrees(rotation[0]));
-  visualization.UpdateTrackbarValue(rotation_angle_y_trackbar_name, RadiansToDegrees(rotation[1]));
-  visualization.UpdateTrackbarValue(rotation_angle_z_trackbar_name, RadiansToDegrees(rotation[2]));
+  for (size_t i = 0; i < arraysize(axes); i++)
+  {
+    const auto &axis = axes[i];
+    const auto trackbar_name = GetRotationTrackbarName(axis);
+    const auto rotation_radians = RadiansToDegrees(rotation[i]);
+    visualization.UpdateTrackbarValue(trackbar_name, rotation_radians);
+  }
   const auto translation = pose.translation();
-  visualization.UpdateTrackbarValue(translation_x_trackbar_name, translation[0] / parameter_accuracy);
-  visualization.UpdateTrackbarValue(translation_y_trackbar_name, translation[1] / parameter_accuracy);
-  visualization.UpdateTrackbarValue(translation_z_trackbar_name, translation[2] / parameter_accuracy);
+  for (size_t i = 0; i < arraysize(axes); i++)
+  {
+    const auto &axis = axes[i];
+    const auto trackbar_name = GetTranslationTrackbarName(axis);
+    const auto translation_scaled = translation[i] / parameter_accuracy;
+    visualization.UpdateTrackbarValue(trackbar_name, translation_scaled);
+  }
   initializing = false; //Done initializing
 }
 

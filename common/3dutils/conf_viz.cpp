@@ -1,5 +1,5 @@
 //3-D visualization window with accompanying configuration window
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <opencv2/highgui.hpp>
@@ -14,7 +14,7 @@ using namespace cv::viz;
 namespace vizutils
 {
   ConfigurableVisualization::WindowControl::WindowControl(ControlCallback callback, const int max_parameter, const int min_parameter, const int default_parameter, ConfigurableVisualization &parent)
-   : callback(callback), max_parameter(max_parameter), min_parameter(min_parameter), parameter(default_parameter), parent(parent)
+   : callback(callback), max_parameter(max_parameter), min_parameter(min_parameter), default_parameter(default_parameter), parent(parent)
   {
     assert(min_parameter <= max_parameter);
     assert(default_parameter >= min_parameter && default_parameter <= max_parameter);
@@ -22,7 +22,8 @@ namespace vizutils
   
   ConfigurableVisualization::ConfigurableVisualization(const string &visualization_window_name, const string &control_window_name)
    : visualization_window_name(visualization_window_name), control_window_name(control_window_name),
-     visualization(visualization_window_name) { }
+     visualization(visualization_window_name),
+     ready(false) { }
   
   ConfigurableVisualization::~ConfigurableVisualization()
   {
@@ -36,8 +37,8 @@ namespace vizutils
   
   int ConfigurableVisualization::GetTrackbarValue(const string &name) const
   {
-    const auto &trackbar = controls.at(name);
-    return trackbar.parameter;
+    const auto value = getTrackbarPos(name, control_window_name);
+    return value;
   }
   
   void ConfigurableVisualization::UpdateTrackbarValue(const string &name, const int value)
@@ -60,13 +61,16 @@ namespace vizutils
     {
       const auto &control_name = control_pair.first;
       auto &control = control_pair.second;
-      createTrackbar(control_name, control_window_name, &control.parameter, control.max_parameter, [](const int, void * const userdata)
-                                                                                                     {
-                                                                                                       auto &window_control = *(static_cast<WindowControl*>(userdata));
-                                                                                                       window_control.callback(window_control.parent);
-                                                                                                     }, static_cast<void*>(&control));
+      createTrackbar(control_name, control_window_name, nullptr, control.max_parameter, [](const int, void * const userdata)
+                                                                                          {
+                                                                                            auto &window_control = *(static_cast<WindowControl*>(userdata));
+                                                                                            auto &parent = window_control.parent;
+                                                                                            if (parent.ready) //Only call callback after windows have been shown
+                                                                                              window_control.callback(parent);
+                                                                                          }, static_cast<void*>(&control));
       setTrackbarMin(control_name, control_window_name, control.min_parameter);
       setTrackbarMax(control_name, control_window_name, control.max_parameter);
+      setTrackbarPos(control_name, control_window_name, control.default_parameter);
     }
     Mat empty(1, window_width, CV_8UC1, Scalar(0)); //TODO: Find a better way than an "empty" image to show a trackbar
     cv::imshow(control_window_name, empty);
@@ -85,12 +89,15 @@ namespace vizutils
     }
   }
   
-  void ConfigurableVisualization::ShowWindows(function<ViewerTransform> transform)
+  void ConfigurableVisualization::ShowWindows(function<ViewerTransform> transform, ConfigurableVisualization::ControlCallback initial_callback)
   {
     ShowVisualizationWindow();
     ShowControlWindow();
     visualization.spinOnce(1, true); //Needs to be called before accessing camera parameters
     AlignWindows(transform);
+    if (initial_callback)
+      initial_callback(*this);
+    ready = true;
     while (!visualization.wasStopped())
     {
       if (waitKey(1) != -1)

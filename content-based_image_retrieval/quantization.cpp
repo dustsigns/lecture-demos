@@ -1,5 +1,5 @@
 //Illustration of color space quantization
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -15,9 +15,11 @@ using namespace viz;
 
 using namespace vizutils;
 
+static auto constexpr default_quantization_levels = 256;
+
 static void RenderRGBCubes(ConfigurableVisualization &visualization, const int number_of_cubes_per_dimension)
 {
-  assert(number_of_cubes_per_dimension >= 1 && number_of_cubes_per_dimension <= 256);
+  assert(number_of_cubes_per_dimension >= 1 && number_of_cubes_per_dimension <= default_quantization_levels);
   size_t counter = 0;
   for (int r = 0; r < number_of_cubes_per_dimension; r++)
   {
@@ -29,7 +31,7 @@ static void RenderRGBCubes(ConfigurableVisualization &visualization, const int n
             g != 0 && g != number_of_cubes_per_dimension - 1 &&
             b != 0 && b != number_of_cubes_per_dimension - 1)
           continue;
-        const auto element_size = 256.0 / number_of_cubes_per_dimension;
+        const auto element_size = static_cast<double>(default_quantization_levels) / number_of_cubes_per_dimension;
         const Point3d start_point(r * element_size, g * element_size, b * element_size);
         const Point3d end_point((r + 1) * element_size, (g + 1) * element_size, (b + 1) * element_size);
         const Color color(b * element_size, g * element_size, r * element_size);
@@ -37,7 +39,7 @@ static void RenderRGBCubes(ConfigurableVisualization &visualization, const int n
         visualization.objects.insert(make_pair(to_string(counter++), element));
       }
     }
-  } //TODO: Improve drawing speed for number_of_cubes_per_dimension > 5, but how?
+  }
 }
 
 static constexpr auto trackbar_name = "Elements";
@@ -52,8 +54,7 @@ static void RenderObjects(ConfigurableVisualization &visualization)
 
 static void AddControls(ConfigurableVisualization &visualization)
 {
-  visualization.AddTrackbar(trackbar_name, RenderObjects, 256, 2, 4); //Between 2 and 256 quantization levels with 4 being the default
-  RenderObjects(visualization); //Render once
+  visualization.AddTrackbar(trackbar_name, RenderObjects, default_quantization_levels, 2, 4); //Between 2 and 256 quantization levels with 4 being the default
 }
 
 int main(const int argc, const char * const argv[])
@@ -68,6 +69,12 @@ int main(const int argc, const char * const argv[])
   constexpr auto control_window_name = "Quantization parameters";
   ConfigurableVisualization visualization(visualization_window_name, control_window_name);
   AddControls(visualization);
-  visualization.ShowWindows(nullptr);
+  visualization.ShowWindows(/*[&visualization](const Affine3d &pose) //TODO: Why does zooming no longer work once the pose is read and set again (even without changes)
+                                            {
+                                              const Vec3d offset(default_quantization_levels / 2, default_quantization_levels / 2, 4 * default_quantization_levels); //Middle of cube
+                                              const auto new_pose = pose.translate(offset); //Move camera so that all possible rotations are visible
+                                              return new_pose;
+                                            }*/ nullptr,
+                            RenderObjects);
   return 0;
 }

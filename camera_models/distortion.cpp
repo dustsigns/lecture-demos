@@ -1,5 +1,5 @@
 //Illustration of non-linear lense distortion
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -22,13 +22,11 @@ struct distortion_coefficient
   const string name;
   const int scaling_factor;
   
-  int value;
-  
   distortion_coefficient(const string &name, const double scaling_factor) 
-   : name(name), scaling_factor(scaling_factor),
-     value(0) { }
+   : name(name), scaling_factor(scaling_factor)
+    { }
   
-  double GetCoefficientValue() const
+  double GetCoefficientValue(const int value) const
   {
     return value * pow(10, scaling_factor);
   }
@@ -60,31 +58,41 @@ static Mat GetStandardCameraMatrix(Size2i image_size)
 }
 
 template<size_t... Is>
-static constexpr array<double, sizeof...(Is)> GetCoefficientArray(const array<distortion_coefficient, sizeof...(Is)> &coeffs, const index_sequence<Is...>&)
+static constexpr array<double, sizeof...(Is)> GetCoefficientArray(const array<distortion_coefficient, sizeof...(Is)> &coeffs, const array<int, sizeof...(Is)> &values, const index_sequence<Is...>&)
 {
-  return {{ coeffs[Is].GetCoefficientValue()... }}; //Continued in this pattern for every available index/coefficient
+  return {{ coeffs[Is].GetCoefficientValue(values[Is])... }}; //Continued in this pattern for every available index/coefficient
 }
 
-static array<double, number_of_coefficients> GetCoefficients(const array<distortion_coefficient, number_of_coefficients> &coeffs)
+static array<double, number_of_coefficients> GetCoefficients(const array<distortion_coefficient, number_of_coefficients> &coeffs, const array<int, number_of_coefficients> values)
 {
-  return GetCoefficientArray(coeffs, make_index_sequence<number_of_coefficients>{}); //Create coefficients by iterating through all (coefficient) array indices
+  return GetCoefficientArray(coeffs, values, make_index_sequence<number_of_coefficients>{}); //Create coefficients by iterating through all (coefficient) array indices
+}
+
+static string GetTrackbarTitle(const distortion_coefficient &coeff)
+{
+  return coeff.name + "*10^(" + to_string(coeff.scaling_factor) + ")";
+}
+
+static array<int, number_of_coefficients> GetCoefficientValues(const array<distortion_coefficient, number_of_coefficients> &distortion_coefficients, const string &window_name)
+{
+  array<int, number_of_coefficients> coefficient_values;
+  int i = 0;
+  for (auto &coeff : distortion_coefficients)
+    coefficient_values[i++] = getTrackbarPos(GetTrackbarTitle(coeff), window_name);
+  return coefficient_values;
 }
 
 static void ShowDistortedImages(const int, void * const user_data)
 {
   auto &data = *(static_cast<distortion_data*>(user_data));
   const Mat &image = data.image;
-  const auto distortion_vector = GetCoefficients(data.distortion_coefficients);
+  const auto coefficient_values = GetCoefficientValues(data.distortion_coefficients, data.window_name);
+  const auto distortion_vector = GetCoefficients(data.distortion_coefficients, coefficient_values);
   const auto standard_camera_matrix = GetStandardCameraMatrix(image.size());
   Mat distorted_image;
   undistort(image, distorted_image, standard_camera_matrix, distortion_vector);
   const Mat combined_image = CombineImages({image, distorted_image}, Horizontal);
   imshow(data.window_name, combined_image);
-}
-
-static string GetTrackbarTitle(const distortion_coefficient &coeff)
-{
-  return coeff.name + "*10^(" + to_string(coeff.scaling_factor) + ")";
 }
 
 static string AddControls(distortion_data &data)
@@ -95,19 +103,20 @@ static string AddControls(distortion_data &data)
   for (auto &coeff : data.distortion_coefficients)
   {
     const auto title = GetTrackbarTitle(coeff);
-    createTrackbar(title, data.window_name, &coeff.value, max_negative_value + max_positive_value, ShowDistortedImages, static_cast<void*>(&data));
+    createTrackbar(title, data.window_name, nullptr, max_negative_value + max_positive_value, ShowDistortedImages, static_cast<void*>(&data));
     setTrackbarMin(title, data.window_name, -max_negative_value);
     setTrackbarMax(title, data.window_name, max_positive_value);
   }
-  createButton("Reset", [](const int, void * const user_data)
-                          {
-                            auto &data = *(static_cast<distortion_data*>(user_data));
-                            for (auto &coeff : data.distortion_coefficients)
-                            {
-                              const auto title = GetTrackbarTitle(coeff);
-                              setTrackbarPos(title, data.window_name, 0);
-                            }
-                          }, static_cast<void*>(&data), QT_PUSH_BUTTON);
+  constexpr auto button_name = "Reset";
+  createButton(button_name, [](const int, void * const user_data)
+                              {
+                                auto &data = *(static_cast<distortion_data*>(user_data));
+                                for (auto &coeff : data.distortion_coefficients)
+                                {
+                                  const auto title = GetTrackbarTitle(coeff);
+                                  setTrackbarPos(title, data.window_name, 0);
+                                }
+                              }, static_cast<void*>(&data), QT_PUSH_BUTTON);
   return GetTrackbarTitle(data.distortion_coefficients[0]);
 }
 

@@ -1,5 +1,5 @@
 //Illustration of JPEG quality levels
-// Andreas Unterweger, 2016-2020
+// Andreas Unterweger, 2016-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -22,14 +22,12 @@ using namespace imgutils;
 struct JPEG_data
 {
   const Mat image;
-  int quality;
   
   const string image_window_name;
   const string difference_window_name;
   
   JPEG_data(const Mat &image, const string &image_window_name, const string &difference_window_name)
    : image(image),
-     quality(0),
      image_window_name(image_window_name), difference_window_name(difference_window_name) { }
 };
 
@@ -73,14 +71,14 @@ static void ShowImages(const Mat &image)
   moveWindow(difference_window_name, image.cols + 3, image.rows + 125); //Move difference window right below the right part of the comparison window (horizontal: image size plus 3 border pixels plus additional distance, vertial: image size plus additional distance for track bars etc.) //TODO: Get windows positions and calculate proper offsets
   static JPEG_data data(image, image_window_name, difference_window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
   constexpr auto trackbar_name = "Quality";
-  createTrackbar(trackbar_name, image_window_name, &data.quality, 100,
-    [](const int, void * const user_data)
+  createTrackbar(trackbar_name, image_window_name, nullptr, 100,
+    [](const int quality, void * const user_data)
       {
         auto &data = *(static_cast<const JPEG_data*>(user_data));
         const Mat &image = data.image;
         const auto uncompressed_size = image.total() * image.elemSize();
         unsigned int compressed_size;
-        Mat compressed_image = CompressImage(image, data.quality, compressed_size);
+        Mat compressed_image = CompressImage(image, quality, compressed_size);
         const string status_text = FormatByte(uncompressed_size) + " vs. " + FormatByte(compressed_size);
         displayOverlay(data.image_window_name, status_text, 1000);
         displayStatusBar(data.image_window_name, status_text);
