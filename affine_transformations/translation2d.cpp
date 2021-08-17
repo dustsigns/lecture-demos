@@ -1,5 +1,5 @@
 //Illustration of 2-D translation
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -27,7 +27,7 @@ static void AddCoordinateSystem(ConfigurableVisualization &visualization)
 static void Add2DObjects(ConfigurableVisualization &visualization)
 {
   constexpr auto text = "A";
-  WText3D original_object(text, Point3d(0, letter_size, 0), letter_size, false, Color::gray());
+  WText3D original_object(text, Point3d(0, letter_size, 0), letter_size);
   original_object.setRenderingProperty(OPACITY, 0.5);
   WText3D transformed_object(text, Point3d(0, letter_size, 0), letter_size, false);
   visualization.objects.insert(make_pair("Original object", original_object));

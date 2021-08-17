@@ -1,5 +1,5 @@
 //Illustration of 2-D rotation around the origin
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -33,7 +33,7 @@ static Point3d AddLetters(ConfigurableVisualization &visualization)
 {
   constexpr auto text = "A";
   const Point3d letter_position(0, letter_size, 0);
-  WText3D original_object(text, letter_position, letter_size, false, Color::gray());
+  WText3D original_object(text, letter_position, letter_size, false);
   original_object.setRenderingProperty(OPACITY, 0.5);
   WText3D transformed_object(text, letter_position, letter_size, false);
   visualization.objects.insert(make_pair("Original object", original_object));

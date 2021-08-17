@@ -1,5 +1,5 @@
 //Illustration of 3-D scaling
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -31,7 +31,6 @@ static void Add3DObjects(ConfigurableVisualization &visualization, const char * 
   {
     Mesh mesh = Mesh::load(model_filename);
     WMesh original_mesh(mesh);
-    original_mesh.setColor(Color::gray());
     original_mesh.setRenderingProperty(OPACITY, 0.5);
     WMesh transformed_mesh(mesh);
     visualization.objects.insert(make_pair("Original object", original_mesh));
@@ -40,7 +39,7 @@ static void Add3DObjects(ConfigurableVisualization &visualization, const char * 
   else
   {
     constexpr auto cone_resolution = 100;
-    WCone original_cone(cone_length, cone_radius, cone_resolution, Color::gray());
+    WCone original_cone(cone_length, cone_radius, cone_resolution);
     original_cone.setRenderingProperty(OPACITY, 0.5);
     WCone transformed_cone(cone_length, cone_radius, cone_resolution);
     visualization.objects.insert(make_pair("Original object", original_cone));

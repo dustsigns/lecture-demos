@@ -34,7 +34,7 @@ static void AddLetters(ConfigurableVisualization &visualization)
 {
   constexpr auto text = "A";
   const Point3d letter_position(0, letter_size, 0);
-  WText3D original_object(text, letter_position, letter_size, false, Color::gray());
+  WText3D original_object(text, letter_position, letter_size, false);
   original_object.setRenderingProperty(OPACITY, 0.5);
   WText3D transformed_object(text, letter_position, letter_size, false); //The actual position is set later
   visualization.objects.insert(make_pair(original_object_name, original_object));
