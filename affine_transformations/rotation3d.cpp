@@ -106,14 +106,13 @@ int main(const int argc, const char * const argv[])
   AddObjects(visualization, model_filename);
   AddControls(visualization);
   if (use_model)
-    visualization.ShowWindows([&visualization](const Affine3d &pose)
-                                              {
-                                                const auto old_camera = visualization.GetCamera();
-                                                const auto focal_length = old_camera.getFocalLength() / 2; //Reduce focal length so that object rotation is visible
-                                                const Camera camera(focal_length[0], focal_length[1], old_camera.getPrincipalPoint()[0], old_camera.getPrincipalPoint()[1], old_camera.getWindowSize());
-                                                visualization.SetCamera(camera);
-                                                return pose;
-                                              });
+    visualization.ShowWindows(nullptr, [](ConfigurableVisualization &visualization)
+                                         {
+                                           const auto old_camera = visualization.GetCamera();
+                                           const auto focal_length = old_camera.getFocalLength() / 2; //Reduce focal length so that object is not clipped
+                                           const Camera camera(focal_length[0], focal_length[1], old_camera.getPrincipalPoint()[0], old_camera.getPrincipalPoint()[1], old_camera.getWindowSize());
+                                           visualization.SetCamera(camera);
+                                         });
   else
     visualization.ShowWindows([](const Affine3d &pose)
                                 {

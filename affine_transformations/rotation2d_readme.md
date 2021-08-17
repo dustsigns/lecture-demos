@@ -5,7 +5,7 @@
 
 **Author**: Andreas Unterweger
 
-**Status**: Near-complete (non-crucial external and internal bugs unfixed)
+**Status**: Near-complete (internal bugs unfixed)
 
 Overview
 --------
@@ -44,7 +44,6 @@ Hard-coded parameters
 Known issues
 ------------
 
-* **Crash on exit** (*OpenCV* or *VTK* bug): The demonstration crashes with a segmentation fault on exit, i.e., when both windows are closed (see [*OpenCV* issue #9390](https://github.com/opencv/opencv/issues/9390)).
 * **Center line partially hidden for some angles**: The arrow connecting the letter and the origin becomes partially invisible for angles of around 135 degrees.
 
 Missing features
