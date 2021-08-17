@@ -15,11 +15,17 @@ using namespace viz;
 
 using namespace vizutils;
 
-static auto constexpr default_quantization_levels = 256;
+static auto constexpr maximum_quantization_level = 256;
+
+static_assert(maximum_quantization_level > 0, "The number of quantization levels must be at least 1");
+
+static auto constexpr initial_quantization_level = 4;
+
+static_assert(initial_quantization_level <= maximum_quantization_level, "The initial quantization level must not be greater than the number of quantization levels");
 
 static void RenderRGBCubes(ConfigurableVisualization &visualization, const int number_of_cubes_per_dimension)
 {
-  assert(number_of_cubes_per_dimension >= 1 && number_of_cubes_per_dimension <= default_quantization_levels);
+  assert(number_of_cubes_per_dimension >= 1 && number_of_cubes_per_dimension <= maximum_quantization_level);
   size_t counter = 0;
   for (int r = 0; r < number_of_cubes_per_dimension; r++)
   {
@@ -31,7 +37,7 @@ static void RenderRGBCubes(ConfigurableVisualization &visualization, const int n
             g != 0 && g != number_of_cubes_per_dimension - 1 &&
             b != 0 && b != number_of_cubes_per_dimension - 1)
           continue;
-        const auto element_size = static_cast<double>(default_quantization_levels) / number_of_cubes_per_dimension;
+        const auto element_size = static_cast<double>(maximum_quantization_level) / number_of_cubes_per_dimension;
         const Point3d start_point(r * element_size, g * element_size, b * element_size);
         const Point3d end_point((r + 1) * element_size, (g + 1) * element_size, (b + 1) * element_size);
         const Color color(b * element_size, g * element_size, r * element_size);
@@ -54,7 +60,7 @@ static void RenderObjects(ConfigurableVisualization &visualization)
 
 static void AddControls(ConfigurableVisualization &visualization)
 {
-  visualization.AddTrackbar(trackbar_name, RenderObjects, default_quantization_levels, 2, 4); //Between 2 and 256 quantization levels with 4 being the default
+  visualization.AddTrackbar(trackbar_name, RenderObjects, maximum_quantization_level, 2, initial_quantization_level); //Between 2 and 256 quantization levels with 4 being the default
 }
 
 int main(const int argc, const char * const argv[])
@@ -69,12 +75,7 @@ int main(const int argc, const char * const argv[])
   constexpr auto control_window_name = "Quantization parameters";
   ConfigurableVisualization visualization(visualization_window_name, control_window_name);
   AddControls(visualization);
-  visualization.ShowWindows(/*[&visualization](const Affine3d &pose) //TODO: Why does zooming no longer work once the pose is read and set again (even without changes)
-                                            {
-                                              const Vec3d offset(default_quantization_levels / 2, default_quantization_levels / 2, 4 * default_quantization_levels); //Middle of cube
-                                              const auto new_pose = pose.translate(offset); //Move camera so that all possible rotations are visible
-                                              return new_pose;
-                                            }*/ nullptr,
-                            RenderObjects);
+  RenderRGBCubes(visualization, initial_quantization_level);
+  visualization.ShowWindows();
   return 0;
 }

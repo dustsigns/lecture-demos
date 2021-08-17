@@ -5,7 +5,7 @@ RGB color space quantization
 
 **Author**: Andreas Unterweger
 
-**Status**: Work in progress (external bugs unfixed)
+**Status**: Complete
 
 Overview
 --------
@@ -41,12 +41,13 @@ None
 Hard-coded parameters
 ---------------------
 
-None
+* `maximum_quantization_level`: The highest possible number of quantization levels (default 256). This is also the upper limit of the *Elements* parameter.
+* `initial_quantization_level`: The value of the *Elements* parameter at the start of the program (default 4).
 
 Known issues
 ------------
 
-* **Correct camera position**: The initial camera position is such that the cube only becomes visible after zooming out a number of times. It must be offset so that the camera position is in the center-front of the cube's frontal side. *Note: Code to fix this exists, but is commented as applying it disables zooming due to an *OpenCV* bug (see [*OpenCV* issue #9575](https://github.com/opencv/opencv/issues/9575)).*
+None
 
 Missing features
 ----------------
