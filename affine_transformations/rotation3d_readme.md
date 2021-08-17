@@ -5,7 +5,7 @@
 
 **Author**: Andreas Unterweger
 
-**Status**: Near-complete (nice-to-have features missing, non-crucial external bugs unfixed)
+**Status**: Near-complete (nice-to-have features missing)
 
 Overview
 --------
@@ -47,7 +47,7 @@ Hard-coded parameters
 Known issues
 ------------
 
-* **Crash on exit** (*OpenCV* or *VTK* bug): The demonstration crashes with a segmentation fault on exit, i.e., when both windows are closed (see [*OpenCV* issue #9390](https://github.com/opencv/opencv/issues/9390)).
+None
 
 Missing features
 ----------------

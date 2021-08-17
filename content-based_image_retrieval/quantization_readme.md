@@ -46,7 +46,6 @@ None
 Known issues
 ------------
 
-* **Crash on exit** (*OpenCV* or *VTK* bug): The demonstration crashes with a segmentation fault on exit, i.e., when both windows are closed (see [*OpenCV* issue #9390](https://github.com/opencv/opencv/issues/9390)).
 * **Correct camera position**: The initial camera position is such that the cube only becomes visible after zooming out a number of times. It must be offset so that the camera position is in the center-front of the cube's frontal side. *Note: Code to fix this exists, but is commented as applying it disables zooming due to an *OpenCV* bug (see [*OpenCV* issue #9575](https://github.com/opencv/opencv/issues/9575)).*
 
 Missing features

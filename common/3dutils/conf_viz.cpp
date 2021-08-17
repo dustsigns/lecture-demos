@@ -103,7 +103,7 @@ namespace vizutils
       if (waitKey(1) != -1)
         break;
       visualization.spinOnce(1, true);
-    } //TODO: Figure out why programs using this function crash with a SIGSEV at the end due to the combined use of waitKey and spinOnce
+    }
   }
   
   Camera ConfigurableVisualization::GetCamera() const

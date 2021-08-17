@@ -51,6 +51,7 @@ Missing features
 ----------------
 
 * **Correct camera orientation**: The reprojection appears upside down. It must be flipped. *Note: Code to fix this exists, but is commented as applying it disables zooming due to an *OpenCV* bug (see [*OpenCV* issue #9575](https://github.com/opencv/opencv/issues/9575)).*
+* **Camera stuttering** (*OpenCV* bug): The camera stutters (and eventually shows nothing at all) when changing between parameter values (see [*OpenCV* issue #9388](https://github.com/opencv/opencv/issues/9388)).
 
 License
 -------

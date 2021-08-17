@@ -26,10 +26,10 @@ Additional modules may be listed.
 
 ````
 --   GUI: 
---     QT:                          YES (ver 5.9.5)
+--     QT:                          YES (ver 5.15.2)
 --       QT OpenGL support:         NO
 [...]
---     VTK support:                 YES (ver 7.1.1)
+--     VTK support:                 YES (ver 9.0.1)
 ````
 
 The listed versions may be different.
@@ -37,10 +37,26 @@ The listed versions may be different.
 ````
 --   Media I/O: 
 --     ZLib:                        /usr/lib/x86_64-linux-gnu/libz.so (ver 1.2.11)
---     JPEG:                        /usr/lib/x86_64-linux-gnu/libjpeg.so (ver 80)
---     PNG:                         /usr/lib/x86_64-linux-gnu/libpng.so (ver 1.6.34)
+--     JPEG:                        /usr/lib/x86_64-linux-gnu/libjpeg.so (ver 62)
+--     PNG:                         /usr/lib/x86_64-linux-gnu/libpng.so (ver 1.6.37)
 [...]
 --     PXM:                         YES
+````
+
+The listed versions may be different.
+
+````
+--   Video I/O:
+[...]
+--     v4l/v4l2:                    YES (linux/videodev2.h)
+````
+
+*Note: V4L support is only needed for accessing webcams and similar devices in those demonstrations which support this. All demonstrations are fully functional with image or video input only, i.e., without webcams. Thus, V4L support is not required.*
+
+````
+--   Other third-party libraries:
+--     VA:                          NO
+--     Eigen:                       YES (ver 3.3.9)
 ````
 
 The listed versions may be different.
