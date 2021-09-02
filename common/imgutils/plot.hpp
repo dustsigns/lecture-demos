@@ -1,5 +1,5 @@
 //Helper class for plotting points and lines (header)
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -62,6 +62,9 @@ namespace imgutils
   class Plot
   {
     public:
+      //Defines a callback function before the actual plotting takes place
+      using PreRenderingCallback = void (Plot &plot);
+    
       //Represents a list of point sets to be plotted
       vector<PointSet> point_sets;
       
@@ -72,9 +75,13 @@ namespace imgutils
     
       //Creates a new plot from the given point sets
       Plot(const vector<PointSet> &point_sets, const bool autoscale = true);
-      
+            
       //Sets the bottom-left and top-right visible points when autoscaling is deactivated. By default, a border is added. Its size can be reduced by calling SetSmallBorders.
       void SetVisibleRange(const Point2d &bottom_left, const Point2d &top_right);
+      
+      //Returns the bottom-left and top-right visible points. When autoscaling is deactivated, the previously set points are returned.
+      //When autoscaling is activated, this function only returns meaningful values in a pre-rendering callback in the DrawTo method. Borders are added as described in SetVisibleRange.
+      void GetVisibleRange(Point2d &bottom_left, Point2d &top_right) const;
       
       //Enables or disables autoscaling. When autoscaling is disabled, SetVisibleRange has to be called before drawing.
       void SetAutoscale(const bool autoscale = true);
@@ -91,7 +98,13 @@ namespace imgutils
       static constexpr auto default_height = 480u;
       
       //Draws the plot onto an RGB image with 8 bits per channel. If autoscaling is deactivated, all plotted coordinates must be visible since no clipping is performed.
-      void DrawTo(Mat_<Vec3b> &rgb_image, const unsigned int width = default_width, const unsigned int height = default_height);
+      //The pre-rendering callback allows for adjusting sizes, widths, positions etc. of objects to be plotted once all scaling factors and limits are known.
+      void DrawTo(Mat_<Vec3b> &rgb_image, const unsigned int width = default_width, const unsigned int height = default_height, function<PreRenderingCallback> pre_rendering_callback = nullptr);
+      
+      //During plotting, returns the image X coordinate corresponding to the given X (value) coordinate.
+      int GetVisibleXCoordinate(const double &x) const;
+      //During plotting, returns the image Y coordinate corresponding to the given Y (value) coordinate.
+      int GetVisibleYCoordinate(const double &y) const;
     
     private:
       bool autoscale;
@@ -143,6 +156,8 @@ namespace imgutils
       void DrawTicks(Mat_<Vec3b> &image) const;
       void DrawPointSets(Mat_<Vec3b> &image) const;
       
+      static constexpr auto default_border_factor = 0.1; //10% border
+      static constexpr auto small_border_factor = 0.25; //25% of the size of the default border
       static constexpr auto arrow_size = 10; //Arrow size in pixels
       static constexpr auto axis_label_offset = 10; //Offset in pixels
       static constexpr auto label_offset = 10 / 2; //Offset in pixels
@@ -150,6 +165,9 @@ namespace imgutils
       static constexpr auto sample_bar_width = 10; //Sample bar width in pixels
       static constexpr auto label_font = FONT_HERSHEY_TRIPLEX; //Font for axis and tick labels
       static constexpr auto label_font_size = 0.5; //Font size for axis and tick labels
+      
+      static_assert(default_border_factor >= 0 && default_border_factor < 1, "The absolute border size cannot be negative or larger than the image");
+      static_assert(small_border_factor >= 0 && small_border_factor <= 1, "The small border size cannot be negative or larger than the default border");
   };
 }
 

@@ -1,5 +1,5 @@
 //Helper class for plotting points and lines
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <algorithm>
@@ -55,9 +55,7 @@ namespace imgutils
     assert(bottom_left.x <= top_right.x && bottom_left.y <= top_right.y);
     if (consider_border)
     {
-      static constexpr auto default_border_factor = 0.1; //10% border
-      static_assert(default_border_factor >= 0 && default_border_factor < 1, "The absolute border size cannot be negative");
-      const auto additional_border_factor = small_borders ? 0.25 * default_border_factor : default_border_factor; //Reduce border to one quarter for small borders
+      const auto additional_border_factor = small_borders ? small_border_factor * default_border_factor : default_border_factor; //Reduce border to one quarter for small borders
       min_point = bottom_left - additional_border_factor * (top_right - bottom_left);
       max_point = top_right + additional_border_factor * (top_right - bottom_left);      
     }
@@ -65,6 +63,22 @@ namespace imgutils
     {
       min_point = bottom_left;
       max_point = top_right;
+    }
+  }
+  
+  void Plot::GetVisibleRange(Point2d &bottom_left, Point2d &top_right) const
+  {
+    constexpr bool consider_border = true; //SetVisibleRange implicity assumes this as well, so set it for consistency
+    if (consider_border)
+    {
+      const auto additional_border_factor = small_borders ? small_border_factor * default_border_factor : default_border_factor; //Reduce border to one quarter for small borders
+      bottom_left = (min_point + additional_border_factor * top_right) / (1 + additional_border_factor);
+      top_right = (max_point + additional_border_factor * bottom_left) / (1 + additional_border_factor);
+    }
+    else
+    {
+      bottom_left = min_point;
+      top_right = max_point;
     }
   }
   
@@ -429,6 +443,18 @@ namespace imgutils
     return converted_point;
   }
   
+  int Plot::GetVisibleXCoordinate(const double &x) const
+  {
+    assert(plotting); //If autoscaling is enabled, the parameters have had to be set so that they are sane
+    return TryConvertXCoordinate(x);
+  }
+  
+  int Plot::GetVisibleYCoordinate(const double &y) const
+  {
+    assert(plotting); //If autoscaling is enabled, the parameters have had to be set so that they are sane
+    return TryConvertYCoordinate(y);
+  }
+  
   void Plot::UnsetPlottingContext()
   {
     plotting = false;
@@ -534,12 +560,14 @@ namespace imgutils
     }
   }
   
-  void Plot::DrawTo(Mat_<Vec3b> &rgb_image, const unsigned int width, const unsigned height)
+  void Plot::DrawTo(Mat_<Vec3b> &rgb_image, const unsigned int width, const unsigned height, function<PreRenderingCallback> pre_rendering_callback)
   {
     const auto background_color = White;
     SetPlottingContext(width, height);
     rgb_image = Mat_<Vec3b>(height, width, background_color);
     //TODO: Grid?
+    if (pre_rendering_callback)
+      pre_rendering_callback(*this);
     DrawAxes(rgb_image);
     DrawTicks(rgb_image);
     DrawPointSets(rgb_image);
