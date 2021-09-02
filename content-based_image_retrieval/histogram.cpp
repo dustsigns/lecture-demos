@@ -55,6 +55,17 @@ static void GetChannelHistogram(const Mat &image, const int number_of_bins, vect
   ComputeRelativeHistogram(histogram_matrix, histogram);
 }
 
+static double GetUsablePortionOfPlot(const Plot &plot, const double min_x, const double max_x)
+{
+  Point2d bottom_left, top_right;
+  plot.GetVisibleRange(bottom_left, top_right);
+  const auto min_visible_x = plot.GetVisibleXCoordinate(bottom_left.x);
+  const auto max_visible_x = plot.GetVisibleXCoordinate(top_right.x);
+  const auto min_usable_x = plot.GetVisibleXCoordinate(min_x);
+  const auto max_usable_x = plot.GetVisibleXCoordinate(max_x);
+  return static_cast<double>(max_usable_x - min_usable_x) / (max_visible_x - min_visible_x);
+}
+
 static Mat PlotHistograms(const histogram_data &data, const int number_of_bins)
 {
   assert(data.image.type() == CV_8UC3);
@@ -71,8 +82,7 @@ static Mat PlotHistograms(const histogram_data &data, const int number_of_bins)
     vector<float> histogram;
     GetChannelHistogram(plane, number_of_bins, histogram);
     const auto bin_size = 256.0 / number_of_bins; //Size of each bin
-    const auto bin_size_pixels = static_cast<int>(ceil(0.8 * data.image.rows / number_of_bins)) - 1; //TODO: Get a better estimate how much of the drawing surface is the range [0, 255]
-    PointSet pointset(histogram, bin_size, color, false, false, bin_size_pixels); //Don't interconnect points, but draw rectangles (samples without sample bars and a width proportional to the bin size) instead
+    PointSet pointset(histogram, bin_size, color, false, false); //Don't interconnect points, but draw rectangles (samples without sample bars and a width proportional to the bin size) instead
     histograms.push_back(pointset);
   }
   Plot plot(histograms);
@@ -80,7 +90,16 @@ static Mat PlotHistograms(const histogram_data &data, const int number_of_bins)
   Tick::GenerateTicks(plot.x_axis_ticks, 0, 255, 10, 5); //Mark every 10 values, label every 50 (0-255)
   Mat_<Vec3b> image;
   plot.SetSmallBorders();
-  plot.DrawTo(image, data.image.cols, data.image.rows);
+  const auto bin_size_pixels = static_cast<double>(data.image.rows) / number_of_bins;
+  plot.DrawTo(image, data.image.cols, data.image.rows, [bin_size_pixels](Plot &plot)
+                                                                        {
+                                                                          const auto bin_size_factor = GetUsablePortionOfPlot(plot, 0, 255);
+                                                                          const auto bin_size_reduced = static_cast<int>(ceil(bin_size_factor * bin_size_pixels)) - 1; //Leave extra space (for high numbers of bins)
+                                                                          for_each(plot.point_sets.begin(), plot.point_sets.end(), [bin_size_reduced](PointSet &set) //Adjust bin size to usable range
+                                                                                                                                                     {
+                                                                                                                                                       set.line_width = bin_size_reduced;
+                                                                                                                                                     });
+                                                                        });
   return image;
 }
 
