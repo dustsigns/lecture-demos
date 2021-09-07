@@ -1,5 +1,5 @@
 //Illustration of mean RGB feature vectors
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2021
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -21,13 +21,19 @@ static void VisualizeCoordinateSystem(Viz3d &visualization)
   visualization.showWidget("Coordinate system", coordinate_system);
 }
 
+static constexpr auto use_normalization = false; //Set this to true to use additional l1 normalization
+
 static Scalar GetMean(const Mat &image)
 {
   assert(image.type() == CV_8UC3);
   const auto mean_value = mean(image);
-  return mean_value / 256; //Normalize mean //TODO: Option to switch between this normalization and the one below
-  /*const auto mean_sum = norm(mean_value, NORM_L1); //Alternative: normalize mean by sum
-  return mean_value / mean_sum; //Normalize mean*/
+  if constexpr (use_normalization)
+  {
+    const auto mean_sum = norm(mean_value, NORM_L1); //Alternative: normalize mean by sum
+    return 3 * mean_value / mean_sum; //Normalize mean considering all three components
+  }
+  else
+    return mean_value / 256; //Normalize mean
 }
 
 static Mat FixImage(const Mat &image)

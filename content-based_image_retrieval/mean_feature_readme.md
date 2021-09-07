@@ -39,6 +39,7 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
+* `use_normalization`: If true, additional l1 normalization is performed to eliminate the impact of image brightness. If false (default), no l1 normalization is performed and brightness has a significant impact as described above.
 * `thumbnail_size` (local to `VisualizeImage`): Width and height of the images in the visualization in relative coordinates.
 
 Known issues
