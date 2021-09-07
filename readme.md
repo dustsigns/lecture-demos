@@ -41,7 +41,7 @@ Build parameters (optional)
 The following parameters allow changing advanced build options. They are optional and have reasonable defaults.
 
 * **Release mode**: To disable debug builds (which are the default) and enable release builds (with optimizations enabled) instead, set the `DEBUG` flag to `0` when invoking `make`, e.g., `make DEBUG=0`. *Note: The build process does not track debug/release flags of individual files. It is not recommended to build different components with different values of the `DEBUG` flag. Instead, `make clean` should be called in the root folder to clean all intermediate files before switching from debug to release mode or vice versa.*
-* **Toolchain**: The file [common/tools.mak](common/tools.mak) specifies variables for all build tools used to build the demonstrations. They can be changed either in this file (not recommended) or by setting the corresponding variables when invoking `make`, e.g., `make CXX=/usr/bin/g++-7`.
+* **Toolchain**: The file [common/tools.mak](common/tools.mak) specifies variables for all build tools used to build the demonstrations. They can be changed either in this file (not recommended) or by setting the corresponding variables when invoking `make`, e.g., `make CXX=/usr/bin/g++-10`.
 
 Usage
 -----
