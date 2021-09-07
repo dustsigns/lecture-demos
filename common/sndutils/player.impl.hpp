@@ -116,7 +116,7 @@ namespace sndutils
                           unsigned char *buffer;
                           size_t buffer_size = converter.GetNextSampleBuffer(buffer);
                           static_assert(sizeof(char) == 1 && sizeof(char) == sizeof(unsigned char), "Both, char and unsigned char, must be one byte in size");
-                          if (!ao_play(this_playback_device, (char*)buffer, buffer_size)) //TODO: Double-buffering to avoid pauses
+                          if (!ao_play(this_playback_device, reinterpret_cast<char*>(buffer), buffer_size)) //TODO: Double-buffering to avoid pauses
                             throw runtime_error("Playback error. Don't use this instance again.");
                         }
                       }
