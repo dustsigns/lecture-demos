@@ -109,11 +109,11 @@ static Mat PlotWaves(DCT_data &data, const int visible_coefficients)
 
 static Mat PlotSpectrum(const int visible_coefficients)
 {
-  size_t displayed_coefficients = min(N, (size_t)visible_coefficients + 1); //First few coefficients plus the next one (except for the highest value - here, there is no next coefficient and all are shown again)
+  size_t displayed_coefficients = min(N, static_cast<size_t>(visible_coefficients) + 1); //First few coefficients plus the next one (except for the highest value - here, there is no next coefficient and all are shown again)
   vector<PointSet> separate_coefficients;
   for (size_t i = 0; i < displayed_coefficients; i++)
   {
-    PointSet point_set({ Point2d(i, coefficients[i]) }, i == (size_t)visible_coefficients ? Red : Purple, false, true); //No lines, but samples
+    PointSet point_set({ Point2d(i, coefficients[i]) }, i == static_cast<size_t>(visible_coefficients) ? Red : Purple, false, true); //No lines, but samples
     if (i == static_cast<unsigned int>(visible_coefficients))
       point_set.line_width = 3;
     separate_coefficients.push_back(point_set);
