@@ -82,9 +82,9 @@ static void AddCurrentWave(const DCT_data &data, const int visible_coefficients,
 
 static void AddSumWave(DCT_data &data, const int visible_coefficients, vector<PointSet> &point_sets)
 {
-  for (size_t i = 0; i < (size_t)visible_coefficients; i++)
+  for (size_t i = 0; i < static_cast<size_t>(visible_coefficients); i++)
     data.mixer.SetGenerator(i, &data.generators[i]);
-  for (size_t i = (size_t)visible_coefficients; i < N; i++) //Disable remaining coefficients
+  for (size_t i = static_cast<size_t>(visible_coefficients); i < N; i++) //Disable remaining coefficients
     data.mixer.SetGenerator(i, nullptr);
     
   vector<double> added_samples(N);
