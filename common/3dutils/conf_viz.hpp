@@ -44,7 +44,7 @@ namespace vizutils
       //Updates the value of the trackbar with the specified name, issuing a callback
       void UpdateTrackbarValue(const string &name, const int value);
       
-      //Shows the visualization and the control windows, calls the optional transform and initial callback, and waits until a key has been pressed that closes one of them, effectively closing both. This class must not be used again after this function has been called. //TODO: Find a nicer solution
+      //Shows the visualization and the control windows, calls the optional transform and initial callback, and waits until a key has been pressed that closes one of them, effectively closing both.
       void ShowWindows(function<ViewerTransform> transform = nullptr, ControlCallback initial_callback = nullptr);
       
       //Returns the visualization's camera object
