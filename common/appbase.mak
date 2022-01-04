@@ -23,9 +23,20 @@ $(TST): test_%: %.exe %_test
 		./$< $$test; \
 	done < $*_test
 
-.PHONY: $(TST) tests all clean
+.PHONY: $(TST) tests ordered_tests all clean
 
 tests: $(TST)
+
+ORDERED_TESTS := $(addprefix test_, $(ORDER))
+
+COUNT_ORDERED_TESTS := $(words $(ORDERED_TESTS))
+COUNT_TESTS := $(words $(TST))
+ifneq ($(COUNT_ORDERED_TESTS), $(COUNT_TESTS))
+  $(warning Demonstrations may be missing when using the ordered_tests target.)
+  $(warning $(COUNT_ORDERED_TESTS) ordered vs. $(COUNT_TESTS) available demonstrations.)
+endif
+
+ordered_tests: $(ORDERED_TESTS)
 
 .DEFAULT_GOAL := all
 
