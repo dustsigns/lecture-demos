@@ -1,5 +1,5 @@
 #Common base for all Makefiles
-# Andreas Unterweger, 2016-2020
+# Andreas Unterweger, 2016-2022
 #This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #The directory that this file is contained in ($(CURDIR) does not change on include)
@@ -21,23 +21,22 @@ ifneq ($(DEBUG), 1)
   LDFLAGS += -O3 -flto
 endif
 
-CXXFLAGS += -I$(COMMONPATH)/comutils
-SRCDEP := $(wildcard $(COMMONPATH)/comutils/*.cpp)
+SRCDEPS := comutils
 ifneq ($(filter sound,$(PARTS)),)
-  SRCDEP += $(wildcard $(COMMONPATH)/sndutils/*.cpp)
-  CXXFLAGS += -I$(COMMONPATH)/sndutils
+  SRCDEPS += sndutils
   LIBS += ao
 endif
 ifneq ($(filter images,$(PARTS)),)
-  SRCDEP += $(wildcard $(COMMONPATH)/imgutils/*.cpp)
-  CXXFLAGS += -I$(COMMONPATH)/imgutils
+  SRCDEPS += imgutils
   LIBS += opencv4
 endif
 ifneq ($(filter 3d,$(PARTS)),)
-  SRCDEP += $(wildcard $(COMMONPATH)/3dutils/*.cpp)
-  CXXFLAGS += -I$(COMMONPATH)/3dutils
+  SRCDEPS += 3dutils
   LIBS += opencv4
 endif
+SRCDEPS := $(addprefix $(COMMONPATH)/, $(SRCDEPS))
+CXXFLAGS += $(addprefix -I, $(SRCDEPS))
+SRCDEP := $(wildcard $(addsuffix /*.cpp, $(SRCDEPS)))
 OBJDEP := $(SRCDEP:.cpp=.o)
 
 ifneq ($(LIBS),)
