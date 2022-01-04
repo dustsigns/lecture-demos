@@ -1,1 +1,3 @@
-../testdata/images/pan001.png ../testdata/images/pan003.png ../testdata/images/pan004.png #../testdata/images/pan001.png ../testdata/images/pan003.png #../testdata/images/pan*
+../testdata/images/pan001.png ../testdata/images/pan003.png ../testdata/images/pan004.png
+../testdata/images/pan001.png ../testdata/images/pan003.png
+../testdata/images/pan*

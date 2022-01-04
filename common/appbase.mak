@@ -1,5 +1,5 @@
 #Base Makefile for all folders with applications (source code plus executables)
-# Andreas Unterweger, 2018-2019
+# Andreas Unterweger, 2018-2022
 #This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #The directory that this file is contained in ($(CURDIR) does not change on include)
@@ -17,7 +17,11 @@ TST := $(addprefix test_, $(EXE:.exe=))
 	$(CXX) $^ -o $@ $(LDFLAGS)
 
 $(TST): test_%: %.exe %_test
-	./$< $(shell $(CAT) $*_test)
+	@while read test; \
+	do \
+		$(ECHO) ./$< $$test; \
+		./$< $$test; \
+	done < $*_test
 
 .PHONY: $(TST) tests all clean
 
