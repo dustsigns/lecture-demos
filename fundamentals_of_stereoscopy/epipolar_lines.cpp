@@ -78,9 +78,9 @@ static cv::Affine3d GetStereoCameraRotationAndTranslation()
   //constexpr auto camera_z_rotation_angle = 20;
   constexpr auto camera_x_translation_offset = 0.1;
   
-  cv::Affine3d pose;
-  //pose = pose.rotate(cv::Vec3d(0, DegreesToRadians(camera_y_rotation_angle), 0));
-  //pose = pose.rotate(cv::Vec3d(0, 0, DegreesToRadians(camera_z_rotation_angle)));
+  auto pose = cv::Affine3d::Identity();
+  //pose = pose.rotate(cv::Vec3d(0, comutils::DegreesToRadians(camera_y_rotation_angle), 0));
+  //pose = pose.rotate(cv::Vec3d(0, 0, comutils::DegreesToRadians(camera_z_rotation_angle)));
   pose = pose.translate(cv::Vec3d(camera_x_translation_offset, 0, 0));
   return pose;
 }
