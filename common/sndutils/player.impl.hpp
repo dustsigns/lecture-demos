@@ -1,5 +1,5 @@
 //Audio playback helper class (template implementation)
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <cassert>
@@ -14,15 +14,11 @@
 
 namespace sndutils
 {
-  using namespace std;
-  
-  using namespace comutils;
-
   template<typename T>
   class WaveFormConverter
   {
     public:
-      WaveFormConverter(WaveFormGenerator<T> &generator, const size_t number_of_channels)
+      WaveFormConverter(comutils::WaveFormGenerator<T> &generator, const size_t number_of_channels)
        : generator(generator), number_of_channels(number_of_channels),
          unit_size(sample_size * number_of_channels),
          buffer_size(units_per_buffer * unit_size)
@@ -45,8 +41,8 @@ namespace sndutils
         static_assert(sizeof(unsigned char) == 1, "char must be one byte in size");
         for (size_t unit = 0; unit < units_per_buffer; unit++)
         {
-          static_assert(is_integral<T>(), "T (WaveFormGenerator sample type) must be an integral type");
-          using U = typename conditional<is_signed<T>::value, long, unsigned long>::type; //Use long for signed chars, ints etc. and unsigned long for the rest
+          static_assert(std::is_integral<T>(), "T (WaveFormGenerator sample type) must be an integral type");
+          using U = typename std::conditional<std::is_signed<T>::value, long, unsigned long>::type; //Use long for signed chars, ints etc. and unsigned long for the rest
           static_assert(sizeof(T) <= sizeof(U), "T (WaveFormGenerator sample type) cannot be larger than (unsigned) long"); //Since (unsigned) long is used for shifting below, the type's size has to be smaller than that of an (unsigned) long
           const auto current_value = static_cast<U>(generator.GetNextSample());
           for (size_t channel = 0; channel < number_of_channels; channel++) //Fill all channels with the same samples
@@ -66,7 +62,7 @@ namespace sndutils
     private:
       static constexpr size_t units_per_buffer = 1000; //Each buffer will be filled with 1000 samples for each channel
       
-      WaveFormGenerator<T> &generator;
+      comutils::WaveFormGenerator<T> &generator;
       const size_t number_of_channels;
       const size_t unit_size;
       const size_t buffer_size;
@@ -89,38 +85,38 @@ namespace sndutils
     ao_initialize();
     const int driver_id = ao_default_driver_id();
     if (!(playback_device = ao_open_live(driver_id, &sample_format, nullptr)))
-      throw runtime_error("Could not open playback device");
+      throw std::runtime_error("Could not open playback device");
   }
 
   template<typename T>
-  void AudioPlayer<T>::Play(WaveFormGenerator<T> &generator)
+  void AudioPlayer<T>::Play(comutils::WaveFormGenerator<T> &generator)
   {
     if (playing)
-      throw runtime_error("Already playing. Stop playback first.");
+      throw std::runtime_error("Already playing. Stop playback first.");
     playing = true;
     
     const size_t this_number_of_channels = this->sample_format.channels;
     const auto &this_playing = this->playing;
     const auto &this_paused = this->paused;
     ao_device * const &this_playback_device = this->playback_device;
-    worker = thread([&generator, this_number_of_channels, &this_playing, &this_paused, &this_playback_device]
-                    ()
-                    {
-                      WaveFormConverter<T> converter(generator, this_number_of_channels);
-                      while (this_playing)
-                      {
-                        if (this_paused) //Allow other threads to work while waiting for playback to resume
-                          this_thread::yield();
-                        else
-                        {
-                          unsigned char *buffer;
-                          size_t buffer_size = converter.GetNextSampleBuffer(buffer);
-                          static_assert(sizeof(char) == 1 && sizeof(char) == sizeof(unsigned char), "Both, char and unsigned char, must be one byte in size");
-                          if (!ao_play(this_playback_device, reinterpret_cast<char*>(buffer), buffer_size)) //TODO: Double-buffering to avoid pauses
-                            throw runtime_error("Playback error. Don't use this instance again.");
-                        }
-                      }
-                    });
+    worker = std::thread([&generator, this_number_of_channels, &this_playing, &this_paused, &this_playback_device]
+                         ()
+                         {
+                           WaveFormConverter<T> converter(generator, this_number_of_channels);
+                           while (this_playing)
+                           {
+                             if (this_paused) //Allow other threads to work while waiting for playback to resume
+                               std::this_thread::yield();
+                             else
+                             {
+                               unsigned char *buffer;
+                               size_t buffer_size = converter.GetNextSampleBuffer(buffer);
+                               static_assert(sizeof(char) == 1 && sizeof(char) == sizeof(unsigned char), "Both, char and unsigned char, must be one byte in size");
+                               if (!ao_play(this_playback_device, reinterpret_cast<char*>(buffer), buffer_size)) //TODO: Double-buffering to avoid pauses
+                                 throw std::runtime_error("Playback error. Don't use this instance again.");
+                             }
+                           }
+                         });
   }
 
   template<typename T>
@@ -136,7 +132,7 @@ namespace sndutils
   void AudioPlayer<T>::Pause()
   {
     if (!playing)
-      throw runtime_error("Not playing. Start playback first.");
+      throw std::runtime_error("Not playing. Start playback first.");
     paused = true;
   }
 
@@ -144,7 +140,7 @@ namespace sndutils
   void AudioPlayer<T>::Resume()
   {
     if (!playing)
-      throw runtime_error("Not playing. Start playback first.");
+      throw std::runtime_error("Not playing. Start playback first.");
     paused = false;
   }
 

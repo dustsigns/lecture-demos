@@ -1,5 +1,5 @@
 //Sine wave generator class (header)
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -8,8 +8,6 @@
 
 namespace comutils
 {
-  using namespace std;
-  
   //Defines a generator for sinusodial wave forms
   template<typename T>
   class SineWaveGenerator : public WaveFormGenerator<T>

@@ -1,5 +1,5 @@
 //Helper functions for drawing aligned text (header)
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -10,10 +10,6 @@
 
 namespace imgutils
 {
-  using namespace std;
-  
-  using namespace cv;
-  
   static_assert(sizeof(unsigned char) == 1, "unsigned char must be 8 bits in size");
   
   //Way to align text
@@ -45,6 +41,6 @@ namespace imgutils
   };
   
   //Draws the specified text with the defined alignment and parameters around the given point
-  void DrawText(Mat_<Vec3b> &image, const string &text, const Point &point, const TextAlignment alignment, const Vec3b &color, const int cv_font_face, const double cv_font_scale);
+  void DrawText(cv::Mat_<cv::Vec3b> &image, const std::string &text, const cv::Point &point, const TextAlignment alignment, const cv::Vec3b &color, const int cv_font_face, const double cv_font_scale);
 }
 

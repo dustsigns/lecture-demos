@@ -1,5 +1,5 @@
 //Audio playback helper class (header)
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -13,10 +13,6 @@
 
 namespace sndutils
 {
-  using namespace std;
-  
-  using namespace comutils;
-  
   //Plays back raw audio streams of base type T on the default playback device
   template<typename T>
   class AudioPlayer
@@ -27,7 +23,7 @@ namespace sndutils
       ~AudioPlayer();
       
       //Plays back the wave form produced by the specified generator asynchronously until Stop() is called
-      void Play(WaveFormGenerator<T> &generator);
+      void Play(comutils::WaveFormGenerator<T> &generator);
       //Halts previously started playback
       void Stop();
       //Pauses previusly started playback
@@ -42,9 +38,9 @@ namespace sndutils
     private:
       ao_sample_format sample_format;
       ao_device *playback_device;
-      atomic<bool> playing;
-      atomic<bool> paused;
-      thread worker;
+      std::atomic_bool playing;
+      std::atomic_bool paused;
+      std::thread worker;
   };
 }
 

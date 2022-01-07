@@ -1,5 +1,5 @@
 //Wave form mixer class (header)
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -10,15 +10,13 @@
 
 namespace comutils
 {
-  using namespace std;
-  
   //Defines a mixer of M wave forms
   template<typename T, size_t M>
   class WaveFormMixer : public WaveFormGenerator<T>
   {  
     public:
       //Constructs a new instance of WaveFormGenerator with the given channel parameters
-      WaveFormMixer(const array<WaveFormGenerator<T>*, M> &generators, const double mixing_factor = 1.0 / M, const unsigned int sampling_rate = 48000);
+      WaveFormMixer(const std::array<WaveFormGenerator<T>*, M> &generators, const double mixing_factor = 1.0 / M, const unsigned int sampling_rate = 48000);
       
       //Replaces the component at the specified index with the given component
       void SetGenerator(const size_t generator_index, WaveFormGenerator<T> * const generator);
@@ -30,7 +28,7 @@ namespace comutils
       void GetRepresentativeSamples(const size_t N, T values[]) const;
       
     private:
-      array<WaveFormGenerator<T>*, M> generators;
+      std::array<WaveFormGenerator<T>*, M> generators;
       double mixing_factor;
       
       double MixValue(const double value) const;

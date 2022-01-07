@@ -1,5 +1,5 @@
 //Wave form generator interface (header)
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -8,8 +8,6 @@
 
 namespace comutils
 {
-  using namespace std;
-  
   //Defines an abstract generator of wave forms
   template<typename T>
   class WaveFormGenerator
@@ -28,8 +26,8 @@ namespace comutils
       unsigned int GetSamplingRate() const;
       
     protected:
-      static constexpr T min_amplitude = numeric_limits<T>::lowest();
-      static constexpr T max_amplitude = numeric_limits<T>::max();
+      static constexpr T min_amplitude = std::numeric_limits<T>::lowest();
+      static constexpr T max_amplitude = std::numeric_limits<T>::max();
       
       unsigned int sampling_rate;
   };

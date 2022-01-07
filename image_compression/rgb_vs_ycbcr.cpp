@@ -1,5 +1,5 @@
 //Illustration of RGB and YCbCr component decomposition
-// Andreas Unterweger, 2016-2018
+// Andreas Unterweger, 2016-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -11,46 +11,40 @@
 
 #include "combine.hpp"
 
-using namespace std;
-
-using namespace cv;
-
-using namespace imgutils;
-
-static void ShowImages(const Mat &image)
+static void ShowImages(const cv::Mat &image)
 {
   constexpr auto window_name = "RGB vs. YCbCr";
-  namedWindow(window_name);
-  moveWindow(window_name, 0, 0);
-  Mat bgr_planes[3];
-  split(image, bgr_planes);
-  Mat ycrcb_image;
-  cvtColor(image, ycrcb_image, COLOR_BGR2YCrCb); //TODO: Allow subsampling (how? cvtColor makes a 1-channel matrix with COLOR_BGR2YUV_*)
-  Mat ycrcb_planes[3];
-  split(ycrcb_image, ycrcb_planes);
-  const Mat rgb_planes_combined = CombineImages({image, bgr_planes[2], bgr_planes[1], bgr_planes[0]}, Horizontal); //BGR as RGB
-  const Mat ycbcr_planes_combined = CombineImages({image, ycrcb_planes[0], ycrcb_planes[2], ycrcb_planes[1]}, Horizontal); //YCrCb as YCbCr
-  Mat combined_images = CombineImages({rgb_planes_combined, ycbcr_planes_combined}, Vertical);
-  resize(combined_images, combined_images, Size(), 1 / sqrt(2), 1 / sqrt(2), INTER_LANCZOS4); //TODO: Don't resize, but find another way to fit the window(s) to the screen size, e.g., by allowing to hide the original image via a checkbox
-  imshow(window_name, combined_images);
+  cv::namedWindow(window_name);
+  cv::moveWindow(window_name, 0, 0);
+  cv::Mat bgr_planes[3];
+  cv::split(image, bgr_planes);
+  cv::Mat ycrcb_image;
+  cv::cvtColor(image, ycrcb_image, cv::COLOR_BGR2YCrCb); //TODO: Allow subsampling (how? cv::cvtColor makes a 1-channel matrix with cv::COLOR_BGR2YUV_*)
+  cv::Mat ycrcb_planes[3];
+  cv::split(ycrcb_image, ycrcb_planes);
+  const cv::Mat rgb_planes_combined = imgutils::CombineImages({image, bgr_planes[2], bgr_planes[1], bgr_planes[0]}, imgutils::Horizontal); //BGR as RGB
+  const cv::Mat ycbcr_planes_combined = imgutils::CombineImages({image, ycrcb_planes[0], ycrcb_planes[2], ycrcb_planes[1]}, imgutils::Horizontal); //YCrCb as YCbCr
+  cv::Mat combined_images = imgutils::CombineImages({rgb_planes_combined, ycbcr_planes_combined}, imgutils::Vertical);
+  cv::resize(combined_images, combined_images, cv::Size(), 1 / sqrt(2), 1 / sqrt(2), cv::INTER_LANCZOS4); //TODO: Don't resize, but find another way to fit the window(s) to the screen size, e.g., by allowing to hide the original image via a checkbox
+  cv::imshow(window_name, combined_images);
 }
 
 int main(const int argc, const char * const argv[])
 {
   if (argc != 2)
   {
-    cout << "Extracts the RGB and YCbCr channels of an image and displays them." << endl;
-    cout << "Usage: " << argv[0] << " <input image>" << endl;
+    std::cout << "Extracts the RGB and YCbCr channels of an image and displays them." << std::endl;
+    std::cout << "Usage: " << argv[0] << " <input image>" << std::endl;
     return 1;
   }
   const auto image_filename = argv[1];
-  const Mat image = imread(image_filename);
+  const cv::Mat image = cv::imread(image_filename);
   if (image.empty())
   {
-    cerr << "Could not read input image '" << image_filename << "'" << endl;
+    std::cerr << "Could not read input image '" << image_filename << "'" << std::endl;
     return 2;
   }
   ShowImages(image);
-  waitKey(0);
+  cv::waitKey(0);
   return 0;
 }

@@ -1,5 +1,5 @@
 //Wave form mixer class (template implementation)
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <cassert>
@@ -9,10 +9,8 @@
 
 namespace comutils
 {
-  using namespace std;
-
   template<typename T, size_t M>
-  WaveFormMixer<T, M>::WaveFormMixer(const array<WaveFormGenerator<T>*, M> &generators, const double mixing_factor, const unsigned int sampling_rate)
+  WaveFormMixer<T, M>::WaveFormMixer(const std::array<WaveFormGenerator<T>*, M> &generators, const double mixing_factor, const unsigned int sampling_rate)
    : WaveFormGenerator<T>(sampling_rate),
      generators(generators), mixing_factor(mixing_factor)
   {
@@ -61,21 +59,21 @@ namespace comutils
   template<typename T, size_t M>
   void WaveFormMixer<T, M>::GetRepresentativeSamples(const size_t N, T values[]) const
   {
-    vector<double> sample_values(N, 0.0);
+    std::vector<double> sample_values(N, 0.0);
     for (auto * const generator : generators)
     {
       if (generator)
       {
-        vector<T> representative_samples(N);
+        std::vector<T> representative_samples(N);
         generator->GetRepresentativeSamples(N, representative_samples.data());
         for (size_t i = 0; i < N; i++)
           sample_values[i] +=  MixValue(representative_samples[i]);
       }
     }
-    transform(sample_values.begin(), sample_values.end(), values, [this](const double value)
-                                                                        {
-                                                                          return ClipValue(value);
-                                                                        });
+    std::transform(sample_values.begin(), sample_values.end(), values, [this](const double value)
+                                                                             {
+                                                                               return ClipValue(value);
+                                                                             });
   }
   
   template<typename T, size_t M>

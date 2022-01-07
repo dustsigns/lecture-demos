@@ -1,5 +1,5 @@
 //Illustration of the contrast sensitivity function
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -7,10 +7,6 @@
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
-
-using namespace std;
-
-using namespace cv;
 
 static double ExponentialProgression(const double minimum, const double maximum, const unsigned int steps, const unsigned int step)
 {
@@ -20,13 +16,13 @@ static double ExponentialProgression(const double minimum, const double maximum,
   return minimum * pow(maximum / minimum, static_cast<double>(step) / steps);
 }
 
-static Mat GenerateCSFImage()
+static cv::Mat GenerateCSFImage()
 {
   constexpr int width = 800;
   constexpr int height = 600;
   constexpr double max_brightness = 255;
   static_assert(max_brightness >= 0 && max_brightness <= 255, "Maximum brightness must fit into 8 bits (unsigned char)");
-  Mat_<unsigned char> image(height, width, static_cast<unsigned char>(max_brightness));
+  cv::Mat_<unsigned char> image(height, width, static_cast<unsigned char>(max_brightness));
   image.forEach([](unsigned char &value, const int position[])
                   {
                     constexpr double min_frequency = 1;
@@ -48,21 +44,21 @@ static Mat GenerateCSFImage()
 static void ShowContrastSensitivityFunction()
 {
   constexpr auto window_name = "Contrast sensitivity function";
-  namedWindow(window_name, WINDOW_GUI_NORMAL | WINDOW_AUTOSIZE); //Don't allow changes to size
-  moveWindow(window_name, 0, 0);
-  const Mat csf_image = GenerateCSFImage();
-  imshow(window_name, csf_image);
+  cv::namedWindow(window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE); //Don't allow changes to size
+  cv::moveWindow(window_name, 0, 0);
+  const cv::Mat csf_image = GenerateCSFImage();
+  cv::imshow(window_name, csf_image);
 }
 
 int main(const int argc, const char * const argv[])
 {
   if (argc != 1)
   {
-    cout << "Illustrates the contrast sensitivity function." << endl;
-    cout << "Usage: " << argv[0] << endl;
+    std::cout << "Illustrates the contrast sensitivity function." << std::endl;
+    std::cout << "Usage: " << argv[0] << std::endl;
     return 1;
   }
   ShowContrastSensitivityFunction();
-  waitKey(0);
+  cv::waitKey(0);
   return 0;
 }

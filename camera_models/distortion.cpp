@@ -1,5 +1,5 @@
 //Illustration of non-linear lense distortion
-// Andreas Unterweger, 2017-2021
+// Andreas Unterweger, 2017-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -11,18 +11,12 @@
 
 #include "combine.hpp"
 
-using namespace std;
-
-using namespace cv;
-
-using namespace imgutils;
-
 struct distortion_coefficient
 {
-  const string name;
+  const std::string name;
   const int scaling_factor;
   
-  distortion_coefficient(const string &name, const double scaling_factor) 
+  distortion_coefficient(const std::string &name, const double scaling_factor) 
    : name(name), scaling_factor(scaling_factor)
     { }
   
@@ -36,66 +30,66 @@ static constexpr auto number_of_coefficients = 4; //Number of coefficients suppo
 
 struct distortion_data
 {
-  const Mat image;
-  array<distortion_coefficient, number_of_coefficients> distortion_coefficients {distortion_coefficient("k1", -7),
-                                                                                 distortion_coefficient("k2", -10),
-                                                                                 distortion_coefficient("p1", -5),
-                                                                                 distortion_coefficient("p2", -5)};
+  const cv::Mat image;
+  std::array<distortion_coefficient, number_of_coefficients> distortion_coefficients {distortion_coefficient("k1", -7),
+                                                                                      distortion_coefficient("k2", -10),
+                                                                                      distortion_coefficient("p1", -5),
+                                                                                      distortion_coefficient("p2", -5)};
   
-  const string window_name;
+  const std::string window_name;
   
-  distortion_data(const Mat &image, const string &window_name)
+  distortion_data(const cv::Mat &image, const std::string &window_name)
    : image(image),
      window_name(window_name) { }
 };
 
-static Mat GetStandardCameraMatrix(Size2i image_size)
+static cv::Mat GetStandardCameraMatrix(cv::Size2i image_size)
 {
-  Mat_<float> camera_matrix = Mat::eye(3, 3, CV_32F); //Focal lengths are 1
+  cv::Mat_<float> camera_matrix = cv::Mat::eye(3, 3, CV_32F); //Focal lengths are 1
   camera_matrix(0, 2) = image_size.width / 2.f; //Principal point is at the center of the image
   camera_matrix(1, 2) = image_size.height / 2.f;
   return camera_matrix;
 }
 
 template<size_t... Is>
-static constexpr array<double, sizeof...(Is)> GetCoefficientArray(const array<distortion_coefficient, sizeof...(Is)> &coeffs, const array<int, sizeof...(Is)> &values, const index_sequence<Is...>&)
+static constexpr std::array<double, sizeof...(Is)> GetCoefficientArray(const std::array<distortion_coefficient, sizeof...(Is)> &coeffs, const std::array<int, sizeof...(Is)> &values, const std::index_sequence<Is...>&)
 {
   return {{ coeffs[Is].GetCoefficientValue(values[Is])... }}; //Continued in this pattern for every available index/coefficient
 }
 
-static array<double, number_of_coefficients> GetCoefficients(const array<distortion_coefficient, number_of_coefficients> &coeffs, const array<int, number_of_coefficients> values)
+static std::array<double, number_of_coefficients> GetCoefficients(const std::array<distortion_coefficient, number_of_coefficients> &coeffs, const std::array<int, number_of_coefficients> values)
 {
-  return GetCoefficientArray(coeffs, values, make_index_sequence<number_of_coefficients>{}); //Create coefficients by iterating through all (coefficient) array indices
+  return GetCoefficientArray(coeffs, values, std::make_index_sequence<number_of_coefficients>{}); //Create coefficients by iterating through all (coefficient) array indices
 }
 
-static string GetTrackbarTitle(const distortion_coefficient &coeff)
+static std::string GetTrackbarTitle(const distortion_coefficient &coeff)
 {
-  return coeff.name + "*10^(" + to_string(coeff.scaling_factor) + ")";
+  return coeff.name + "*10^(" + std::to_string(coeff.scaling_factor) + ")";
 }
 
-static array<int, number_of_coefficients> GetCoefficientValues(const array<distortion_coefficient, number_of_coefficients> &distortion_coefficients, const string &window_name)
+static std::array<int, number_of_coefficients> GetCoefficientValues(const std::array<distortion_coefficient, number_of_coefficients> &distortion_coefficients, const std::string &window_name)
 {
-  array<int, number_of_coefficients> coefficient_values;
+  std::array<int, number_of_coefficients> coefficient_values;
   int i = 0;
   for (auto &coeff : distortion_coefficients)
-    coefficient_values[i++] = getTrackbarPos(GetTrackbarTitle(coeff), window_name);
+    coefficient_values[i++] = cv::getTrackbarPos(GetTrackbarTitle(coeff), window_name);
   return coefficient_values;
 }
 
 static void ShowDistortedImages(const int, void * const user_data)
 {
   auto &data = *(static_cast<distortion_data*>(user_data));
-  const Mat &image = data.image;
+  const cv::Mat &image = data.image;
   const auto coefficient_values = GetCoefficientValues(data.distortion_coefficients, data.window_name);
   const auto distortion_vector = GetCoefficients(data.distortion_coefficients, coefficient_values);
   const auto standard_camera_matrix = GetStandardCameraMatrix(image.size());
-  Mat distorted_image;
-  undistort(image, distorted_image, standard_camera_matrix, distortion_vector);
-  const Mat combined_image = CombineImages({image, distorted_image}, Horizontal);
-  imshow(data.window_name, combined_image);
+  cv::Mat distorted_image;
+  cv::undistort(image, distorted_image, standard_camera_matrix, distortion_vector);
+  const cv::Mat combined_image = imgutils::CombineImages({image, distorted_image}, imgutils::Horizontal);
+  cv::imshow(data.window_name, combined_image);
 }
 
-static string AddControls(distortion_data &data)
+static std::string AddControls(distortion_data &data)
 {
   constexpr auto max_negative_value = 100;
   constexpr auto max_positive_value = 100;
@@ -103,49 +97,49 @@ static string AddControls(distortion_data &data)
   for (auto &coeff : data.distortion_coefficients)
   {
     const auto title = GetTrackbarTitle(coeff);
-    createTrackbar(title, data.window_name, nullptr, max_negative_value + max_positive_value, ShowDistortedImages, static_cast<void*>(&data));
-    setTrackbarMin(title, data.window_name, -max_negative_value);
-    setTrackbarMax(title, data.window_name, max_positive_value);
+    cv::createTrackbar(title, data.window_name, nullptr, max_negative_value + max_positive_value, ShowDistortedImages, static_cast<void*>(&data));
+    cv::setTrackbarMin(title, data.window_name, -max_negative_value);
+    cv::setTrackbarMax(title, data.window_name, max_positive_value);
   }
   constexpr auto button_name = "Reset";
-  createButton(button_name, [](const int, void * const user_data)
-                              {
-                                auto &data = *(static_cast<distortion_data*>(user_data));
-                                for (auto &coeff : data.distortion_coefficients)
-                                {
-                                  const auto title = GetTrackbarTitle(coeff);
-                                  setTrackbarPos(title, data.window_name, 0);
-                                }
-                              }, static_cast<void*>(&data), QT_PUSH_BUTTON);
+  cv::createButton(button_name, [](const int, void * const user_data)
+                                  {
+                                    auto &data = *(static_cast<distortion_data*>(user_data));
+                                    for (auto &coeff : data.distortion_coefficients)
+                                    {
+                                      const auto title = GetTrackbarTitle(coeff);
+                                      cv::setTrackbarPos(title, data.window_name, 0);
+                                    }
+                                  }, static_cast<void*>(&data), cv::QT_PUSH_BUTTON);
   return GetTrackbarTitle(data.distortion_coefficients[0]);
 }
 
-static void ShowImages(const Mat &image)
+static void ShowImages(const cv::Mat &image)
 {
   constexpr auto window_name = "Undistorted vs. distorted";
-  namedWindow(window_name);
-  moveWindow(window_name, 0, 0);
+  cv::namedWindow(window_name);
+  cv::moveWindow(window_name, 0, 0);
   static distortion_data data(image, window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
   const auto main_parameter_trackbar_name = AddControls(data);
-  setTrackbarPos(main_parameter_trackbar_name, window_name, 50); //Implies imshow with 50% of the first coefficient set
+  cv::setTrackbarPos(main_parameter_trackbar_name, window_name, 50); //Implies cv::imshow with 50% of the first coefficient set
 }
 
 int main(const int argc, const char * const argv[])
 {
   if (argc != 2)
   {
-    cout << "Illustrates the effect of the distortion vector on a camera image." << endl;
-    cout << "Usage: " << argv[0] << " <camera image>" << endl;
+    std::cout << "Illustrates the effect of the distortion vector on a camera image." << std::endl;
+    std::cout << "Usage: " << argv[0] << " <camera image>" << std::endl;
     return 1;
   }
   const auto filename = argv[1];
-  const Mat image = imread(filename);
+  const cv::Mat image = cv::imread(filename);
   if (image.empty())
   {
-    cerr << "Could not read input image '" << filename << "'" << endl;
+    std::cerr << "Could not read input image '" << filename << "'" << std::endl;
     return 2;
   }
   ShowImages(image);
-  waitKey(0);
+  cv::waitKey(0);
   return 0;
 }

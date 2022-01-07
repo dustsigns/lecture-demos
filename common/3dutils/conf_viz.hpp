@@ -1,5 +1,5 @@
 //3-D visualization window with accompanying configuration window (header)
-// Andreas Unterweger, 2017-2021
+// Andreas Unterweger, 2017-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -12,11 +12,6 @@
 
 namespace vizutils
 {
-  using namespace std;
-  
-  using namespace cv;
-  using namespace cv::viz;
-
   //Shows a 3-D visualization with a control window
   class ConfigurableVisualization
   {
@@ -25,36 +20,36 @@ namespace vizutils
       static constexpr auto window_height = 600;
     
       //Defines a callback function for applying a transform to the viewer pose
-      using ViewerTransform = Affine3d (const Affine3d &pose);
+      using ViewerTransform = cv::Affine3d (const cv::Affine3d &pose);
       //Defines a callback function when a window control has been changed, e.g., the trackbar value has been changed
       using ControlCallback = void (*)(ConfigurableVisualization &visualization);
       
       //3-D objects to be displayed in the visualization window with their corresponding names
-      map<string, Widget3D> objects;
+      std::map<std::string, cv::viz::Widget3D> objects;
     
       //Constructs a new instance of ConfigurableVisualization with the given names for the visualization and the control window, respectively
-      ConfigurableVisualization(const string &visualization_window_name, const string &control_window_name);
+      ConfigurableVisualization(const std::string &visualization_window_name, const std::string &control_window_name);
       ConfigurableVisualization(const ConfigurableVisualization &original) = delete; //Explicitly delete the copy constructor since duplicating windows is problematic
       ~ConfigurableVisualization();
       
       //Adds a trackbar with the specified callback function, maximum and default value to the control window
-      void AddTrackbar(const string &name, ControlCallback callback, const int max_value, const int min_value = 0, const int default_value = 0);
+      void AddTrackbar(const std::string &name, ControlCallback callback, const int max_value, const int min_value = 0, const int default_value = 0);
       //Retrieves the value of the trackbar with the specified name
-      int GetTrackbarValue(const string &name) const;
+      int GetTrackbarValue(const std::string &name) const;
       //Updates the value of the trackbar with the specified name, issuing a callback
-      void UpdateTrackbarValue(const string &name, const int value);
+      void UpdateTrackbarValue(const std::string &name, const int value);
       
       //Shows the visualization and the control windows, calls the optional transform and initial callback, and waits until a key has been pressed that closes one of them, effectively closing both.
-      void ShowWindows(function<ViewerTransform> transform = nullptr, ControlCallback initial_callback = nullptr);
+      void ShowWindows(std::function<ViewerTransform> transform = nullptr, ControlCallback initial_callback = nullptr);
       
       //Returns the visualization's camera object
-      Camera GetCamera() const;
+      cv::viz::Camera GetCamera() const;
       //Replaces the visualization's camera object with the one specified
-      void SetCamera(const Camera &camera);
+      void SetCamera(const cv::viz::Camera &camera);
       //Returns the visualization's camera pose
-      Affine3d GetViewerPose() const;
+      cv::Affine3d GetViewerPose() const;
       //Replaces the visualization's camera pose with the one specified
-      void SetViewerPose(const Affine3d &pose);
+      void SetViewerPose(const cv::Affine3d &pose);
       
       //Removes the objects in the visualization window during ShowWindows(). This method does not redraw the window.
       void ClearObjects();
@@ -79,16 +74,16 @@ namespace vizutils
         WindowControl(ControlCallback callback, const int max_parameter, const int min_parameter, const int default_parameter, ConfigurableVisualization &parent);
       };
     
-      const string visualization_window_name;
-      const string control_window_name;
+      const std::string visualization_window_name;
+      const std::string control_window_name;
 
-      Viz3d visualization;
+      cv::viz::Viz3d visualization;
       
-      map<string, WindowControl> controls;
+      std::map<std::string, WindowControl> controls;
       bool ready;
       
       void ShowVisualizationWindow();
       void ShowControlWindow();
-      void AlignWindows(function<ViewerTransform> transform);
+      void AlignWindows(std::function<ViewerTransform> transform);
   };
 }

@@ -1,5 +1,5 @@
 //Illustration of intrinsic camera parameters
-// Andreas Unterweger, 2017-2018
+// Andreas Unterweger, 2017-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -9,31 +9,24 @@
 
 #include "conf_viz.hpp"
 
-using namespace std;
-
-using namespace cv;
-using namespace viz;
-
-using namespace vizutils;
-
 static constexpr auto cone_length = 1.0;
 
 static auto initializing = true; //Prevents updating incomplete values during initialization
 
-static void AddObjects(ConfigurableVisualization &visualization, const char * const model_filename)
+static void AddObjects(vizutils::ConfigurableVisualization &visualization, const char * const model_filename)
 {
   if (model_filename)
   {
-    Mesh mesh = Mesh::load(model_filename);
-    WMesh original_mesh(mesh);
-    visualization.objects.insert(make_pair("Original object", original_mesh));
+    const auto mesh = cv::viz::Mesh::load(model_filename);
+    cv::viz::WMesh original_mesh(mesh);
+    visualization.objects.insert(std::make_pair("Original object", original_mesh));
   }
   else
   {
     constexpr auto cone_radius = 0.5;
     constexpr auto cone_resolution = 100;
-    WCone original_cone(cone_length, cone_radius, cone_resolution);
-    visualization.objects.insert(make_pair("Original object", original_cone));
+    cv::viz::WCone original_cone(cone_length, cone_radius, cone_resolution);
+    visualization.objects.insert(std::make_pair("Original object", original_cone));
   }
 }
 
@@ -42,7 +35,7 @@ static constexpr auto focal_length_y_trackbar_name = "Focal length (y) [px]";
 static constexpr auto principal_point_x_trackbar_name = "Image center (x) [px]";
 static constexpr auto principal_point_y_trackbar_name = "Image center (y) [px]";
 
-static void UpdateCamera(ConfigurableVisualization &visualization)
+static void UpdateCamera(vizutils::ConfigurableVisualization &visualization)
 {
   if (initializing) //Don't update during initialization
     return;
@@ -52,19 +45,19 @@ static void UpdateCamera(ConfigurableVisualization &visualization)
   const auto principal_point_x = visualization.GetTrackbarValue(principal_point_x_trackbar_name);
   const auto principal_point_y = visualization.GetTrackbarValue(principal_point_y_trackbar_name);
   const auto old_camera = visualization.GetCamera();
-  Camera camera(focal_length_x, focal_length_y, principal_point_x, principal_point_y, old_camera.getWindowSize());
+  cv::viz::Camera camera(focal_length_x, focal_length_y, principal_point_x, principal_point_y, old_camera.getWindowSize());
   visualization.SetCamera(camera); //TODO: This toggles every second time on identical input values and eventually drifts away completely
 }
 
-static void AddControls(ConfigurableVisualization &visualization)
+static void AddControls(vizutils::ConfigurableVisualization &visualization)
 {
-  visualization.AddTrackbar(focal_length_x_trackbar_name, UpdateCamera, 2 * ConfigurableVisualization::window_width); //TODO: Find a more meaningful maximum value
-  visualization.AddTrackbar(focal_length_y_trackbar_name, UpdateCamera, 2 * ConfigurableVisualization::window_height); //TODO: Find a more meaningful maximum value
-  visualization.AddTrackbar(principal_point_x_trackbar_name, UpdateCamera, ConfigurableVisualization::window_width);
-  visualization.AddTrackbar(principal_point_y_trackbar_name, UpdateCamera, ConfigurableVisualization::window_height);
+  visualization.AddTrackbar(focal_length_x_trackbar_name, UpdateCamera, 2 * vizutils::ConfigurableVisualization::window_width); //TODO: Find a more meaningful maximum value
+  visualization.AddTrackbar(focal_length_y_trackbar_name, UpdateCamera, 2 * vizutils::ConfigurableVisualization::window_height); //TODO: Find a more meaningful maximum value
+  visualization.AddTrackbar(principal_point_x_trackbar_name, UpdateCamera, vizutils::ConfigurableVisualization::window_width);
+  visualization.AddTrackbar(principal_point_y_trackbar_name, UpdateCamera, vizutils::ConfigurableVisualization::window_height);
 }
 
-static void InitializeControlValues(ConfigurableVisualization &visualization)
+static void InitializeControlValues(vizutils::ConfigurableVisualization &visualization)
 {
   const auto camera = visualization.GetCamera();
   const auto focal_length = camera.getFocalLength();
@@ -82,17 +75,17 @@ int main(const int argc, const char * const argv[])
 {
   if (argc > 2)
   {
-    cout << "Illustrates the effect of the intrinsic parameters of a pinhole camera." << endl;
-    cout << "Usage: " << argv[0] << " [3-D model (PLY) file name]" << endl;
+    std::cout << "Illustrates the effect of the intrinsic parameters of a pinhole camera." << std::endl;
+    std::cout << "Usage: " << argv[0] << " [3-D model (PLY) file name]" << std::endl;
     return 1;
   }
   const auto model_filename = (argc == 2) ? argv[1] : nullptr;
   constexpr auto visualization_window_name = "Camera view";
   constexpr auto control_window_name = "Intrinsic camera parameters";
-  ConfigurableVisualization visualization(visualization_window_name, control_window_name);
+  vizutils::ConfigurableVisualization visualization(visualization_window_name, control_window_name);
   AddObjects(visualization, model_filename);
   AddControls(visualization);
-  visualization.ShowWindows([&visualization](const Affine3d &pose)
+  visualization.ShowWindows([&visualization](const cv::Affine3d &pose)
                                             {
                                               InitializeControlValues(visualization); //Initialize controls here as the camera is only properly initialized at this point
                                               return pose;

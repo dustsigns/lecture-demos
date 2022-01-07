@@ -1,5 +1,5 @@
 //Illustration of the signal composition through the 1-D IDCT
-// Andreas Unterweger, 2017-2021
+// Andreas Unterweger, 2017-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -19,22 +19,15 @@
 #include "format.hpp"
 #include "combine.hpp"
 
-using namespace std;
-
-using namespace cv;
-
-using namespace comutils;
-using namespace imgutils;
-
 constexpr double coefficients[] { 0.25, 0.5, 0.0, -0.5 };
-constexpr size_t N = arraysize(coefficients); //Number of samples
+constexpr size_t N = comutils::arraysize(coefficients); //Number of samples
 static_assert(N >= 2, "The number of samples must be at least 2");
 
 template<size_t... Is>
-static constexpr array<CosineWaveGenerator<double>, sizeof...(Is)> CreateGenerators(const index_sequence<Is...>&)
+static constexpr std::array<comutils::CosineWaveGenerator<double>, sizeof...(Is)> CreateGenerators(const std::index_sequence<Is...>&)
 {
   static_assert(N == sizeof...(Is), "The sampling rate in Hz must be equal to the number of coefficients");
-  return {{ CosineWaveGenerator<double>(0.5 * Is, //0.5 Hz steps
+  return {{ comutils::CosineWaveGenerator<double>(0.5 * Is, //0.5 Hz steps
                                         coefficients[Is], //Amplitude (coefficient for this frequency)
                                         true,
                                         2 * M_PI * 0.5 * (0.5 * Is) / N, //Phase shift of 0.5 samples (2pi*0.5*f/(sampling rate) phase)
@@ -42,87 +35,87 @@ static constexpr array<CosineWaveGenerator<double>, sizeof...(Is)> CreateGenerat
                                         ... }}; //Continued in this pattern for every available index/coefficient
 }
 
-static array<CosineWaveGenerator<double>, N> CreateAllGenerators()
+static std::array<comutils::CosineWaveGenerator<double>, N> CreateAllGenerators()
 {
-  return CreateGenerators(make_index_sequence<N>{}); //Create generators by iterating through all (coefficient) array indices
+  return CreateGenerators(std::make_index_sequence<N>{}); //Create generators by iterating through all (coefficient) array indices
 }
 
 struct DCT_data
 {
-  array<CosineWaveGenerator<double>, N> generators;
-  WaveFormMixer<double, N> mixer;
+  std::array<comutils::CosineWaveGenerator<double>, N> generators;
+  comutils::WaveFormMixer<double, N> mixer;
   
-  const string window_name;
-  const string trackbar_name;
+  const std::string window_name;
+  const std::string trackbar_name;
   
-  DCT_data(const string &window_name, const string &trackbar_name)
+  DCT_data(const std::string &window_name, const std::string &trackbar_name)
    : generators{CreateAllGenerators()},
-     mixer(array<WaveFormGenerator<double>*, N>{}, 1.0, N), //Add waveforms (mixer with weight 1.0); initialize with empty generators at startup (filled later)
+     mixer(std::array<comutils::WaveFormGenerator<double>*, N>{}, 1.0, N), //Add waveforms (mixer with weight 1.0); initialize with empty generators at startup (filled later)
      window_name(window_name), trackbar_name(trackbar_name) { }
 };
 
-static void AddCurrentWave(const DCT_data &data, const int visible_coefficients, vector<PointSet> &point_sets)
+static void AddCurrentWave(const DCT_data &data, const int visible_coefficients, std::vector<imgutils::PointSet> &point_sets)
 {
   if (visible_coefficients != N)
   {
     auto generator = data.generators[visible_coefficients];
-    vector<double> samples(N);
+    std::vector<double> samples(N);
     generator.GetRepresentativeSamples(samples.size(), samples.data());
-    PointSet point_set(samples, 1, Red, false, true); //No lines, but samples
+    imgutils::PointSet point_set(samples, 1, imgutils::Red, false, true); //No lines, but samples
     point_set.line_width = 3;
     point_sets.push_back(point_set);
 
     constexpr double plot_frequency = 100.0; //Sampling rate is 100 Hz
-    CosineWaveGenerator<double> function_generator(generator.GetFrequency(), generator.GetAmplitude(), true, generator.GetInitialPhase(), plot_frequency * N); //Sampling rate is N*100 Hz
-    vector<double> function_samples(plot_frequency * N);
+    comutils::CosineWaveGenerator<double> function_generator(generator.GetFrequency(), generator.GetAmplitude(), true, generator.GetInitialPhase(), plot_frequency * N); //Sampling rate is N*100 Hz
+    std::vector<double> function_samples(plot_frequency * N);
     function_generator.GetRepresentativeSamples(function_samples.size(), function_samples.data());
-    point_sets.push_back(PointSet(function_samples, 1 / plot_frequency, Red, true, false)); //10 ms steps; no samples, but lines
+    point_sets.push_back(imgutils::PointSet(function_samples, 1 / plot_frequency, imgutils::Red, true, false)); //10 ms steps; no samples, but lines
   }
 }
 
-static void AddSumWave(DCT_data &data, const int visible_coefficients, vector<PointSet> &point_sets)
+static void AddSumWave(DCT_data &data, const int visible_coefficients, std::vector<imgutils::PointSet> &point_sets)
 {
   for (size_t i = 0; i < static_cast<size_t>(visible_coefficients); i++)
     data.mixer.SetGenerator(i, &data.generators[i]);
   for (size_t i = static_cast<size_t>(visible_coefficients); i < N; i++) //Disable remaining coefficients
     data.mixer.SetGenerator(i, nullptr);
     
-  vector<double> added_samples(N);
+  std::vector<double> added_samples(N);
   data.mixer.GetRepresentativeSamples(added_samples.size(), added_samples.data());
-  PointSet point_set(added_samples, 1, Purple, false, true);
+  imgutils::PointSet point_set(added_samples, 1, imgutils::Purple, false, true);
   point_set.line_width = 3;
   point_sets.push_back(point_set); //No lines, but samples
 }
 
-static Mat PlotWaves(DCT_data &data, const int visible_coefficients)
+static cv::Mat PlotWaves(DCT_data &data, const int visible_coefficients)
 {
-  vector<PointSet> point_sets;
+  std::vector<imgutils::PointSet> point_sets;
   AddSumWave(data, visible_coefficients, point_sets); //Add old sum first so that it is overdrawn if necessary
   AddCurrentWave(data, visible_coefficients, point_sets);
-  Plot plot(point_sets, false); //No autoscaling
-  plot.SetVisibleRange(Point2d(0, -1), Point2d(N, 1)); //TODO: Set proper range to allow for potentially larger intermediate values
+  imgutils::Plot plot(point_sets, false); //No autoscaling
+  plot.SetVisibleRange(cv::Point2d(0, -1), cv::Point2d(N, 1)); //TODO: Set proper range to allow for potentially larger intermediate values
   plot.SetAxesLabels("n", "X(n)");
-  Mat_<Vec3b> image;
+  cv::Mat_<cv::Vec3b> image;
   plot.DrawTo(image);
   return image;
 }
 
-static Mat PlotSpectrum(const int visible_coefficients)
+static cv::Mat PlotSpectrum(const int visible_coefficients)
 {
-  size_t displayed_coefficients = min(N, static_cast<size_t>(visible_coefficients) + 1); //First few coefficients plus the next one (except for the highest value - here, there is no next coefficient and all are shown again)
-  vector<PointSet> separate_coefficients;
+  size_t displayed_coefficients = std::min(N, static_cast<size_t>(visible_coefficients) + 1); //First few coefficients plus the next one (except for the highest value - here, there is no next coefficient and all are shown again)
+  std::vector<imgutils::PointSet> separate_coefficients;
   for (size_t i = 0; i < displayed_coefficients; i++)
   {
-    PointSet point_set({ Point2d(i, coefficients[i]) }, i == static_cast<size_t>(visible_coefficients) ? Red : Purple, false, true); //No lines, but samples
+    imgutils::PointSet point_set({ cv::Point2d(i, coefficients[i]) }, i == static_cast<size_t>(visible_coefficients) ? imgutils::Red : imgutils::Purple, false, true); //No lines, but samples
     if (i == static_cast<unsigned int>(visible_coefficients))
       point_set.line_width = 3;
     separate_coefficients.push_back(point_set);
   }
     
-  Plot plot(separate_coefficients, false); //No autoscaling
-  plot.SetVisibleRange(Point2d(0, -1), Point2d(N - 1, 1));
+  imgutils::Plot plot(separate_coefficients, false); //No autoscaling
+  plot.SetVisibleRange(cv::Point2d(0, -1), cv::Point2d(N - 1, 1));
   plot.SetAxesLabels("k", "Y(k)");
-  Mat_<Vec3b> image;
+  cv::Mat_<cv::Vec3b> image;
   plot.DrawTo(image);
   return image;
 }
@@ -130,30 +123,30 @@ static Mat PlotSpectrum(const int visible_coefficients)
 static void ShowControls()
 {
   constexpr auto window_name = "Number of DCT components";
-  namedWindow(window_name);
-  moveWindow(window_name, 0, 0);
+  cv::namedWindow(window_name);
+  cv::moveWindow(window_name, 0, 0);
   constexpr auto trackbar_name = "Components";
   static DCT_data data(window_name, trackbar_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
-  createTrackbar(trackbar_name, window_name, nullptr, N, [](const int visible_coefficients, void * const user_data)
-                                                           {
-                                                             auto &data = *(static_cast<DCT_data*>(user_data));
-                                                             const Mat wave_image = PlotWaves(data, visible_coefficients);
-                                                             const Mat spectrum_image = PlotSpectrum(visible_coefficients);
-                                                             const Mat combined_image = CombineImages({wave_image, spectrum_image}, Horizontal);
-                                                             imshow(data.window_name, combined_image);
-                                                           }, static_cast<void*>(&data));
-  setTrackbarPos(trackbar_name, window_name, N); //Implies imshow with all visible components
+  cv::createTrackbar(trackbar_name, window_name, nullptr, N, [](const int visible_coefficients, void * const user_data)
+                                                                {
+                                                                  auto &data = *(static_cast<DCT_data*>(user_data));
+                                                                  const cv::Mat wave_image = PlotWaves(data, visible_coefficients);
+                                                                  const cv::Mat spectrum_image = PlotSpectrum(visible_coefficients);
+                                                                  const cv::Mat combined_image = imgutils::CombineImages({wave_image, spectrum_image}, imgutils::Horizontal);
+                                                                  cv::imshow(data.window_name, combined_image);
+                                                                }, static_cast<void*>(&data));
+  cv::setTrackbarPos(trackbar_name, window_name, N); //Implies cv::imshow with all visible components
 }
 
 int main(const int argc, const char * const argv[])
 {
   if (argc != 1)
   {
-    cout << "Illustrates a signal's composition by its 1-D DCT components." << endl;
-    cout << "Usage: " << argv[0] << endl;
+    std::cout << "Illustrates a signal's composition by its 1-D DCT components." << std::endl;
+    std::cout << "Usage: " << argv[0] << std::endl;
     return 1;
   }
   ShowControls();
-  waitKey(0);
+  cv::waitKey(0);
   return 0;
 }

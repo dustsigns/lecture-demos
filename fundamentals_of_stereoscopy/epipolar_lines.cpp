@@ -1,5 +1,5 @@
 //Illustration of epipolar lines
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -13,57 +13,48 @@
 #include "colors.hpp"
 #include "math.hpp"
 
-using namespace std;
-
-using namespace cv;
-using namespace viz;
-using namespace sfm;
-
-using namespace comutils;
-using namespace imgutils;
-
 struct epipolar_data
 {
   static constexpr auto global_window_name = "Global view";
   static constexpr auto window_width = 600;
   static constexpr auto window_height = 400;
   
-  const string left_window_name;
-  const string right_window_name;
+  const std::string left_window_name;
+  const std::string right_window_name;
   
-  Viz3d left_visualization;
-  Viz3d right_visualization;
-  Viz3d global_visualization;
+  cv::viz::Viz3d left_visualization;
+  cv::viz::Viz3d right_visualization;
+  cv::viz::Viz3d global_visualization;
   
-  epipolar_data(const string &left_window_name, const string &right_window_name)
+  epipolar_data(const std::string &left_window_name, const std::string &right_window_name)
    : left_window_name(left_window_name), right_window_name(right_window_name),
      left_visualization(left_window_name), right_visualization(right_window_name), global_visualization(global_window_name)
   {
-    left_visualization.setWindowSize(Size2i(window_width, window_height));
-    right_visualization.setWindowSize(Size2i(window_width, window_height));
-    global_visualization.setWindowSize(Size2i(window_width, window_height));
+    left_visualization.setWindowSize(cv::Size2i(window_width, window_height));
+    right_visualization.setWindowSize(cv::Size2i(window_width, window_height));
+    global_visualization.setWindowSize(cv::Size2i(window_width, window_height));
   }
 };
 
-static void LoadModel(const char * const filename, Viz3d &visualization)
+static void LoadModel(const char * const filename, cv::viz::Viz3d &visualization)
 {
-  Mesh mesh = Mesh::load(filename);
-  const WMesh visualized_mesh(mesh);
+  const auto mesh = cv::viz::Mesh::load(filename);
+  const cv::viz::WMesh visualized_mesh(mesh);
   visualization.showWidget("Object", visualized_mesh);
 }
 
-static void ConfigureVisualization(Viz3d &visualization, const char * const model_filename, const bool hide_window = true)
+static void ConfigureVisualization(cv::viz::Viz3d &visualization, const char * const model_filename, const bool hide_window = true)
 {
   if (hide_window)
     visualization.setOffScreenRendering();
   LoadModel(model_filename, visualization);
 }
 
-static Matx33d GetIntrinsicCameraMatrix(const Camera &camera)
+static cv::Matx33d GetIntrinsicCameraMatrix(const cv::viz::Camera &camera)
 {
   const auto focal_length = camera.getFocalLength();
   const auto principal_point = camera.getPrincipalPoint();
-  const Matx33d intrinsics(focal_length[0], 0, principal_point[0], 0, focal_length[1], principal_point[1], 0, 0, 1);
+  const cv::Matx33d intrinsics(focal_length[0], 0, principal_point[0], 0, focal_length[1], principal_point[1], 0, 0, 1);
   return intrinsics;
 }
 
@@ -73,80 +64,80 @@ static void ConfigureGlobalVisualization(epipolar_data &data)
   const auto left_camera_matrix = GetIntrinsicCameraMatrix(left_camera);
   const auto right_camera = data.right_visualization.getCamera();
   const auto right_camera_matrix = GetIntrinsicCameraMatrix(right_camera);
-  WCameraPosition left_camera_object(left_camera_matrix);
+  cv::viz::WCameraPosition left_camera_object(left_camera_matrix);
   data.global_visualization.showWidget("Left camera", left_camera_object);
   left_camera_object.setPose(data.left_visualization.getViewerPose());
-  WCameraPosition right_camera_object(right_camera_matrix, 1.0, Color::gray());
+  cv::viz::WCameraPosition right_camera_object(right_camera_matrix, 1.0, cv::viz::Color::gray());
   data.global_visualization.showWidget("Right camera", right_camera_object);
   right_camera_object.setPose(data.right_visualization.getViewerPose());
 }
 
-static Affine3d GetStereoCameraRotationAndTranslation()
+static cv::Affine3d GetStereoCameraRotationAndTranslation()
 {
   //constexpr auto camera_y_rotation_angle = 20;
   //constexpr auto camera_z_rotation_angle = 20;
   constexpr auto camera_x_translation_offset = 0.1;
   
-  Affine3d pose;
-  //pose = pose.rotate(Vec3d(0, DegreesToRadians(camera_y_rotation_angle), 0));
-  //pose = pose.rotate(Vec3d(0, 0, DegreesToRadians(camera_z_rotation_angle)));
-  pose = pose.translate(Vec3d(camera_x_translation_offset, 0, 0));
+  cv::Affine3d pose;
+  //pose = pose.rotate(cv::Vec3d(0, DegreesToRadians(camera_y_rotation_angle), 0));
+  //pose = pose.rotate(cv::Vec3d(0, 0, DegreesToRadians(camera_z_rotation_angle)));
+  pose = pose.translate(cv::Vec3d(camera_x_translation_offset, 0, 0));
   return pose;
 }
 
-static void MoveCamera(Viz3d &visualization)
+static void MoveCamera(cv::viz::Viz3d &visualization)
 {
   const auto old_pose = visualization.getViewerPose();
   auto pose = old_pose.concatenate(GetStereoCameraRotationAndTranslation());
   visualization.setViewerPose(pose);
 }
 
-static void MarkPosition(Mat &image, const int x_position, const int y_position)
+static void MarkPosition(cv::Mat &image, const int x_position, const int y_position)
 {
-  const auto marker_color = Red;
+  const auto marker_color = imgutils::Red;
   assert(x_position < image.cols && y_position < image.rows);
-  drawMarker(image, Point(x_position, y_position), marker_color);
+  cv::drawMarker(image, cv::Point(x_position, y_position), marker_color);
 }
 
-static Mat GetFundamentalMatrix(const Viz3d &left_visualization, const Viz3d &right_visualization)
+static cv::Mat GetFundamentalMatrix(const cv::viz::Viz3d &left_visualization, const cv::viz::Viz3d &right_visualization)
 {
   //TODO: Which of these parameters is/are incorrect? The final result is incorrect when rotation is used.
   const auto left_camera_pose = left_visualization.getViewerPose();
   const auto right_camera_pose = right_visualization.getViewerPose();
-  Mat essential_matrix;
-  essentialFromRt(left_camera_pose.rotation(), left_camera_pose.translation(), right_camera_pose.rotation(), right_camera_pose.translation(), essential_matrix);
+  cv::Mat essential_matrix;
+  cv::sfm::essentialFromRt(left_camera_pose.rotation(), left_camera_pose.translation(), right_camera_pose.rotation(), right_camera_pose.translation(), essential_matrix);
 
   const auto left_camera = left_visualization.getCamera();
   const auto left_camera_matrix = GetIntrinsicCameraMatrix(left_camera);
   const auto right_camera = right_visualization.getCamera();
   const auto right_camera_matrix = GetIntrinsicCameraMatrix(right_camera);
-  Mat fundamental_matrix;
-  fundamentalFromEssential(essential_matrix, left_camera_matrix, right_camera_matrix, fundamental_matrix);
+  cv::Mat fundamental_matrix;
+  cv::sfm::fundamentalFromEssential(essential_matrix, left_camera_matrix, right_camera_matrix, fundamental_matrix);
   return fundamental_matrix;
 }
 
-static Vec3f ComputeEpipolarLine(const epipolar_data &data, const int x_position, const int y_position)
+static cv::Vec3f ComputeEpipolarLine(const epipolar_data &data, const int x_position, const int y_position)
 {
-  const Mat &fundamental_matrix = GetFundamentalMatrix(data.left_visualization, data.right_visualization);
-  const Point2f selected_point(x_position, y_position);
-  vector<Vec3f> epipolar_lines;
-  computeCorrespondEpilines(vector<Point2f>({selected_point}), 1, fundamental_matrix, epipolar_lines);
+  const cv::Mat &fundamental_matrix = GetFundamentalMatrix(data.left_visualization, data.right_visualization);
+  const cv::Point2f selected_point(x_position, y_position);
+  std::vector<cv::Vec3f> epipolar_lines;
+  cv::computeCorrespondEpilines(std::vector<cv::Point2f>({selected_point}), 1, fundamental_matrix, epipolar_lines);
   assert(epipolar_lines.size() == 1);
   return epipolar_lines[0];
 }
 
-static Point GetLinePointFromLineParameters(const int x_coordinate, const Vec3f &line_parameters)
+static cv::Point GetLinePointFromLineParameters(const int x_coordinate, const cv::Vec3f &line_parameters)
 {
   const auto y = -(line_parameters[2] + line_parameters[0] * x_coordinate) / line_parameters[1];
-  return Point(x_coordinate, y);
+  return cv::Point(x_coordinate, y);
 }
 
-static void DrawEpipolarLine(const epipolar_data &data, const int x_position, const int y_position, Mat image)
+static void DrawEpipolarLine(const epipolar_data &data, const int x_position, const int y_position, cv::Mat image)
 {
   const auto line_parameters = ComputeEpipolarLine(data, x_position, y_position);
-  const Point from = GetLinePointFromLineParameters(0, line_parameters); //Start on the left
-  const Point to = GetLinePointFromLineParameters(epipolar_data::window_width, line_parameters); //End on the (far) right
-  line(image, from, to, Red, 1);
+  const cv::Point from = GetLinePointFromLineParameters(0, line_parameters); //Start on the left
+  const cv::Point to = GetLinePointFromLineParameters(epipolar_data::window_width, line_parameters); //End on the (far) right
+  cv::line(image, from, to, imgutils::Red, 1);
 }
 
 static void RenderViews(const epipolar_data &data, const int x_position, const int y_position)
@@ -165,30 +156,30 @@ static void RenderViews(const epipolar_data &data, const int x_position, const i
   cv::imshow(data.right_window_name, right_view);
 }
 
-Viz3d &ShowWindows(const char * const model_filename)
+cv::viz::Viz3d &ShowWindows(const char * const model_filename)
 {
   constexpr auto left_window_name = "Left view";
-  namedWindow(left_window_name, WINDOW_GUI_NORMAL | WINDOW_AUTOSIZE);
+  cv::namedWindow(left_window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
   constexpr auto right_window_name = "Right view";
-  namedWindow(right_window_name, WINDOW_GUI_NORMAL | WINDOW_AUTOSIZE);
+  cv::namedWindow(right_window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
   static epipolar_data data(left_window_name, right_window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
   ConfigureVisualization(data.left_visualization, model_filename);
   ConfigureVisualization(data.right_visualization, model_filename);
   MoveCamera(data.right_visualization);
   ConfigureVisualization(data.global_visualization, model_filename, false);
   ConfigureGlobalVisualization(data);
-  RenderViews(data, -1, -1); //Don't select a pixel yet, but render all views (implies imshow)
-  setMouseCallback(left_window_name, [](const int event, const int x, const int y, const int, void * const userdata)
-                                       {
-                                         if (event != EVENT_MOUSEMOVE) //Only react on mouse move
-                                           return;
-                                         auto &data = *(static_cast<const epipolar_data*>(userdata));
-                                         RenderViews(data, x, y);
-                                       }, static_cast<void*>(&data));
-  moveWindow(data.left_window_name, 0, 0);
-  moveWindow(data.right_window_name, epipolar_data::window_width + 3, 0); //Move window right beside visualization (window size plus 3 border pixels)
+  RenderViews(data, -1, -1); //Don't select a pixel yet, but render all views (implies cv::imshow)
+  cv::setMouseCallback(left_window_name, [](const int event, const int x, const int y, const int, void * const userdata)
+                                           {
+                                             if (event != cv::EVENT_MOUSEMOVE) //Only react on mouse move
+                                               return;
+                                             auto &data = *(static_cast<const epipolar_data*>(userdata));
+                                             RenderViews(data, x, y);
+                                           }, static_cast<void*>(&data));
+  cv::moveWindow(data.left_window_name, 0, 0);
+  cv::moveWindow(data.right_window_name, epipolar_data::window_width + 3, 0); //Move window right beside visualization (window size plus 3 border pixels)
   data.global_visualization.spinOnce(1, true);
-  data.global_visualization.setWindowPosition(Point2i((epipolar_data::window_width + 3) / 2, epipolar_data::window_height + 50 + 3)); //Move global visualization below left visualization (window size plus additional space for title) and center it
+  data.global_visualization.setWindowPosition(cv::Point2i((epipolar_data::window_width + 3) / 2, epipolar_data::window_height + 50 + 3)); //Move global visualization below left visualization (window size plus additional space for title) and center it
   return data.global_visualization;
 }
 
@@ -196,15 +187,15 @@ int main(const int argc, const char * const argv[])
 {
   if (argc != 2)
   {
-    cout << "Illustrates the epipolar lines between two pinhole camera images." << endl;
-    cout << "Usage: " << argv[0] << " <3-D model (PLY) file name>" << endl;
+    std::cout << "Illustrates the epipolar lines between two pinhole camera images." << std::endl;
+    std::cout << "Usage: " << argv[0] << " <3-D model (PLY) file name>" << std::endl;
     return 1;
   }
   const auto model_filename = argv[1];
   auto &visualization = ShowWindows(model_filename);
   while (!visualization.wasStopped())
   {
-    if (waitKeyEx(1) != -1)
+    if (cv::waitKeyEx(1) != -1)
       break;
     visualization.spinOnce(1, true);
   }

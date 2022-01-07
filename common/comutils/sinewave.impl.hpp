@@ -1,5 +1,5 @@
 //Sine wave generator class (template implementation)
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <cassert>
@@ -9,8 +9,6 @@
 
 namespace comutils
 {
-  using namespace std;
-
   template<typename T>
   SineWaveGenerator<T>::SineWaveGenerator(const double frequency, const double amplitude, const bool absolute_amplitude, const double initial_phase, const unsigned int sampling_rate)
    : WaveFormGenerator<T>(sampling_rate),

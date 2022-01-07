@@ -1,5 +1,5 @@
 //Helper functions for drawing aligned text
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <opencv2/imgproc.hpp>
@@ -8,12 +8,10 @@
 
 namespace imgutils
 {
-  using namespace cv;
-  
-  void DrawText(Mat_<Vec3b> &image, const string &text, const Point &point, const TextAlignment alignment, const Vec3b &color, const int cv_font_face, const double cv_font_scale)
+  void DrawText(cv::Mat_<cv::Vec3b> &image, const std::string &text, const cv::Point &point, const TextAlignment alignment, const cv::Vec3b &color, const int cv_font_face, const double cv_font_scale)
   {
     int baseline;
-    const auto text_size = getTextSize(text, cv_font_face, cv_font_scale, 1, &baseline);
+    const auto text_size = cv::getTextSize(text, cv_font_face, cv_font_scale, 1, &baseline);
     auto offset_point = point; //Default is top-left (no offset)
     
     if ((alignment & Center) == Center)
@@ -24,8 +22,8 @@ namespace imgutils
       offset_point.y += text_size.height / 2;
     if ((alignment & Bottom) == Bottom)
       offset_point.y += text_size.height;
-    putText(image, text, offset_point, cv_font_face, cv_font_scale, color, 1, LINE_AA);
-    /*drawMarker(image, point, Red, MARKER_SQUARE, 2);
-    drawMarker(image, offset_point + Point(0, baseline), Green, MARKER_SQUARE, 2); //Enable for debugging*/
+    cv::putText(image, text, offset_point, cv_font_face, cv_font_scale, color, 1, cv::LINE_AA);
+    /*cv::drawMarker(image, point, imgutils::Red, cv::MARKER_SQUARE, 2);
+    cv::drawMarker(image, offset_point + cv::Point(0, baseline), imgutils::Green, cv::MARKER_SQUARE, 2); //Enable for debugging*/
   }
 }

@@ -8,8 +8,6 @@
 
 namespace imgutils
 {
-  using namespace std;
-  
   constexpr double LevelShift(const double value)
   {
     return value - 128;

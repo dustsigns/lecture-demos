@@ -1,5 +1,5 @@
 //Illustration of SIFT keypoints
-// Andreas Unterweger, 2017-2020
+// Andreas Unterweger, 2017-2022
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -10,59 +10,53 @@
 
 #include "combine.hpp"
 
-using namespace std;
-
-using namespace cv;
-
-using namespace imgutils;
-
-static void DetectFeatures(const Mat &image, vector<KeyPoint> &keypoints)
+static void DetectFeatures(const cv::Mat &image, std::vector<cv::KeyPoint> &keypoints)
 {
-  auto feature_detector = SIFT::create();
+  auto feature_detector = cv::SIFT::create();
   feature_detector->detect(image, keypoints);
 }
 
-static Mat DrawKeypoints(const Mat &image, const vector<KeyPoint> &keypoints)
+static cv::Mat DrawKeypoints(const cv::Mat &image, const std::vector<cv::KeyPoint> &keypoints)
 {
-  Mat image_with_keypoints;
-  drawKeypoints(image, keypoints, image_with_keypoints, Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+  cv::Mat image_with_keypoints;
+  drawKeypoints(image, keypoints, image_with_keypoints, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
   return image_with_keypoints;
 }
 
-static Mat VisualizeKeypoints(const Mat &image)
+static cv::Mat VisualizeKeypoints(const cv::Mat &image)
 {
-  vector<KeyPoint> keypoints;
+  std::vector<cv::KeyPoint> keypoints;
   DetectFeatures(image, keypoints);
-  const Mat image_with_keypoints = DrawKeypoints(image, keypoints);
+  const cv::Mat image_with_keypoints = DrawKeypoints(image, keypoints);
   return image_with_keypoints;
 }
 
-static void ShowImages(const Mat &image)
+static void ShowImages(const cv::Mat &image)
 {
   constexpr auto window_name = "Image without and with keypoints";
-  namedWindow(window_name, WINDOW_GUI_NORMAL | WINDOW_AUTOSIZE);
-  moveWindow(window_name, 0, 0);
-  const Mat image_with_keypoints = VisualizeKeypoints(image);
-  const Mat combined_image = CombineImages({image, image_with_keypoints}, Horizontal);
-  imshow(window_name, combined_image);
+  cv::namedWindow(window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
+  cv::moveWindow(window_name, 0, 0);
+  const cv::Mat image_with_keypoints = VisualizeKeypoints(image);
+  const cv::Mat combined_image = imgutils::CombineImages({image, image_with_keypoints}, imgutils::Horizontal);
+  cv::imshow(window_name, combined_image);
 }
 
 int main(const int argc, const char * const argv[])
 {
   if (argc != 2)
   {
-    cout << "Illustrates the SIFT keypoints of an image" << endl;
-    cout << "Usage: " << argv[0] << " <input image>" << endl;
+    std::cout << "Illustrates the SIFT keypoints of an image" << std::endl;
+    std::cout << "Usage: " << argv[0] << " <input image>" << std::endl;
     return 1;
   }
   const auto image_filename = argv[1];
-  const Mat image = imread(image_filename);
+  const cv::Mat image = cv::imread(image_filename);
   if (image.empty())
   {
-    cerr << "Could not read input image '" << image_filename << "'" << endl;
+    std::cerr << "Could not read input image '" << image_filename << "'" << std::endl;
     return 2;
   }
   ShowImages(image);
-  waitKey(0);
+  cv::waitKey(0);
   return 0;
 }
