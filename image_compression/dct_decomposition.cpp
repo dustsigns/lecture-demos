@@ -77,7 +77,7 @@ static double ShowImageAndDCT(const cv::Mat &image, const unsigned int highlight
   cv::Mat_<double> coefficients;
   const cv::Mat decomposed_image = Decompose(image, coefficients);
   const cv::Mat decomposed_image_highlighted = HighlightCoefficient(decomposed_image, highlighted_x_index, highlighted_y_index);
-  const cv::Mat combined_image = imgutils::CombineImages({image, decomposed_image_highlighted}, imgutils::Horizontal, 1);
+  const cv::Mat combined_image = imgutils::CombineImages({image, decomposed_image_highlighted}, imgutils::CombinationMode::Horizontal, 1);
   cv::imshow(window_name, combined_image);
   return coefficients(highlighted_y_index, highlighted_x_index);
 }
@@ -89,7 +89,7 @@ static cv::Mat ShowWeightedBasisFunctionImage(const unsigned int x_index, const 
   const cv::Mat basis_function = imgutils::Get2DDCTBasisFunctionImage(block_size, y_index, x_index);
   const cv::Mat raw_weighted_basis_function = imgutils::GetRaw2DDCTBasisFunctionImage(block_size, y_index, x_index, sanitized_shifted_value); //For calculating sums (not for illustration)
   const cv::Mat weighted_basis_function = imgutils::Get2DDCTBasisFunctionImage(block_size, y_index, x_index, sanitized_shifted_value);
-  const cv::Mat combined_image = imgutils::CombineImages({basis_function, weighted_basis_function}, imgutils::Horizontal, 1);
+  const cv::Mat combined_image = imgutils::CombineImages({basis_function, weighted_basis_function}, imgutils::CombinationMode::Horizontal, 1);
   const std::string status_text = "Coefficient (" + std::to_string(x_index) + ", " + std::to_string(y_index) + "): " + std::to_string(value);
   //std::displayOverlay(window_name, status_text, 1000);
   cv::displayStatusBar(window_name, status_text);

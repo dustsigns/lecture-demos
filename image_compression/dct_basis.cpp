@@ -17,7 +17,7 @@ static cv::Mat GenerateBasisFunctions(const size_t block_size, const size_t i)
   std::vector<cv::Mat> basis_functions(block_size);
   for (size_t j = 0; j < block_size; j++)
     basis_functions[j] = imgutils::Get2DDCTBasisFunctionImage(block_size, i, j);
-  return imgutils::CombineImages(block_size, basis_functions.data(), imgutils::Horizontal, 1);
+  return imgutils::CombineImages(block_size, basis_functions.data(), imgutils::CombinationMode::Horizontal, 1);
 }
 
 static cv::Mat GenerateBasisFunctions(const size_t block_size)
@@ -25,7 +25,7 @@ static cv::Mat GenerateBasisFunctions(const size_t block_size)
   std::vector<cv::Mat> basis_function_rows(block_size);
   for (size_t i = 0; i < block_size; i++)
     basis_function_rows[i] = GenerateBasisFunctions(block_size, i);
-  return imgutils::CombineImages(block_size, basis_function_rows.data(), imgutils::Vertical, 1);
+  return imgutils::CombineImages(block_size, basis_function_rows.data(), imgutils::CombinationMode::Vertical, 1);
 }
 
 static void ShowBasisFunctions(const unsigned int block_size)

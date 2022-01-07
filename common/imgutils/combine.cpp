@@ -15,8 +15,8 @@ namespace imgutils
   cv::Mat CombineImages(const size_t N, const cv::Mat images[], const CombinationMode mode, const unsigned int border_size)
   {
     assert(N > 1);
-    assert(mode == Horizontal || mode == Vertical);
-    const bool horizontal = mode == Horizontal;
+    assert(mode == CombinationMode::Horizontal || mode == CombinationMode::Vertical);
+    const bool horizontal = mode == CombinationMode::Horizontal;
     assert(border_size != 0);
     bool grayscale = true; //Assume gray-scale images
     cv::Size max_size(0, 0);
@@ -75,13 +75,13 @@ namespace imgutils
   {
     assert(difference_image.type() == CV_16SC1);
     static_assert(sizeof(short) == 2, "short needs to be 16 bits in size");
-    cv::Mat difference(difference_image.size(), mode == Color ? CV_8UC3 : CV_8UC1);
+    cv::Mat difference(difference_image.size(), mode == DifferenceConversionMode::Color ? CV_8UC3 : CV_8UC1);
     switch (mode)
     {
-      case Offset:
+      case DifferenceConversionMode::Offset:
          difference_image.convertTo(difference, CV_8UC1, 1, 128); //Add 128 to each pixel
          break;
-      case Absolute:
+      case DifferenceConversionMode::Absolute:
         {
           auto &difference_image_16 = static_cast<const cv::Mat_<short>>(difference_image);
           auto difference_gray = static_cast<cv::Mat_<unsigned char>>(difference);
@@ -93,7 +93,7 @@ namespace imgutils
                            });
         }
         break;
-      case Color:
+      case DifferenceConversionMode::Color:
       default:
         {
           auto &difference_image_16 = static_cast<const cv::Mat_<short>>(difference_image);

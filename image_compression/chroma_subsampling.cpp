@@ -71,7 +71,7 @@ static void ShowImage(const cv::Mat &original_image)
                          const std::string status_text = "4:4:4 (" + comutils::FormatByte(uncompressed_size) + ") vs. " + format.name + " (" + comutils::FormatByte(converted_size) + ")";
                          cv::displayOverlay(window_name, status_text, 1000);
                          cv::displayStatusBar(window_name, status_text);
-                         const cv::Mat combined_image = imgutils::CombineImages({image, converted_image}, imgutils::Horizontal);
+                         const cv::Mat combined_image = imgutils::CombineImages({image, converted_image}, imgutils::CombinationMode::Horizontal);
                          cv::imshow(window_name, combined_image);
                        }, const_cast<void*>(static_cast<const void*>(&format)), cv::QT_RADIOBOX, &format == &default_color_format); //Make radio button corresponding to default color format checked
   }

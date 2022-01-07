@@ -46,9 +46,9 @@ static void ShowImages(const std::vector<cv::Mat> &images)
   constexpr auto window_name = "Images combined";
   cv::namedWindow(window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
   cv::moveWindow(window_name, 0, 0);
-  const cv::Mat original_images = imgutils::CombineImages(images.size(), images.data(), imgutils::Horizontal);
+  const cv::Mat original_images = imgutils::CombineImages(images.size(), images.data(), imgutils::CombinationMode::Horizontal);
   const cv::Mat panoramic_image = StitchImages(images);
-  const cv::Mat combined_image = imgutils::CombineImages({original_images, panoramic_image}, imgutils::Vertical);
+  const cv::Mat combined_image = imgutils::CombineImages({original_images, panoramic_image}, imgutils::CombinationMode::Vertical);
   cv::imshow(window_name, combined_image);
 }
 

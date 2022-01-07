@@ -34,7 +34,7 @@ static const char *AddControls(Gaussian_data &data)
                          const double sigma = sigma_percent / 100.0;
                          cv::Mat blurred_image;
                          GaussianBlur(image, blurred_image, cv::Size(), sigma);
-                         const cv::Mat combined_image = imgutils::CombineImages({image, blurred_image}, imgutils::Horizontal);
+                         const cv::Mat combined_image = imgutils::CombineImages({image, blurred_image}, imgutils::CombinationMode::Horizontal);
                          cv::imshow(data.window_name, combined_image);
                        }, static_cast<void*>(&data));
   cv::setTrackbarMin(scaling_trackbar_name, data.window_name, 1);

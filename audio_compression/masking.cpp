@@ -94,7 +94,7 @@ static void TrackbarEvent(const int, void* user_data)
   data.player.Play(data.mixer);
   const cv::Mat wave_image = PlotWaves(data);
   const cv::Mat spectrum_image = PlotSpectrum(levels_percent);
-  const cv::Mat combined_image = imgutils::CombineImages({wave_image, spectrum_image}, imgutils::Horizontal);
+  const cv::Mat combined_image = imgutils::CombineImages({wave_image, spectrum_image}, imgutils::CombinationMode::Horizontal);
   cv::imshow(data.window_name, combined_image);
 }
 

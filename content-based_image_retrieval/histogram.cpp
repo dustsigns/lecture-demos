@@ -108,7 +108,7 @@ static void ShowImages(const cv::Mat &image)
                                                                  {
                                                                    auto &data = *(static_cast<histogram_data*>(user_data));
                                                                    const cv::Mat histogram_image = PlotHistograms(data, number_of_bins);
-                                                                   const cv::Mat combined_image = imgutils::CombineImages({data.image, histogram_image}, imgutils::Horizontal);
+                                                                   const cv::Mat combined_image = imgutils::CombineImages({data.image, histogram_image}, imgutils::CombinationMode::Horizontal);
                                                                    cv::imshow(data.window_name, combined_image);
                                                                  }, static_cast<void*>(&data));
   cv::setTrackbarMin(trackbar_name, window_name, 2); //A histogram with less than two bins does not make sense

@@ -45,7 +45,7 @@ static void ShowWindows(const cv::Mat &left_image, const cv::Mat &right_image)
   cv::namedWindow(disparity_window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
   assert(left_image.size() == right_image.size());
   cv::moveWindow(disparity_window_name, 2 * left_image.cols + 3 + 3, 0); //Move anaglyph window right beside the image window (2 images plus 3 border pixels plus additional distance)
-  const cv::Mat combined_image = imgutils::CombineImages({left_image, right_image}, imgutils::Horizontal);
+  const cv::Mat combined_image = imgutils::CombineImages({left_image, right_image}, imgutils::CombinationMode::Horizontal);
   cv::imshow(image_window_name, combined_image);
   const cv::Mat disparity_image = GetDisparityImage(left_image, right_image);
   cv::imshow(disparity_window_name, disparity_image);

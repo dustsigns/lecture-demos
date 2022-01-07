@@ -197,10 +197,10 @@ static double PercentageOfSmallCoefficients(const cv::Mat_<double> &input)
 static void ShowDifferenceAndDCT(const cv::Mat &image, const std::string &window_name, bool image_is_difference = false)
 {
   const cv::Mat difference_image = image_is_difference ? imgutils::ConvertDifferenceImage(image) : image;
-  const cv::Mat dct_input_image = image_is_difference ? imgutils::ConvertDifferenceImage(image, imgutils::Offset) : image;
+  const cv::Mat dct_input_image = image_is_difference ? imgutils::ConvertDifferenceImage(image, imgutils::DifferenceConversionMode::Offset) : image;
   cv::Mat_<double> raw_coefficients;
   const cv::Mat decomposed_image = Decompose(dct_input_image, raw_coefficients);
-  const cv::Mat combined_image = imgutils::CombineImages({difference_image, decomposed_image}, imgutils::Horizontal, 1);
+  const cv::Mat combined_image = imgutils::CombineImages({difference_image, decomposed_image}, imgutils::CombinationMode::Horizontal, 1);
   cv::imshow(window_name, combined_image);
   const double YSAD = imgutils::SAD(difference_image);
   const double YSATD = imgutils::SAD(raw_coefficients);

@@ -51,7 +51,7 @@ static void UpdateImages(const int, void * const user_data)
   cv::Mat blurred_image_sigma, blurred_image_k_times_sigma;
   GaussianBlur(image, blurred_image_sigma, cv::Size(), sigma);
   GaussianBlur(image, blurred_image_k_times_sigma, cv::Size(), k * sigma);
-  const cv::Mat combined_image = imgutils::CombineImages({blurred_image_sigma, blurred_image_k_times_sigma}, imgutils::Horizontal);
+  const cv::Mat combined_image = imgutils::CombineImages({blurred_image_sigma, blurred_image_k_times_sigma}, imgutils::CombinationMode::Horizontal);
   cv::imshow(data.image_window_name, combined_image);
   ShowDifferenceImage(data.difference_window_name, blurred_image_k_times_sigma, blurred_image_sigma);
 }

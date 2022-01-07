@@ -76,7 +76,7 @@ static void ShowImages(const cv::Mat &image)
                          const std::string status_text = comutils::FormatByte(uncompressed_size) + " vs. " + comutils::FormatByte(compressed_size);
                          cv::displayOverlay(data.image_window_name, status_text, 1000);
                          cv::displayStatusBar(data.image_window_name, status_text);
-                         const cv::Mat combined_image = imgutils::CombineImages({image, compressed_image}, imgutils::Horizontal);
+                         const cv::Mat combined_image = imgutils::CombineImages({image, compressed_image}, imgutils::CombinationMode::Horizontal);
                          cv::imshow(data.image_window_name, combined_image);
                          ShowDifferenceImage(data.difference_window_name, image, compressed_image);
                        }, static_cast<void*>(&data));

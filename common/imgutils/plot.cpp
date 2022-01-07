@@ -480,8 +480,8 @@ namespace imgutils
     
     const cv::Point x_axis_label_point = x_axis_end + cv::Point(-label_offset, axis_label_offset); //Below
     const cv::Point y_axis_label_point = y_axis_end + cv::Point(-label_offset, axis_label_offset); //Left
-    DrawLabel(image, x_axis_label, x_axis_label_point, BottomRight, axis_color);
-    DrawLabel(image, y_axis_label, y_axis_label_point, BottomRight, axis_color);
+    DrawLabel(image, x_axis_label, x_axis_label_point, TextAlignment::BottomRight, axis_color);
+    DrawLabel(image, y_axis_label, y_axis_label_point, TextAlignment::BottomRight, axis_color);
   }
   
   void Plot::DrawTick(cv::Mat_<cv::Vec3b> &image, const Tick &tick, const bool x_tick) const
@@ -497,7 +497,7 @@ namespace imgutils
     if (tick.text_visible)
     {
       const auto label_position = x_tick ? (tick_end + cv::Point(0, label_offset)) : (tick_start + cv::Point(-label_offset, 0)); //Below (X) or left (Y)
-      DrawLabel(image, tick.text, label_position, x_tick ? BottomCenter : MiddleRight, ticks_color); 
+      DrawLabel(image, tick.text, label_position, x_tick ? TextAlignment::BottomCenter : TextAlignment::MiddleRight, ticks_color); 
     }
   }
   

@@ -37,7 +37,7 @@ static void ShowImages(const cv::Mat &image)
   cv::namedWindow(window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
   cv::moveWindow(window_name, 0, 0);
   const cv::Mat image_with_keypoints = VisualizeKeypoints(image);
-  const cv::Mat combined_image = imgutils::CombineImages({image, image_with_keypoints}, imgutils::Horizontal);
+  const cv::Mat combined_image = imgutils::CombineImages({image, image_with_keypoints}, imgutils::CombinationMode::Horizontal);
   cv::imshow(window_name, combined_image);
 }
 

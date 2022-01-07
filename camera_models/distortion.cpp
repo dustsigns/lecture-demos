@@ -85,7 +85,7 @@ static void ShowDistortedImages(const int, void * const user_data)
   const auto standard_camera_matrix = GetStandardCameraMatrix(image.size());
   cv::Mat distorted_image;
   cv::undistort(image, distorted_image, standard_camera_matrix, distortion_vector);
-  const cv::Mat combined_image = imgutils::CombineImages({image, distorted_image}, imgutils::Horizontal);
+  const cv::Mat combined_image = imgutils::CombineImages({image, distorted_image}, imgutils::CombinationMode::Horizontal);
   cv::imshow(data.window_name, combined_image);
 }
 

@@ -89,7 +89,7 @@ static cv::Rect UpdateMotionEstimationImage(const ME_data &data, const bool upda
   {
     const cv::Mat annotated_reference_image = GetAnnotatedReferenceImage(data, searched_block);
     const cv::Mat annotated_image = GetAnnotatedImage(data);
-    const cv::Mat combined_image = imgutils::CombineImages({annotated_reference_image, annotated_image}, imgutils::Horizontal);
+    const cv::Mat combined_image = imgutils::CombineImages({annotated_reference_image, annotated_image}, imgutils::CombinationMode::Horizontal);
     cv::imshow(data.me_window_name, combined_image);
   }
   return searched_block;
@@ -116,7 +116,7 @@ static double UpdateMotionCompensationImage(const ME_data &data, const cv::Rect 
   {
     cv::displayStatusBar(data.mc_window_name, status_text);
     const cv::Mat difference_image = imgutils::ConvertDifferenceImage(compensated_block_pixels_16);
-    const cv::Mat combined_image = imgutils::CombineImages({searched_block_pixels, block_pixels, difference_image}, imgutils::Horizontal, 1);
+    const cv::Mat combined_image = imgutils::CombineImages({searched_block_pixels, block_pixels, difference_image}, imgutils::CombinationMode::Horizontal, 1);
     cv::imshow(data.mc_window_name, combined_image);
   }
   return difference_value;

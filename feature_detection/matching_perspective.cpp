@@ -116,7 +116,7 @@ static void ShowImages(const cv::Mat &first_image, cv::Mat &second_image)
   const bool found = FindHomography(first_image, second_image, homography);
   if (found)
     TransformAndDrawImageRectangle(first_image, second_image, homography);
-  const cv::Mat combined_image = imgutils::CombineImages({first_image, second_image}, imgutils::Horizontal);
+  const cv::Mat combined_image = imgutils::CombineImages({first_image, second_image}, imgutils::CombinationMode::Horizontal);
   cv::imshow(window_name, combined_image);
 }
 

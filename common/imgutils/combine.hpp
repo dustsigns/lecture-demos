@@ -11,10 +11,10 @@
 namespace imgutils
 {
   //Position of combined images
-  enum CombinationMode { Horizontal, Vertical };
+  enum class CombinationMode { Horizontal, Vertical };
 
   //Method to convert difference images
-  enum DifferenceConversionMode
+  enum class DifferenceConversionMode
   {
     Offset, //Adds 128 to the difference, clipping values below -128 and above 127, respectively
     Absolute, //Calculates absolute differences, i.e., without a sign
@@ -32,7 +32,7 @@ namespace imgutils
   cv::Mat SubtractImages(const cv::Mat &image1, const cv::Mat &image2);
 
   //Converts a difference image (with one channel of signed 16-bit values) to illustrate it as an unsigned 8-bit image, e.g., with imshow
-  cv::Mat ConvertDifferenceImage(const cv::Mat &difference_image, DifferenceConversionMode mode = Color);
+  cv::Mat ConvertDifferenceImage(const cv::Mat &difference_image, DifferenceConversionMode mode = DifferenceConversionMode::Color);
 }
 
 #include "combine.impl.hpp"

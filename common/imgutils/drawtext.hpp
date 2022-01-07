@@ -13,7 +13,7 @@ namespace imgutils
   static_assert(sizeof(unsigned char) == 1, "unsigned char must be 8 bits in size");
   
   //Way to align text
-  enum TextAlignment : unsigned char
+  enum class TextAlignment : unsigned char
   {
     //No alignment
     None = 0x00,

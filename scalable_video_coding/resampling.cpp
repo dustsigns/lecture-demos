@@ -39,7 +39,7 @@ static void ShowResampledImages(const int scaling_factor_percent, void * const u
   cv::resize(image, downsampled_image, cv::Size(), scaling_factor, scaling_factor, data.resampling_algorithm);
   cv::Mat upsampled_image;
   cv::resize(downsampled_image, upsampled_image, image.size(), 0, 0, data.resampling_algorithm);
-  const cv::Mat combined_image = imgutils::CombineImages({image, upsampled_image, downsampled_image}, imgutils::Horizontal);
+  const cv::Mat combined_image = imgutils::CombineImages({image, upsampled_image, downsampled_image}, imgutils::CombinationMode::Horizontal);
   cv::imshow(data.window_name, combined_image);
 }
 

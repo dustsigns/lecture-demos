@@ -132,7 +132,7 @@ static void ShowControls()
                                                                   auto &data = *(static_cast<DCT_data*>(user_data));
                                                                   const cv::Mat wave_image = PlotWaves(data, visible_coefficients);
                                                                   const cv::Mat spectrum_image = PlotSpectrum(visible_coefficients);
-                                                                  const cv::Mat combined_image = imgutils::CombineImages({wave_image, spectrum_image}, imgutils::Horizontal);
+                                                                  const cv::Mat combined_image = imgutils::CombineImages({wave_image, spectrum_image}, imgutils::CombinationMode::Horizontal);
                                                                   cv::imshow(data.window_name, combined_image);
                                                                 }, static_cast<void*>(&data));
   cv::setTrackbarPos(trackbar_name, window_name, N); //Implies cv::imshow with all visible components

@@ -32,7 +32,7 @@ static void ShowImages(const cv::Mat &left_image, const cv::Mat &right_image)
   constexpr auto anaglyph_window_name = "Anaglyph image";
   cv::namedWindow(anaglyph_window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
   cv::moveWindow(anaglyph_window_name, 2 * left_image.cols + 3 + 3, 0); //Move anaglyph window right beside the image window (2 images plus 3 border pixels plus additional distance)
-  const cv::Mat combined_image = imgutils::CombineImages({left_image, right_image}, imgutils::Horizontal);
+  const cv::Mat combined_image = imgutils::CombineImages({left_image, right_image}, imgutils::CombinationMode::Horizontal);
   cv::imshow(image_window_name, combined_image);
   const cv::Mat anaglyph_image = GetAnaglyphImage(left_image, right_image);
   cv::imshow(anaglyph_window_name, anaglyph_image);

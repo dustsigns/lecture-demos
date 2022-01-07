@@ -96,12 +96,12 @@ static void ShowImages(const cv::Mat &first_image, const cv::Mat &second_image)
                      [](const int visible_match, void * const user_data)
                        {
                          auto &data = *(static_cast<const match_data*>(user_data));
-                         const cv::Mat original_images = imgutils::CombineImages({data.first_image, data.second_image}, imgutils::Horizontal);
+                         const cv::Mat original_images = imgutils::CombineImages({data.first_image, data.second_image}, imgutils::CombinationMode::Horizontal);
                          assert(visible_match >= 0 && visible_match <= static_cast<int>(data.matches.size()));
                          const auto match_iterator = data.matches.begin() + visible_match - 1;
                          std::vector<cv::DMatch> single_match(match_iterator, match_iterator + 1);
                          const cv::Mat match_image = VisualizeMatches(data, single_match);
-                         const cv::Mat combined_image = imgutils::CombineImages({original_images, match_image}, imgutils::Vertical);
+                         const cv::Mat combined_image = imgutils::CombineImages({original_images, match_image}, imgutils::CombinationMode::Vertical);
                          cv::imshow(window_name, combined_image);
                        }, static_cast<void*>(&data));
 

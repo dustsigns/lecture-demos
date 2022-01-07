@@ -22,9 +22,9 @@ static void ShowImages(const cv::Mat &image)
   cv::cvtColor(image, ycrcb_image, cv::COLOR_BGR2YCrCb); //TODO: Allow subsampling (how? cv::cvtColor makes a 1-channel matrix with cv::COLOR_BGR2YUV_*)
   cv::Mat ycrcb_planes[3];
   cv::split(ycrcb_image, ycrcb_planes);
-  const cv::Mat rgb_planes_combined = imgutils::CombineImages({image, bgr_planes[2], bgr_planes[1], bgr_planes[0]}, imgutils::Horizontal); //BGR as RGB
-  const cv::Mat ycbcr_planes_combined = imgutils::CombineImages({image, ycrcb_planes[0], ycrcb_planes[2], ycrcb_planes[1]}, imgutils::Horizontal); //YCrCb as YCbCr
-  cv::Mat combined_images = imgutils::CombineImages({rgb_planes_combined, ycbcr_planes_combined}, imgutils::Vertical);
+  const cv::Mat rgb_planes_combined = imgutils::CombineImages({image, bgr_planes[2], bgr_planes[1], bgr_planes[0]}, imgutils::CombinationMode::Horizontal); //BGR as RGB
+  const cv::Mat ycbcr_planes_combined = imgutils::CombineImages({image, ycrcb_planes[0], ycrcb_planes[2], ycrcb_planes[1]}, imgutils::CombinationMode::Horizontal); //YCrCb as YCbCr
+  cv::Mat combined_images = imgutils::CombineImages({rgb_planes_combined, ycbcr_planes_combined}, imgutils::CombinationMode::Vertical);
   cv::resize(combined_images, combined_images, cv::Size(), 1 / sqrt(2), 1 / sqrt(2), cv::INTER_LANCZOS4); //TODO: Don't resize, but find another way to fit the window(s) to the screen size, e.g., by allowing to hide the original image via a checkbox
   cv::imshow(window_name, combined_images);
 }
