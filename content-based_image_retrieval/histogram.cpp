@@ -84,16 +84,17 @@ static cv::Mat PlotHistograms(const histogram_data &data, const int number_of_bi
   imgutils::Tick::GenerateTicks(plot.x_axis_ticks, 0, 255, 10, 5); //Mark every 10 values, label every 50 (0-255)
   cv::Mat_<cv::Vec3b> image;
   plot.SetSmallBorders();
-  const auto bin_size_pixels = static_cast<double>(data.image.rows) / number_of_bins; //TODO: Improve estimate so that final line width fills histogram for 2 bins in the second test
-  plot.DrawTo(image, data.image.cols, data.image.rows, [bin_size_pixels](imgutils::Plot &plot)
-                                                                        {
-                                                                          const auto bin_size_factor = GetUsablePortionOfPlot(plot, 0, 255);
-                                                                          const auto bin_size_reduced = static_cast<int>(ceil(bin_size_factor * bin_size_pixels)) - 1; //Leave extra space (for high numbers of bins)
-                                                                          std::for_each(plot.point_sets.begin(), plot.point_sets.end(), [bin_size_reduced](imgutils::PointSet &set) //Adjust bin size to usable range
-                                                                                                                                                          {
-                                                                                                                                                            set.line_width = bin_size_reduced;
-                                                                                                                                                          });
-                                                                        });
+  const auto overestimated_bin_size_pixels = static_cast<double>(data.image.cols) / number_of_bins;
+  plot.DrawTo(image, data.image.cols, data.image.rows,
+              [overestimated_bin_size_pixels](imgutils::Plot &plot)
+                                             {
+                                               const auto overestimation_factor = GetUsablePortionOfPlot(plot, 0, 255);
+                                               const auto bin_size_pixels = static_cast<int>(round(overestimation_factor * overestimated_bin_size_pixels)) - 1; //Leave extra space (for high numbers of bins)
+                                               std::for_each(plot.point_sets.begin(), plot.point_sets.end(), [bin_size_pixels](imgutils::PointSet &set) //Adjust bin size to usable range
+                                                                                                                               {
+                                                                                                                                 set.line_width = bin_size_pixels;
+                                                                                                                               });
+                                             });
   return image;
 }
 
