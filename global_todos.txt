@@ -1,3 +1,4 @@
 Update screenshots to match Debian 11 Xfce UI (slightly new window layout) and VTK rendering (now with aliasing)
+Create definition for commonly used cv::Mat_<cv::Vec3b> 8-bit image class
 Implement common class for aligning multiple windows, especially for demonstrations with a high number of windows and corresponding alignment complexity/code clutter
-Isolate tractor from sample images for matching demonstrations
+Isolate tractor from sample images for matching demonstrations (separate branch)
