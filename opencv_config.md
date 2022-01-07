@@ -66,3 +66,5 @@ The listed versions may be different.
 ````
 --   Install to:                    /usr/local
 ````
+
+The installation path may differ as long as `sudo ldconfig` is run after the installation and the path is known to `ldconfig`.

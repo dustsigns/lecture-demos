@@ -46,7 +46,6 @@ endif
 ifneq ($(LIBS),)
 	LDFLAGS += `$(PKGCFG) --libs $(LIBS)`
 endif
-LDFLAGS += -Wl,-rpath,/usr/local/lib
 
 SRC := $(wildcard *.cpp)
 OBJ := $(SRC:.cpp=.o)
