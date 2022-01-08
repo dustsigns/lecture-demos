@@ -68,27 +68,35 @@ static void ConfigureGlobalVisualization(epipolar_data &data)
   data.global_visualization.showWidget("Left camera", left_camera_object);
   left_camera_object.setPose(data.left_visualization.getViewerPose());
   cv::viz::WCameraPosition right_camera_object(right_camera_matrix, 1.0, cv::viz::Color::gray());
-  data.global_visualization.showWidget("Right camera", right_camera_object);
+  data.global_visualization.showWidget("Right camera", right_camera_object); //TODO: The frustum of the right camera is incorrect (especially visible for camera_x_translation_offset = 0.3)
   right_camera_object.setPose(data.right_visualization.getViewerPose());
 }
 
 static cv::Affine3d GetStereoCameraRotationAndTranslation()
 {
-  //constexpr auto camera_y_rotation_angle = 20;
-  //constexpr auto camera_z_rotation_angle = 20;
+  //TODO: Create trackbars for all rotations and translations
+  //constexpr auto camera_x_rotation_angle = 10;
+  //constexpr auto camera_y_rotation_angle = 10;
+  //constexpr auto camera_z_rotation_angle = 20; //Do not use until the computation of the essential matrix is fixed (see below)
   constexpr auto camera_x_translation_offset = 0.1;
+  //constexpr auto camera_y_translation_offset = 0.1;
+  //constexpr auto camera_z_translation_offset = 0.3;
   
   auto pose = cv::Affine3d::Identity();
+  //pose = pose.rotate(cv::Vec3d(comutils::DegreesToRadians(camera_x_rotation_angle), 0, 0));
   //pose = pose.rotate(cv::Vec3d(0, comutils::DegreesToRadians(camera_y_rotation_angle), 0));
   //pose = pose.rotate(cv::Vec3d(0, 0, comutils::DegreesToRadians(camera_z_rotation_angle)));
   pose = pose.translate(cv::Vec3d(camera_x_translation_offset, 0, 0));
+  //pose = pose.translate(cv::Vec3d(0, camera_y_translation_offset, 0));
+  //pose = pose.translate(cv::Vec3d(0, 0, camera_z_translation_offset));
   return pose;
 }
 
 static void MoveCamera(cv::viz::Viz3d &visualization)
 {
   const auto old_pose = visualization.getViewerPose();
-  auto pose = old_pose.concatenate(GetStereoCameraRotationAndTranslation());
+  const auto pose_update = GetStereoCameraRotationAndTranslation();
+  const cv::Affine3d pose(old_pose.rotation() * pose_update.rotation(), old_pose.translation() + pose_update.translation()); //Update rotation and translation separately
   visualization.setViewerPose(pose);
 }
 
@@ -101,11 +109,11 @@ static void MarkPosition(cv::Mat &image, const int x_position, const int y_posit
 
 static cv::Mat GetFundamentalMatrix(const cv::viz::Viz3d &left_visualization, const cv::viz::Viz3d &right_visualization)
 {
-  //TODO: Which of these parameters is/are incorrect? The final result is incorrect when rotation is used.
   const auto left_camera_pose = left_visualization.getViewerPose();
   const auto right_camera_pose = right_visualization.getViewerPose();
   cv::Mat essential_matrix;
   cv::sfm::essentialFromRt(left_camera_pose.rotation(), left_camera_pose.translation(), right_camera_pose.rotation(), right_camera_pose.translation(), essential_matrix);
+  //TODO: This does not work with pure z rotation (essential matrix is all zero), multi-axes rotations, multi-axes translations as well as combined rotations and translations
 
   const auto left_camera = left_visualization.getCamera();
   const auto left_camera_matrix = GetIntrinsicCameraMatrix(left_camera);
@@ -135,8 +143,17 @@ static cv::Point GetLinePointFromLineParameters(const int x_coordinate, const cv
 static void DrawEpipolarLine(const epipolar_data &data, const int x_position, const int y_position, cv::Mat image)
 {
   const auto line_parameters = ComputeEpipolarLine(data, x_position, y_position);
-  const cv::Point from = GetLinePointFromLineParameters(0, line_parameters); //Start on the left
-  const cv::Point to = GetLinePointFromLineParameters(epipolar_data::window_width, line_parameters); //End on the (far) right
+  cv::Point from, to;
+  if (std::abs(line_parameters[1]) <= std::numeric_limits<float>::epsilon()) //Special case incline zero => vertical line
+  {
+    from = cv::Point(x_position, 0); //Start on the top
+    to = cv::Point(x_position, epipolar_data::window_height); //End on the bottom
+  }
+  else
+  {
+    from = GetLinePointFromLineParameters(0, line_parameters); //Start on the left
+    to = GetLinePointFromLineParameters(epipolar_data::window_width, line_parameters); //End on the (far) right
+  }
   cv::line(image, from, to, imgutils::Red, 1);
 }
 

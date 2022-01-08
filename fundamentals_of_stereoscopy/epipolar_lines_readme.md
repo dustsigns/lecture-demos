@@ -5,7 +5,7 @@ Epipolar lines
 
 **Author**: Andreas Unterweger
 
-**Status**: Work in progress (features missing)
+**Status**: Work in progress (known issues and features missing)
 
 Overview
 --------
@@ -45,17 +45,22 @@ Hard-coded parameters
 
 * `window_width` (local to `struct epipolar_data`): Horizontal size of all windows in pixels.
 * `window_height` (local to `struct epipolar_data`): Vertical size of all windows in pixels.
+* `camera_x_rotation_angle` (local to `GetStereoCameraRotationAndTranslation`): Rotation of the second camera compared to the first around the X axis in degrees (commented out, only use when no other translations or rotations are used, see known issues below).
+* `camera_y_rotation_angle` (local to `GetStereoCameraRotationAndTranslation`): Rotation of the second camera compared to the first around the Y axis in degrees (commented out, only use when no other translations or rotations are used, see known issues below).
 * `camera_x_translation_offset` (local to `GetStereoCameraRotationAndTranslation`): Horizontal distance between the two cameras in relative coordinates.
+* `camera_y_translation_offset` (local to `GetStereoCameraRotationAndTranslation`): Vertical distance between the two cameras in relative coordinates (commented out, only use when no other translations or rotations are used, see known issues below).
+* `camera_z_translation_offset` (local to `GetStereoCameraRotationAndTranslation`): (Depth) Distance between the two cameras in relative coordinates (commented out, only use when no other translations or rotations are used, see known issues below).
 
 Known issues
 ------------
 
-None
+* **Incorrect epipolar lines for combined rotation/translations**: Rotations and translations around multiple axes at once as well as combinations of rotations and translations yield incorrect epipolar lines. Thus, all but one translation parameter are currently commented out.
+* **Incorrect field of view of right camera**: The illustrated field of view of the right camera is not correct. The error is relatively small for the default values, but significantly larger for higher offsets.
 
 Missing features
 ----------------
 
-* **Include camera rotation**: Apart from the offset (translation) between the two cameras, their relative pose (rotation) impacts the epipolar lines. Thus, a rotation parameter must be added. *Note: Code to add this exists, but is commented as non-zero rotations cause incorrect epipolar lines for unknown reasons.*
+* **Make rotation and translation parameters interactive**: The rotation and translation parameters are currently hard-coded. Controls for interactive changes to these parameters must be added.
 
 License
 -------
