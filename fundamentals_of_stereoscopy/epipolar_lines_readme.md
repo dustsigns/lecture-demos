@@ -45,8 +45,9 @@ Hard-coded parameters
 
 * `window_width` (local to `struct epipolar_data`): Horizontal size of all windows in pixels.
 * `window_height` (local to `struct epipolar_data`): Vertical size of all windows in pixels.
-* `camera_x_rotation_angle` (local to `GetStereoCameraRotationAndTranslation`): Rotation of the second camera compared to the first around the X axis in degrees (commented out, only use when no other translations or rotations are used, see known issues below).
-* `camera_y_rotation_angle` (local to `GetStereoCameraRotationAndTranslation`): Rotation of the second camera compared to the first around the Y axis in degrees (commented out, only use when no other translations or rotations are used, see known issues below).
+* `camera_x_rotation_angle` (local to `GetStereoCameraRotationAndTranslation`): Rotation of the second camera compared to the first around the X axis in degrees (only use when no other rotations or translations are used, see known issues below).
+* `camera_y_rotation_angle` (local to `GetStereoCameraRotationAndTranslation`): Rotation of the second camera compared to the first around the Y axis in degrees (only use when no other rotations or translations are used, see known issues below).
+* `camera_z_rotation_angle` (local to `GetStereoCameraRotationAndTranslation`): Rotation of the second camera compared to the first around the Z axis in degrees (do not use for now -- it gives an essential matrix of zero if it is not used in combination with other rotations or translations, which is not working, see known issues below).
 * `camera_x_translation_offset` (local to `GetStereoCameraRotationAndTranslation`): Horizontal distance between the two cameras in relative coordinates.
 * `camera_y_translation_offset` (local to `GetStereoCameraRotationAndTranslation`): Vertical distance between the two cameras in relative coordinates (commented out, only use when no other translations or rotations are used, see known issues below).
 * `camera_z_translation_offset` (local to `GetStereoCameraRotationAndTranslation`): (Depth) Distance between the two cameras in relative coordinates (commented out, only use when no other translations or rotations are used, see known issues below).
