@@ -81,15 +81,16 @@ static cv::Affine3d GetStereoCameraRotationAndTranslation()
   constexpr auto camera_y_rotation_angle = 0*10;
   constexpr auto camera_z_rotation_angle = 0*10; //Do not use this by itself (essential matrix becomes zero)
   constexpr auto camera_x_translation_offset = 0.1;
-  constexpr auto camera_y_translation_offset = 0.1;
+  constexpr auto camera_y_translation_offset = 0*0.1;
   constexpr auto camera_z_translation_offset = 0*0.1;
   //TODO: This does not work with (non-zero) multi-axes rotations, multi-axes translations as well as combined rotations and translations
   
-  const cv::Vec3d rotation(comutils::DegreesToRadians(camera_x_rotation_angle),
-                           comutils::DegreesToRadians(camera_y_rotation_angle),
-                           comutils::DegreesToRadians(camera_z_rotation_angle));
+  cv::Affine3d pose;
+  pose = pose.rotate(cv::Vec3d(comutils::DegreesToRadians(camera_x_rotation_angle), 0, 0));
+  pose = pose.rotate(cv::Vec3d(0, comutils::DegreesToRadians(camera_y_rotation_angle), 0));
+  pose = pose.rotate(cv::Vec3d(0, 0, comutils::DegreesToRadians(camera_z_rotation_angle)));
   const cv::Vec3d translation(camera_x_translation_offset, camera_y_translation_offset, camera_z_translation_offset);
-  const cv::Affine3d pose(rotation, translation);
+  pose = pose.translate(translation);
   return pose;
 }
 
