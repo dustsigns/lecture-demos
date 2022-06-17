@@ -64,11 +64,8 @@ Image compression (`image_compression`)
 Object detection (`object_detection`)
 -------------------------------------
 * [Haar-feature-based detection](object_detection/haar_detection_readme.md) (`haar_detection`)
-* [Object detection by Viola & Jones](object_detection/viola_jones_readme.md) (`viola_jones`)
-
-Scalable video coding (`scalable_video_coding`)
------------------------------------------------
 * [Image resampling](scalable_video_coding/resampling_readme.md) (`resampling`)
+* [Object detection by Viola & Jones](object_detection/viola_jones_readme.md) (`viola_jones`)
 
 Stereo matching (`stereo_matching`)
 -----------------------------------
