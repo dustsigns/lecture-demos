@@ -6,49 +6,59 @@
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
 
 #include "common.hpp"
 #include "combine.hpp"
+#include "window.hpp"
 
-struct Gaussian_data
+class Gaussian_data
 {
-  const cv::Mat image;
+  protected:
+    imgutils::Window window;
+    
+    using TrackBarType = imgutils::TrackBar<Gaussian_data&>;
+    TrackBarType sigma_trackbar;
   
-  const std::string window_name;
-  
-  Gaussian_data(const cv::Mat &image, const std::string &window_name)
-   : image(image),
-     window_name(window_name) { }
+    const cv::Mat image;
+    
+    static void UpdateImage(Gaussian_data &data)
+    {
+       const cv::Mat &image = data.image;
+       const int sigma_percent = data.sigma_trackbar.GetValue();
+       const double sigma = sigma_percent / 100.0;
+       cv::Mat blurred_image;
+       GaussianBlur(image, blurred_image, cv::Size(), sigma);
+       const cv::Mat combined_image = imgutils::CombineImages({image, blurred_image}, imgutils::CombinationMode::Horizontal);
+       data.window.UpdateContent(combined_image);
+    }
+
+    static constexpr auto window_name = "Original vs. blurred";  
+    static constexpr auto sigma_trackbar_name = "Sigma [%]";
+    
+    static constexpr auto min_sigma = 0.01;
+    static constexpr auto max_sigma = 20.0;
+    static constexpr auto default_sigma = 2.0;
+    static_assert(min_sigma <= max_sigma, "The maximum sigma value cannot be greater than the minimum sigma value");
+    static_assert(default_sigma <= max_sigma && default_sigma >= min_sigma, "The maximum sigma value cannot be greater than the default sigma value, and the minimum sigma value cannot be smaller than the default sigma value");
+  public:
+    Gaussian_data(const cv::Mat &image)
+     : window(window_name), 
+       sigma_trackbar(sigma_trackbar_name, window, static_cast<int>(max_sigma * 100), static_cast<int>(min_sigma * 100), static_cast<int>(default_sigma * 100), UpdateImage, *this), //sigma = 2 (200%) by default
+       image(image)
+    {
+      UpdateImage(*this); //Update with default values
+    }
+    
+    void ShowImage()
+    {
+      window.ShowInteractive();
+    }
 };
 
-static const char *AddControls(Gaussian_data &data)
+static void ShowImage(const cv::Mat &image)
 {
-  constexpr auto max_sigma = 20;
-  constexpr auto scaling_trackbar_name = "Sigma [%]";
-  cv::createTrackbar(scaling_trackbar_name, data.window_name, nullptr, max_sigma * 100,
-                     [](const int sigma_percent, void * const user_data)
-                       {
-                         auto &data = *(static_cast<const Gaussian_data*>(user_data));
-                         const cv::Mat &image = data.image;
-                         const double sigma = sigma_percent / 100.0;
-                         cv::Mat blurred_image;
-                         GaussianBlur(image, blurred_image, cv::Size(), sigma);
-                         const cv::Mat combined_image = imgutils::CombineImages({image, blurred_image}, imgutils::CombinationMode::Horizontal);
-                         cv::imshow(data.window_name, combined_image);
-                       }, static_cast<void*>(&data));
-  cv::setTrackbarMin(scaling_trackbar_name, data.window_name, 1);
-  return scaling_trackbar_name;
-}
-
-static void ShowImages(const cv::Mat &image)
-{
-  constexpr auto window_name = "Original vs. blurred";
-  cv::namedWindow(window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
-  cv::moveWindow(window_name, 0, 0);
-  static Gaussian_data data(image, window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
-  const auto main_parameter_trackbar_name = AddControls(data);
-  cv::setTrackbarPos(main_parameter_trackbar_name, window_name, 200); //Implies cv::imshow with sigma=2
+  Gaussian_data data(image);
+  data.ShowImage();
 }
 
 int main(const int argc, const char * const argv[])
@@ -66,7 +76,6 @@ int main(const int argc, const char * const argv[])
     std::cerr << "Could not read input image '" << filename << "'" << std::endl;
     return 2;
   }
-  ShowImages(image);
-  cv::waitKey(0);
+  ShowImage(image);
   return 0;
 }

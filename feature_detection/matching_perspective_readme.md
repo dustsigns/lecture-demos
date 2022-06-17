@@ -10,7 +10,7 @@ Matching for perspective transform
 Overview
 --------
 
-![Screenshot](../screenshots/matching_transform.png)
+![Screenshot](../screenshots/matching_perspective.png)
 
 One image (left in the *Images combined* window) can be found within another (right) even when the perspective is changed slightly. To do so, keypoints in both images are computed and matched to estimate a transform from the first to the second image. After applying this transform to the frame of the first image, it can be found in the second image (red deformed rectangle).
 
@@ -19,7 +19,7 @@ Usage
 
 Observe that the first image is, for the most part, contained within the second. The left-most portion is an exception. The slight change in perspective does not impact the matching, nor do occlusions like the one around the tip of the rightmost green cone. Note that the estimated perspective transform is not entirely correct due to the limitations of homography-based mapping on non-planar objects.
 
-![Screenshot with a different input file](../screenshots/matching_transform_tractor.png)
+![Screenshot with a different input file](../screenshots/matching_perspective_tractor.png)
 
 Available actions
 -----------------
@@ -41,7 +41,7 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-* `line_width`: Width of the transformed image frame's lines in pixels.
+* `line_width` (local to `DrawImageRectangle`): Width of the transformed image frame's lines in pixels.
 
 Known issues
 ------------

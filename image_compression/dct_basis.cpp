@@ -5,12 +5,12 @@
 #include <iostream>
 
 #include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
 #include "math.hpp"
 #include "imgmath.hpp"
 #include "combine.hpp"
+#include "window.hpp"
 
 static cv::Mat GenerateBasisFunctions(const size_t block_size, const size_t i)
 {
@@ -32,11 +32,9 @@ static void ShowBasisFunctions(const unsigned int block_size)
 {
   constexpr auto window_size = 500;
   const auto window_name = std::to_string(block_size) + "x" + std::to_string(block_size) + "-DCT basis functions";
-  cv::namedWindow(window_name, cv::WINDOW_GUI_NORMAL);
-  cv::moveWindow(window_name, 0, 0);
-  cv::resizeWindow(window_name, window_size, window_size);
   const cv::Mat basis_functions = GenerateBasisFunctions(block_size);
-  cv::imshow(window_name, basis_functions);
+  imgutils::Window window(window_name, basis_functions, cv::Size(window_size, window_size));
+  window.ShowInteractive();
 }
 
 int main(const int argc, const char * const argv[])
@@ -58,6 +56,5 @@ int main(const int argc, const char * const argv[])
     }
   }
   ShowBasisFunctions(block_size);
-  cv::waitKey(0);
   return 0;
 }

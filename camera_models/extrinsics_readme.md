@@ -12,7 +12,7 @@ Overview
 
 ![Screenshot](../screenshots/extrinsics.png)
 
-The extrinsic parameters of a pinhole camera impact the image that it captures (window *Camera view*). The two sets of parameters are [rotation and translation](https://docs.opencv.org/3.4.0/d9/d0c/group__calib3d.html) relative to a chosen reference point. Both parameter sets are three-dimensional due to the three spatial dimensions.
+The extrinsic parameters of a pinhole camera impact the image that it captures (window *Camera view*). The two sets of parameters are [rotation and translation](https://docs.opencv.org/4.6.0/d9/d0c/group__calib3d.html) relative to a chosen reference point. Both parameter sets are three-dimensional due to the three spatial dimensions.
 
 Usage
 -----
@@ -44,9 +44,9 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-* `parameter_accuracy`: Granularity of parameters in relative coordinates. The default value of 0.01 represents an accuracy of two decimal places after the decimal point.
-* `cone_length` (local to `AddObjects`): Height of the displayed cone in relative coordinates.
-* `cone_radius` (local to `AddObjects`): Radius of the displayed cone in relative coordinates.
+* `parameter_accuracy` (local to `extrinsics_data`): Granularity of parameters in relative coordinates. The default value of 0.01 represents an accuracy of two decimal places after the decimal point.
+* `cone_length` (local to `extrinsics_data::AddObjects`): Height of the displayed cone in relative coordinates.
+* `cone_radius` (local to `extrinsics_data::AddObjects`): Radius of the displayed cone in relative coordinates.
 
 Known issues
 ------------

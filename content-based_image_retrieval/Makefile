@@ -1,4 +1,4 @@
-PARTS = images 3d
+PARTS = 3d
 
 ORDER := mean_feature histogram quantization
 

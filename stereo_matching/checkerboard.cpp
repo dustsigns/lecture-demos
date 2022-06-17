@@ -6,7 +6,8 @@
 #include <string>
 
 #include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
+
+#include "window.hpp"
 
 static cv::Mat GenerateCheckerboardPattern(const unsigned int checkerboard_width, const unsigned int checkerboard_height)
 {
@@ -39,10 +40,9 @@ static void ShowCheckerboard()
   static_assert(checkerboard_width != checkerboard_height, "The checkerboard needs to be asymmetric.");
   
   const auto window_name = std::to_string(checkerboard_width) + "x" + std::to_string(checkerboard_height) + " checkerboard";
-  cv::namedWindow(window_name, cv::WINDOW_GUI_NORMAL);
-  cv::moveWindow(window_name, 0, 0);
   const cv::Mat checkerboard_pattern = GenerateCheckerboardPattern(checkerboard_width, checkerboard_height);
-  cv::imshow(window_name, checkerboard_pattern);
+  imgutils::Window window(window_name, checkerboard_pattern);
+  window.ShowInteractive();
 }
 
 int main(const int argc, const char * const argv[])
@@ -54,6 +54,5 @@ int main(const int argc, const char * const argv[])
     return 1;
   }
   ShowCheckerboard();
-  cv::waitKey(0);
   return 0;
 }

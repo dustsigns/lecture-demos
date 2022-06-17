@@ -12,7 +12,7 @@ Overview
 
 ![Screenshot](../screenshots/checkerboard.png)
 
-Camera calibration requires an object with known geometry. Checkerboard patterns (window *10x7 checkerboard*) can be used as two-dimensional [camera calibration patterns](https://docs.opencv.org/3.4.0/d4/d94/tutorial_camera_calibration.html).
+Camera calibration requires an object with known geometry. Checkerboard patterns (window *10x7 checkerboard*) can be used as two-dimensional [camera calibration patterns](https://docs.opencv.org/4.6.0/d4/d94/tutorial_camera_calibration.html).
 
 Usage
 -----
@@ -37,9 +37,9 @@ None
 Hard-coded parameters
 ---------------------
 
+* `field_size` (local to `GenerateCheckerboardPattern`): Horizontal and vertical size of each checkerboard field in pixels.
 * `checkerboard_width` (local to `ShowCheckerboard`): Number of horizontal checkerboard fields.
 * `checkerboard_height` (local to `ShowCheckerboard`): Number of vertical checkerboard fields.
-* `field_size` (local to `GenerateCheckerboardPattern`): Horizontal and vertical size of each checkerboard field in pixels.
 
 Known issues
 ------------

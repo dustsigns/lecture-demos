@@ -5,10 +5,10 @@
 #include <iostream>
 
 #include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
 #include <opencv2/features2d.hpp>
 
 #include "combine.hpp"
+#include "window.hpp"
 
 static void DetectFeatures(const cv::Mat &image, std::vector<cv::KeyPoint> &keypoints)
 {
@@ -31,14 +31,14 @@ static cv::Mat VisualizeKeypoints(const cv::Mat &image)
   return image_with_keypoints;
 }
 
-static void ShowImages(const cv::Mat &image)
+static void ShowImage(const cv::Mat &image)
 {
   constexpr auto window_name = "Image without and with keypoints";
-  cv::namedWindow(window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
-  cv::moveWindow(window_name, 0, 0);
+  imgutils::Window window(window_name);
   const cv::Mat image_with_keypoints = VisualizeKeypoints(image);
   const cv::Mat combined_image = imgutils::CombineImages({image, image_with_keypoints}, imgutils::CombinationMode::Horizontal);
-  cv::imshow(window_name, combined_image);
+  window.UpdateContent(combined_image);
+  window.ShowInteractive();
 }
 
 int main(const int argc, const char * const argv[])
@@ -56,7 +56,6 @@ int main(const int argc, const char * const argv[])
     std::cerr << "Could not read input image '" << image_filename << "'" << std::endl;
     return 2;
   }
-  ShowImages(image);
-  cv::waitKey(0);
+  ShowImage(image);
   return 0;
 }

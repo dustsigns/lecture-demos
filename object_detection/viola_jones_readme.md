@@ -41,7 +41,7 @@ Hard-coded parameters
 ---------------------
 
 * `classifier_path` (local to `InitClassifier`): File path of the XML file specifying the classifier cascade to be used.
-* `line_width`: Width of the face-highlighting rectangles' lines in pixels.
+* `line_width` (local to `HighlightFaces`): Width of the face-highlighting rectangles' lines in pixels.
 
 Known issues
 ------------

@@ -5,19 +5,19 @@
 
 **Author**: Andreas Unterweger
 
-**Status**: Near-complete (internal bugs unfixed)
+**Status**: Complete
 
 Overview
 --------
 
 ![Screenshot](../screenshots/rotation2d.png)
 
-Rotating a point (illustrated by an arrow in the *2-D rotation around origin* window) around the origin is a building block for more complex affine coordinate transformations. Objects, e.g., a whole letter, can be rotated by rotating all the points they consist of individually.
+Rotating a point (illustrated by an arrow in the *2-D rotation around the origin* window) around the origin is a building block for more complex affine coordinate transformations. Objects, e.g., a whole letter, can be rotated by rotating all the points they consist of individually.
 
 Usage
 -----
 
-Change the angle of rotation (see parameters below) to see the position of the rotated letter A (white) change compared to the original letter's (semi-transparent grey). Observe that the distance between each point of the letter and the origin of the coordinate system (where the red and blue lines meet) does not change.
+Change the angle of rotation (see parameters below) to see the position of the rotated letter A (white) change compared to the original letter's (semi-transparent). Observe that the distance between each point of the letter and the origin of the coordinate system (where the red and blue lines meet) does not change.
 
 ![Screenshot after rotating the letter around the origin](../screenshots/rotation2d_135.png)
 
@@ -39,12 +39,13 @@ None
 Hard-coded parameters
 ---------------------
 
-* `letter_size`: Width and height of the displayed letter in relative coordinates.
+* `letter_size` (local to `rotation_data`): Width and height of the displayed letter in relative coordinates.
+* `text` (local to `rotation_data::AddObjects`): Letter(s) to be rendered.
 
 Known issues
 ------------
 
-* **Center line partially hidden for some angles**: The arrow connecting the letter and the origin becomes partially invisible for angles of around 135 degrees.
+None
 
 Missing features
 ----------------

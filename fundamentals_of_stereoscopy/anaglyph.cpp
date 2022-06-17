@@ -6,10 +6,11 @@
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
-#include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
 #include "combine.hpp"
+#include "window.hpp"
+#include "multiwin.hpp"
 
 static cv::Mat GetAnaglyphImage(const cv::Mat &left_image, const cv::Mat &right_image)
 {
@@ -27,15 +28,15 @@ static void ShowImages(const cv::Mat &left_image, const cv::Mat &right_image)
 {
   assert(left_image.size() == right_image.size());
   constexpr auto image_window_name = "Left and right images";
-  cv::namedWindow(image_window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
-  cv::moveWindow(image_window_name, 0, 0);
+  imgutils::Window image_window(image_window_name);
   constexpr auto anaglyph_window_name = "Anaglyph image";
-  cv::namedWindow(anaglyph_window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
-  cv::moveWindow(anaglyph_window_name, 2 * left_image.cols + 3 + 3, 0); //Move anaglyph window right beside the image window (2 images plus 3 border pixels plus additional distance)
+  imgutils::Window anaglyph_window(anaglyph_window_name);
   const cv::Mat combined_image = imgutils::CombineImages({left_image, right_image}, imgutils::CombinationMode::Horizontal);
-  cv::imshow(image_window_name, combined_image);
+  image_window.UpdateContent(combined_image);
   const cv::Mat anaglyph_image = GetAnaglyphImage(left_image, right_image);
-  cv::imshow(anaglyph_window_name, anaglyph_image);
+  anaglyph_window.UpdateContent(anaglyph_image);
+  imgutils::MultiWindow all_windows({&image_window, &anaglyph_window}, imgutils::WindowAlignment::Horizontal);
+  all_windows.ShowInteractive();
 }
 
 int main(const int argc, const char * const argv[])
@@ -61,6 +62,5 @@ int main(const int argc, const char * const argv[])
     return 3;
   }
   ShowImages(left_image, right_image);
-  cv::waitKey(0);
   return 0;
 }

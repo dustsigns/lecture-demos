@@ -6,10 +6,11 @@
 
 #include "opencv2/core.hpp"
 #include "opencv2/calib3d.hpp"
-#include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
 
 #include "combine.hpp"
+#include "window.hpp"
+#include "multiwin.hpp"
 
 static constexpr auto number_of_disparities = 64;
 static constexpr auto number_of_fractional_bits = 4; //Sub-pixel precision of the stereo-matching algorithm in bits
@@ -39,17 +40,14 @@ static cv::Mat GetDisparityImage(const cv::Mat &left_image, const cv::Mat &right
 static void ShowWindows(const cv::Mat &left_image, const cv::Mat &right_image)
 {
   constexpr auto image_window_name = "Left and right images";
-  cv::namedWindow(image_window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
-  cv::moveWindow(image_window_name, 0, 0);
   constexpr auto disparity_window_name = "Estimated disparity image";
-  cv::namedWindow(disparity_window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
   assert(left_image.size() == right_image.size());
-  cv::moveWindow(disparity_window_name, 2 * left_image.cols + 3 + 3, 0); //Move anaglyph window right beside the image window (2 images plus 3 border pixels plus additional distance)
   const cv::Mat combined_image = imgutils::CombineImages({left_image, right_image}, imgutils::CombinationMode::Horizontal);
-  cv::imshow(image_window_name, combined_image);
+  imgutils::Window image_window(image_window_name, combined_image);
   const cv::Mat disparity_image = GetDisparityImage(left_image, right_image);
-  cv::imshow(disparity_window_name, disparity_image);
-  cv::waitKey(0);  
+  imgutils::Window disparity_window(disparity_window_name, disparity_image);
+  imgutils::MultiWindow all_windows({&image_window, &disparity_window}, imgutils::WindowAlignment::Horizontal);
+  all_windows.ShowInteractive();
 }
 
 int main(const int argc, const char * const argv[])

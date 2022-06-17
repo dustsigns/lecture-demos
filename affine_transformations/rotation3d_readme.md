@@ -17,7 +17,7 @@ Rotating a point or collection of points around one of the coordinate axes is a 
 Usage
 -----
 
-Change the angle of rotation around one axis (see parameters below) to see the position of the rotated bunny (white) change compared to the original's (semi-transparent grey). Observe that the distance between each point of the bunny and the axis of rotation does not change. Rotating around one axis and then another is equivalent to performing one (more complex) affine transformation which is composed of the two individual rotations.
+Change the angle of rotation around one axis (see parameters below) to see the position of the rotated bunny (white) change compared to the original's (semi-transparent). Observe that the distance between each point of the bunny and the axis of rotation does not change. Rotating around one axis and then another is equivalent to performing one (more complex) affine transformation which is composed of the two individual rotations.
 
 ![Screenshot after rotating the bunny around the X and Y axes](../screenshots/rotation3d_x180_y90.png)
 
@@ -41,8 +41,8 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-* `cone_length`: Height of the displayed cone in relative coordinates.
-* `cone_radius`: Radius of the displayed cone in relative coordinates.
+* `cone_length` (local to `rotation_data`): Height of the displayed cone in relative coordinates.
+* `cone_radius` (local to `rotation_data`): Radius of the displayed cone in relative coordinates.
 
 Known issues
 ------------

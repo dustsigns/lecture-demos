@@ -3,82 +3,110 @@
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
+#include <algorithm>
 
 #include <opencv2/viz.hpp>
 
 #include "common.hpp"
-#include "conf_viz.hpp"
+#include "confviz.hpp"
 
-static constexpr auto transformed_object_name = "Transformed object";
-static constexpr auto cone_length = 0.2;
-static constexpr auto cone_radius = cone_length / 2;
-
-static void AddCoordinateSystem(vizutils::ConfigurableVisualization &visualization)
+class translation_data
 {
-  cv::viz::WCoordinateSystem coordinate_system(cone_radius); //TODO: Use adaptive scaling
-  visualization.objects.insert(std::make_pair("Coordinate system", coordinate_system));
-}
+  protected:
+    static constexpr char axes[] = {'X', 'Y', 'Z'};
+    
+    vizutils::ConfigurableVisualizationWindow configurable_visualization;
+      
+    using TrackBarType = imgutils::TrackBar<translation_data&>;
+    std::unique_ptr<TrackBarType> translation_trackbars[comutils::arraysize(axes)];
+    
+    std::unique_ptr<cv::viz::Widget3D> coordinate_system;
+    std::unique_ptr<cv::viz::Widget3D> original_object;
+    std::unique_ptr<cv::viz::Widget3D> transformed_object;
+    
+    static constexpr auto cone_length = 0.2;
+    static constexpr auto cone_radius = cone_length / 2;
+    
+    void AddCoordinateSystem()
+    {
+      coordinate_system = std::make_unique<cv::viz::WCoordinateSystem>(cone_radius); //TODO: Use adaptive scaling
+      configurable_visualization.visualization_window.AddWidget("Coordinate system", coordinate_system.get());
+    }
+    
+    void AddObjects(const char * const model_filename)
+    {
+      if (model_filename)
+      {
+        const auto mesh = cv::viz::Mesh::load(model_filename);
+        original_object = std::make_unique<cv::viz::WMesh>(mesh);
+        transformed_object = std::make_unique<cv::viz::WMesh>(mesh);
+      }
+      else
+      {
+        constexpr auto cone_resolution = 100;
+        original_object = std::make_unique<cv::viz::WCone>(cone_length, cone_radius, cone_resolution);
+        transformed_object = std::make_unique<cv::viz::WCone>(cone_length, cone_radius, cone_resolution);
+      }
+      original_object->setRenderingProperty(cv::viz::OPACITY, 0.5);
+      configurable_visualization.visualization_window.AddWidget("Original object", original_object.get());
+      configurable_visualization.visualization_window.AddWidget("Transformed object", transformed_object.get());
+    }
+    
+    static void UpdateImage(translation_data &data)
+    {
+      double offsets[comutils::arraysize(axes)];
+      assert(comutils::arraysize(axes) == comutils::arraysize(data.translation_trackbars));
+      std::transform(std::begin(data.translation_trackbars), std::end(data.translation_trackbars), std::begin(offsets),
+                     [](const std::unique_ptr<TrackBarType> &trackbar)
+                       {
+                         const auto offset_percent = trackbar->GetValue();
+                         const auto offset = offset_percent / 100.0;
+                         return offset;
+                       });
+      cv::Vec3d offset(offsets);
+      const auto transformation = cv::Affine3d::Identity().translate(offset);
+      data.transformed_object->setPose(transformation);
+    }
+    
+    void AddControls()
+    {
+      std::transform(std::begin(axes), std::end(axes), std::begin(translation_trackbars),
+                     [this](const auto axis)
+                           {
+                             using namespace std::string_literals;
+                             const auto trackbar_name = ""s + axis + " offset";
+                             return std::make_unique<TrackBarType>(trackbar_name, configurable_visualization.configuration_window, 50, -50, 0, UpdateImage, *this);
+                           });
+    }
+    
+    static constexpr auto visualization_window_name = "3-D translation";
+    static constexpr auto control_window_name = "3-D translation parameters";
+  public:
+    translation_data(const char * const model_filename)
+     : configurable_visualization(visualization_window_name, control_window_name)
+    {
+      AddCoordinateSystem();
+      AddObjects(model_filename);
+      AddControls();
+    }
+    
+    void ShowImage()
+    {
+      configurable_visualization.ShowInteractive([this]()
+                                                       {
+                                                         auto &window = configurable_visualization.visualization_window;
+                                                         const auto old_camera = window.GetCamera();
+                                                         const auto focal_length = old_camera.getFocalLength() / 2; //Reduce focal length so that object is not clipped
+                                                         const cv::viz::Camera camera(focal_length[0], focal_length[1], old_camera.getPrincipalPoint()[0], old_camera.getPrincipalPoint()[1], old_camera.getWindowSize());
+                                                         window.SetCamera(camera);
+                                                       });
+    }
+};
 
-static void Add3DObjects(vizutils::ConfigurableVisualization &visualization, const char * const model_filename)
+static void ShowImage(const char * const model_filename)
 {
-  if (model_filename)
-  {
-    const auto mesh = cv::viz::Mesh::load(model_filename);
-    cv::viz::WMesh original_mesh(mesh);
-    original_mesh.setRenderingProperty(cv::viz::OPACITY, 0.5);
-    cv::viz::WMesh transformed_mesh(mesh);
-    visualization.objects.insert(std::make_pair("Original object", original_mesh));
-    visualization.objects.insert(std::make_pair(transformed_object_name, transformed_mesh));
-  }
-  else
-  {
-    constexpr auto cone_resolution = 100;
-    cv::viz::WCone original_cone(cone_length, cone_radius, cone_resolution);
-    original_cone.setRenderingProperty(cv::viz::OPACITY, 0.5);
-    cv::viz::WCone transformed_cone(cone_length, cone_radius, cone_resolution);
-    visualization.objects.insert(std::make_pair("Original object", original_cone));
-    visualization.objects.insert(std::make_pair(transformed_object_name, transformed_cone));
-  }
-}
-
-static void AddObjects(vizutils::ConfigurableVisualization &visualization, const char * const model_filename)
-{ 
-  AddCoordinateSystem(visualization);
-  Add3DObjects(visualization, model_filename);
-}
-
-static constexpr char axes[] = {'X', 'Y', 'Z'};
-
-static std::string GetTrackbarName(const char axis)
-{
-  using namespace std::string_literals;
-  const auto trackbar_name = ""s + axis + " offset";
-  return trackbar_name;
-}
-
-static void ApplyTransformations(vizutils::ConfigurableVisualization &visualization)
-{
-  cv::Vec3d offset;
-  for (size_t i = 0; i < comutils::arraysize(axes); i++)
-  {
-    const auto &axis = axes[i];
-    const auto trackbar_name = GetTrackbarName(axis);
-    const auto offset_percent = visualization.GetTrackbarValue(trackbar_name);
-    const auto offset_value = offset_percent / 100.0;
-    offset[i] = offset_value;
-  }
-  const auto transformation = cv::Affine3d::Identity().translate(offset);
-  auto &transformed_object = visualization.objects[transformed_object_name];
-  transformed_object.setPose(transformation);
-}
-
-static void AddControls(vizutils::ConfigurableVisualization &visualization)
-{
-  for (const auto &axis : axes)
-  {
-    const auto trackbar_name = GetTrackbarName(axis);
-    visualization.AddTrackbar(trackbar_name, ApplyTransformations, 50, -50);
-  }
+  translation_data data(model_filename);
+  data.ShowImage();
 }
 
 int main(const int argc, const char * const argv[])
@@ -90,17 +118,6 @@ int main(const int argc, const char * const argv[])
     return 1;
   }
   const auto model_filename = (argc == 2) ? argv[1] : nullptr;
-  constexpr auto visualization_window_name = "3-D translation";
-  constexpr auto control_window_name = "3-D translation parameters";
-  vizutils::ConfigurableVisualization visualization(visualization_window_name, control_window_name);
-  AddObjects(visualization, model_filename);
-  AddControls(visualization);
-  visualization.ShowWindows(nullptr, [](vizutils::ConfigurableVisualization &visualization)
-                                       {
-                                         const auto old_camera = visualization.GetCamera();
-                                         const auto focal_length = old_camera.getFocalLength() / 2; //Reduce focal length so that object is not clipped
-                                         const cv::viz::Camera camera(focal_length[0], focal_length[1], old_camera.getPrincipalPoint()[0], old_camera.getPrincipalPoint()[1], old_camera.getWindowSize());
-                                         visualization.SetCamera(camera);
-                                       });
+  ShowImage(model_filename);
   return 0;
 }

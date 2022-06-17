@@ -17,7 +17,7 @@ Moving a point through translation is the only elementary affine tranformation w
 Usage
 -----
 
-Change the offset (see parameters below) to see the position of the letter A (white) change compared to the original letter's (semi-transparent grey). Observe that the distance by which the letter is moved is absolute, i.e., it does not depend on the original position of the letter. The X and Y offsets can be changed independently of one another.
+Change the offset (see parameters below) to see the position of the letter A (white) change compared to the original letter's (semi-transparent). Observe that the distance by which the letter is moved is absolute, i.e., it does not depend on the original position of the letter. The X and Y offsets can be changed independently of one another.
 
 ![Screenshot after moving the letter](../screenshots/translation2d_x20_y-30.png)
 
@@ -40,7 +40,8 @@ None
 Hard-coded parameters
 ---------------------
 
-* `letter_size`: Width and height of the displayed letter in relative coordinates.
+* `letter_size` (local to `translation_data`): Width and height of the displayed letter in relative coordinates.
+* `text` (local to `translation_data::AddObjects`): Letter(s) to be rendered.
 
 Known issues
 ------------

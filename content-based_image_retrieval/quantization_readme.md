@@ -41,8 +41,9 @@ None
 Hard-coded parameters
 ---------------------
 
-* `maximum_quantization_level`: The highest possible number of quantization levels (default 256). This is also the upper limit of the *Elements* parameter.
-* `initial_quantization_level`: The value of the *Elements* parameter at the start of the program (default 4).
+* `minimum_quantization_level` (local to `quantization_data`): The lowest possible number of quantization levels (default 2). This is also the lower limit of the *Elements* parameter.
+* `maximum_quantization_level` (local to `quantization_data`): The highest possible number of quantization levels (default 256). This is also the upper limit of the *Elements* parameter.
+* `initial_quantization_level` (local to `quantization_data`): The value of the *Elements* parameter at the start of the program (default 4).
 
 Known issues
 ------------

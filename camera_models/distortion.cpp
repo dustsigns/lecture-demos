@@ -3,20 +3,22 @@
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
+#include <array>
+#include <cassert>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
 #include <opencv2/calib3d.hpp>
 
 #include "combine.hpp"
+#include "window.hpp"
 
 struct distortion_coefficient
 {
-  const std::string name;
+  const char * const name; //TODO: Convert to std::string (requires C++20)
   const int scaling_factor;
   
-  distortion_coefficient(const std::string &name, const double scaling_factor) 
+  constexpr distortion_coefficient(const char * const &name, const double scaling_factor) 
    : name(name), scaling_factor(scaling_factor)
     { }
   
@@ -26,102 +28,106 @@ struct distortion_coefficient
   }
 };
 
-static constexpr auto number_of_coefficients = 4; //Number of coefficients supported by the undistort function below
-
-struct distortion_data
+class distortion_data
 {
-  const cv::Mat image;
-  std::array<distortion_coefficient, number_of_coefficients> distortion_coefficients {distortion_coefficient("k1", -7),
-                                                                                      distortion_coefficient("k2", -10),
-                                                                                      distortion_coefficient("p1", -5),
-                                                                                      distortion_coefficient("p2", -5)};
+  protected:
+    static constexpr distortion_coefficient distortion_coefficients[] { distortion_coefficient("k1", -7),
+                                                                        distortion_coefficient("k2", -10),
+                                                                        distortion_coefficient("p1", -5),
+                                                                        distortion_coefficient("p2", -5) };
+    static constexpr const auto &first_distortion_coefficient = distortion_coefficients[0];
+    static constexpr auto number_of_coefficients = comutils::arraysize(distortion_coefficients);
+
+    imgutils::Window window;
+    
+    using TrackBarType = imgutils::TrackBar<distortion_data&>;
+    std::unique_ptr<TrackBarType> coefficient_trackbars[number_of_coefficients];
+    
+    using ButtonType = imgutils::Button<distortion_data&>;
+    std::unique_ptr<ButtonType> reset_button;
+
+    const cv::Mat image;
   
-  const std::string window_name;
+    static std::string GetTrackbarName(const distortion_coefficient &coeff)
+    {
+      using namespace std::string_literals;
+      return coeff.name + "*10^("s + std::to_string(coeff.scaling_factor) + ")";
+    }
+
+    std::array<double, number_of_coefficients> GetCoefficientValues()
+    {
+      assert(comutils::arraysize(distortion_coefficients) == comutils::arraysize(coefficient_trackbars) && comutils::arraysize(distortion_coefficients) == number_of_coefficients);
+      std::array<double, number_of_coefficients> coefficient_values;
+      for (size_t i = 0; i < number_of_coefficients; i++)
+      {
+        const auto value = coefficient_trackbars[i]->GetValue();
+        coefficient_values[i] = distortion_coefficients[i].GetCoefficientValue(value);
+      }
+      return coefficient_values;
+    }
+
+    cv::Mat GetStandardCameraMatrix()
+    {
+      const auto image_size = image.size();
+      cv::Mat_<float> camera_matrix = cv::Mat::eye(3, 3, CV_32F); //Focal lengths are 1
+      camera_matrix(0, 2) = image_size.width / 2.f; //Principal point is at the center of the image
+      camera_matrix(1, 2) = image_size.height / 2.f;
+      return camera_matrix;
+    }
+
+    static void UpdateImage(distortion_data &data)
+    {
+      const cv::Mat &image = data.image;
+      const auto distortion_vector = data.GetCoefficientValues();
+      const auto standard_camera_matrix = data.GetStandardCameraMatrix();
+      cv::Mat distorted_image;
+      cv::undistort(image, distorted_image, standard_camera_matrix, distortion_vector);
+      const cv::Mat combined_image = imgutils::CombineImages({image, distorted_image}, imgutils::CombinationMode::Horizontal);
+      data.window.UpdateContent(combined_image);
+    }
+    
+    static void ResetCoefficients(distortion_data &data)
+    {
+      for (const auto &trackbar : data.coefficient_trackbars)
+        trackbar->SetValue(0);
+      UpdateImage(data);
+    }
   
-  distortion_data(const cv::Mat &image, const std::string &window_name)
-   : image(image),
-     window_name(window_name) { }
+    void AddControls()
+    {
+      std::transform(std::begin(distortion_coefficients), std::end(distortion_coefficients), std::begin(coefficient_trackbars),
+                     [this](const distortion_coefficient &coefficient)
+                           {
+                                 constexpr auto max_negative_value = 100;
+                                 constexpr auto max_positive_value = 100;
+                                 const auto trackbar_name = GetTrackbarName(coefficient);
+                                 const auto default_value = &coefficient == &first_distortion_coefficient ? 50 : 0; //Distortion of 50
+                                 return std::make_unique<TrackBarType>(trackbar_name, window, max_positive_value, -max_negative_value, default_value, UpdateImage, *this);
+                           });
+      reset_button = std::make_unique<ButtonType>(reset_button_name, window, ResetCoefficients, *this);
+    }
+  
+    static constexpr auto window_name = "Undistorted vs. distorted";
+    static constexpr auto reset_button_name = "Reset";
+  public:    
+    distortion_data(const cv::Mat &image)
+     : window(window_name),
+       image(image)
+    { 
+      AddControls();
+      UpdateImage(*this);
+    }
+    
+    void ShowImage()
+    {
+      window.ShowInteractive();
+    }
 };
 
-static cv::Mat GetStandardCameraMatrix(cv::Size2i image_size)
+static void ShowImage(const cv::Mat &image)
 {
-  cv::Mat_<float> camera_matrix = cv::Mat::eye(3, 3, CV_32F); //Focal lengths are 1
-  camera_matrix(0, 2) = image_size.width / 2.f; //Principal point is at the center of the image
-  camera_matrix(1, 2) = image_size.height / 2.f;
-  return camera_matrix;
-}
-
-template<size_t... Is>
-static constexpr std::array<double, sizeof...(Is)> GetCoefficientArray(const std::array<distortion_coefficient, sizeof...(Is)> &coeffs, const std::array<int, sizeof...(Is)> &values, const std::index_sequence<Is...>&)
-{
-  return {{ coeffs[Is].GetCoefficientValue(values[Is])... }}; //Continued in this pattern for every available index/coefficient
-}
-
-static std::array<double, number_of_coefficients> GetCoefficients(const std::array<distortion_coefficient, number_of_coefficients> &coeffs, const std::array<int, number_of_coefficients> values)
-{
-  return GetCoefficientArray(coeffs, values, std::make_index_sequence<number_of_coefficients>{}); //Create coefficients by iterating through all (coefficient) array indices
-}
-
-static std::string GetTrackbarTitle(const distortion_coefficient &coeff)
-{
-  return coeff.name + "*10^(" + std::to_string(coeff.scaling_factor) + ")";
-}
-
-static std::array<int, number_of_coefficients> GetCoefficientValues(const std::array<distortion_coefficient, number_of_coefficients> &distortion_coefficients, const std::string &window_name)
-{
-  std::array<int, number_of_coefficients> coefficient_values;
-  int i = 0;
-  for (auto &coeff : distortion_coefficients)
-    coefficient_values[i++] = cv::getTrackbarPos(GetTrackbarTitle(coeff), window_name);
-  return coefficient_values;
-}
-
-static void ShowDistortedImages(const int, void * const user_data)
-{
-  auto &data = *(static_cast<distortion_data*>(user_data));
-  const cv::Mat &image = data.image;
-  const auto coefficient_values = GetCoefficientValues(data.distortion_coefficients, data.window_name);
-  const auto distortion_vector = GetCoefficients(data.distortion_coefficients, coefficient_values);
-  const auto standard_camera_matrix = GetStandardCameraMatrix(image.size());
-  cv::Mat distorted_image;
-  cv::undistort(image, distorted_image, standard_camera_matrix, distortion_vector);
-  const cv::Mat combined_image = imgutils::CombineImages({image, distorted_image}, imgutils::CombinationMode::Horizontal);
-  cv::imshow(data.window_name, combined_image);
-}
-
-static std::string AddControls(distortion_data &data)
-{
-  constexpr auto max_negative_value = 100;
-  constexpr auto max_positive_value = 100;
-  
-  for (auto &coeff : data.distortion_coefficients)
-  {
-    const auto title = GetTrackbarTitle(coeff);
-    cv::createTrackbar(title, data.window_name, nullptr, max_negative_value + max_positive_value, ShowDistortedImages, static_cast<void*>(&data));
-    cv::setTrackbarMin(title, data.window_name, -max_negative_value);
-    cv::setTrackbarMax(title, data.window_name, max_positive_value);
-  }
-  constexpr auto button_name = "Reset";
-  cv::createButton(button_name, [](const int, void * const user_data)
-                                  {
-                                    auto &data = *(static_cast<distortion_data*>(user_data));
-                                    for (auto &coeff : data.distortion_coefficients)
-                                    {
-                                      const auto title = GetTrackbarTitle(coeff);
-                                      cv::setTrackbarPos(title, data.window_name, 0);
-                                    }
-                                  }, static_cast<void*>(&data), cv::QT_PUSH_BUTTON);
-  return GetTrackbarTitle(data.distortion_coefficients[0]);
-}
-
-static void ShowImages(const cv::Mat &image)
-{
-  constexpr auto window_name = "Undistorted vs. distorted";
-  cv::namedWindow(window_name);
-  cv::moveWindow(window_name, 0, 0);
-  static distortion_data data(image, window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
-  const auto main_parameter_trackbar_name = AddControls(data);
-  cv::setTrackbarPos(main_parameter_trackbar_name, window_name, 50); //Implies cv::imshow with 50% of the first coefficient set
+  distortion_data data(image);
+  data.ShowImage();
 }
 
 int main(const int argc, const char * const argv[])
@@ -139,7 +145,6 @@ int main(const int argc, const char * const argv[])
     std::cerr << "Could not read input image '" << filename << "'" << std::endl;
     return 2;
   }
-  ShowImages(image);
-  cv::waitKey(0);
+  ShowImage(image);
   return 0;
 }

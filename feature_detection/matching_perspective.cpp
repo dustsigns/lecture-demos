@@ -6,12 +6,22 @@
 #include <vector>
 
 #include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
 #include <opencv2/calib3d.hpp>
 #include <opencv2/imgproc.hpp>
 
 #include "colors.hpp"
 #include "combine.hpp"
+#include "window.hpp"
+
+static int OpenVideo(const char * const filename, cv::VideoCapture &capture)
+{
+  using namespace std::string_literals;
+  const bool use_webcam = "-"s == filename; //Interpret - as the default webcam
+  const bool opened = use_webcam ? capture.open(0) : capture.open(filename);
+  if (use_webcam) //Minimize buffering for webcams to return up-to-date images
+    capture.set(cv::CAP_PROP_BUFFERSIZE, 1);
+  return opened;
+}
 
 static void DetectFeatures(const cv::Mat &image, std::vector<cv::KeyPoint> &keypoints)
 {
@@ -107,27 +117,28 @@ static void TransformAndDrawImageRectangle(const cv::Mat &first_image, cv::Mat &
   DrawImageRectangle(second_image, transformed_corners);
 }
 
-static void ShowImages(const cv::Mat &first_image, cv::Mat &second_image)
+static void ShowImage(const cv::Mat &first_image, cv::Mat &second_image, imgutils::Window &window)
 {
-  constexpr auto window_name = "Original and found (perspective-transformed) image";
-  cv::namedWindow(window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
-  cv::moveWindow(window_name, 0, 0);
   cv::Mat homography;
   const bool found = FindHomography(first_image, second_image, homography);
   if (found)
     TransformAndDrawImageRectangle(first_image, second_image, homography);
   const cv::Mat combined_image = imgutils::CombineImages({first_image, second_image}, imgutils::CombinationMode::Horizontal);
-  cv::imshow(window_name, combined_image);
+  window.UpdateContent(combined_image);
 }
 
-static int OpenVideo(const char * const filename, cv::VideoCapture &capture)
+static void ShowImages(cv::VideoCapture &capture, const cv::Mat &first_image, const int wait_time)
 {
-  using namespace std::string_literals;
-  const bool use_webcam = "-"s == filename; //Interpret - as the default webcam
-  const bool opened = use_webcam ? capture.open(0) : capture.open(filename);
-  if (use_webcam) //Minimize buffering for webcams to return up-to-date images
-    capture.set(cv::CAP_PROP_BUFFERSIZE, 1);
-  return opened;
+  constexpr auto window_name = "Original and found (perspective-transformed) image";
+  imgutils::Window window(window_name);
+
+  cv::Mat second_image;
+  while (capture.read(second_image) && !second_image.empty())
+  {
+    ShowImage(first_image, second_image, window);
+    if (window.ShowInteractive(nullptr, wait_time, false) == 'q') //Do not hide window after each image; interpret Q key press as exit
+      break;
+  }
 }
 
 int main(const int argc, const char * const argv[])
@@ -158,12 +169,6 @@ int main(const int argc, const char * const argv[])
     std::cerr << "Could not open second image '" << second_image_filename << "'" << std::endl;
     return 3;
   }
-  cv::Mat second_image;
-  while (capture.read(second_image) && !second_image.empty())
-  {
-    ShowImages(first_image, second_image);
-    if (cv::waitKey(wait_time) == 'q') //Interpret Q key press as exit
-      break;
-  }
+  ShowImages(capture, first_image, wait_time);
   return 0;
 }

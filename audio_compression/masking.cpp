@@ -5,6 +5,8 @@
 #include <iostream>
 #include <limits>
 #include <array>
+#include <algorithm>
+#include <set>
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
@@ -17,108 +19,173 @@
 #include "plot.hpp"
 #include "colors.hpp"
 #include "combine.hpp"
+#include "window.hpp"
 
-static constexpr unsigned int frequencies[] {400, 440};
-static_assert(comutils::arraysize(frequencies) == 2, "This application can only illustrate masking for two frequencies in total");
-static_assert(frequencies[1] > frequencies[0], "The second frequency has to be larger than the first");
-
-using audio_type = short; //May be signed char (for 8 bits), short (16) or int (32)
-
-struct audio_data
+template<size_t N>
+class audio_data
 {
-  comutils::SineWaveGenerator<audio_type> generators[2];
-  comutils::WaveFormMixer<audio_type, 2> mixer;
-  sndutils::AudioPlayer<audio_type> player;
+  static_assert(N >= 2, "The number of frequencies must be at least 2");
+  protected:
+    const std::array<unsigned int, N> frequencies;
+    const double max_frequency;
+    const std::array<unsigned int, N> default_levels;
   
-  const std::string window_name;
+    using audio_type = short; //May be signed char (for 8 bits), short (16) or int (32)  
+    using GeneratorType = comutils::SineWaveGenerator<audio_type>;
+    std::array<std::unique_ptr<GeneratorType>, N> generators; //Generators for each frequency
+    using MixerType = comutils::WaveFormMixer<audio_type, N>;
+    std::unique_ptr<MixerType> mixer;
+    sndutils::AudioPlayer<audio_type> player;
   
-  audio_data(const std::string &window_name)
-   : generators{comutils::SineWaveGenerator<audio_type>(frequencies[0]), comutils::SineWaveGenerator<audio_type>(frequencies[1])},
-     mixer({&generators[0], &generators[1]}),
-     window_name(window_name) { }
+    imgutils::Window window;
+    
+    using TrackBarType = imgutils::TrackBar<audio_data&>;
+    std::array<std::unique_ptr<TrackBarType>, N> level_trackbars;
+    using CheckBoxType = imgutils::CheckBox<audio_data&>;
+    CheckBoxType mute_checkbox;
+     
+    std::array<int, N> ResetMixer()
+    {
+      if (player.IsPlaying())
+        player.Stop();
+      std::array<int, N> levels_percent;
+      std::transform(std::begin(level_trackbars), std::end(level_trackbars), levels_percent.begin(),
+                     [](const std::unique_ptr<TrackBarType> &trackbar)
+                       {
+                         const auto level = trackbar->GetValue();
+                         return level;
+                       });
+      for (size_t i = 0; i < N; i++)
+      {
+        const auto amplitude = comutils::GetValueFromLevel(-levels_percent[i], 1); //Interpret trackbar position as (negative) level in dB (due to attenuation). The reference value is 1 since the amplitude is specified relatively, i.e., between 0 and 1.
+        generators[i]->SetAmplitude(amplitude);
+      }
+      player.Play(*mixer);
+      return levels_percent;
+    }
+    
+    cv::Mat PlotWaves()
+    {
+      constexpr size_t sampling_frequency = 48000;
+      const size_t displayed_samples = 5 * (sampling_frequency / max_frequency) + 1; //About five periods of the higher-frequency wave form plus one sample
+      std::array<std::vector<audio_type>, N + 1> samples;
+      for (auto &sample_vector : samples)
+        sample_vector.resize(displayed_samples);
+      for (size_t i = 0; i < N; i++)
+        generators[i]->GetRepresentativeSamples(samples[i].size(), samples[i].data());
+      mixer->GetRepresentativeSamples(samples[N].size(), samples[N].data());
+      
+      std::vector<imgutils::PointSet> pointsets;
+      for (size_t i = 0; i < N + 1; i++)
+      {
+        const auto color = i == 0 ? imgutils::Red : (i == N ? imgutils::Purple : imgutils::Blue);
+        pointsets.emplace_back(samples[i], 1, color);
+      }
+      imgutils::Plot plot(pointsets);
+      plot.SetAxesLabels("t [ms]", "I(t)");
+      imgutils::Tick::GenerateTicks(plot.x_axis_ticks, 0, displayed_samples, 0.001 * sampling_frequency, 1, 0, 1000.0 / sampling_frequency); //Mark and label every ms with no decimal places and a relative scale (1000 for ms)
+      plot.x_axis_ticks.pop_back(); //Remove last tick and label so that the axis label is not overwritten
+      imgutils::Tick::GenerateTicks(plot.y_axis_ticks, std::numeric_limits<audio_type>::lowest() + 1, std::numeric_limits<audio_type>::max(), std::numeric_limits<audio_type>::max() / 2.0, 1, 1, 1.0 / std::numeric_limits<audio_type>::max()); //Mark and label every 0.5 units (0-1) with 1 decimal place and a relative scale (where the maximum is 1)
+      cv::Mat_<cv::Vec3b> image;
+      plot.DrawTo(image);
+      return image;
+    }
+     
+    cv::Mat PlotSpectrum(const std::array<int, N> &levels_percent)
+    {
+      const auto max_displayed_frequency = 1.5 * max_frequency;
+      std::vector<imgutils::PointSet> pointsets;
+      for (size_t i = 0; i < N; i++)
+      {
+        const auto color = i == 0 ? imgutils::Red : imgutils::Blue;
+        imgutils::PointSet pointset({cv::Point2d(frequencies[i], -levels_percent[i])}, color, false, true); //No lines, but samples
+        pointsets.push_back(std::move(pointset));
+      }
+      imgutils::Plot plot(pointsets);
+      plot.SetAxesLabels("f [Hz]", "A(f) [dB]");
+      imgutils::Tick::GenerateTicks(plot.x_axis_ticks, 0, max_displayed_frequency, 100, 2); //Mark every 100 Hz, label every 200 Hz (0 - max. frequency)
+      imgutils::Tick::GenerateTicks(plot.y_axis_ticks, 0, -static_cast<int>(max_level), -10, 2); //Mark every 10 dB, label every 20 dB (0 - -100)
+      cv::Mat_<cv::Vec3b> image;
+      plot.DrawTo(image);
+      return image;
+    }
+     
+    static void UpdateImage(audio_data &data)
+    {
+      const auto levels_percent = data.ResetMixer();
+      const cv::Mat wave_image = data.PlotWaves();
+      const cv::Mat spectrum_image = data.PlotSpectrum(levels_percent);
+      const cv::Mat combined_image = imgutils::CombineImages({wave_image, spectrum_image}, imgutils::CombinationMode::Horizontal);
+      data.window.UpdateContent(combined_image);
+    }
+
+    static void Mute(audio_data &data)
+    {
+      data.player.Pause();
+    }
+    
+    static void Unmute(audio_data &data)
+    {
+      data.player.Resume();
+    }
+
+    static constexpr auto trackbar_unit_name = " Hz level [-dB]";
+    
+    void InitializeGenerators()
+    {
+      std::transform(std::begin(frequencies), std::end(frequencies), generators.begin(),
+                     [](const double frequency)
+                       {
+                         return std::make_unique<GeneratorType>(frequency);
+                       });
+      std::array<comutils::WaveFormGenerator<audio_type>*, N> generator_pointers;
+      for (size_t i = 0; i < N; i++)
+        generator_pointers[i] = generators[i].get();
+      mixer = std::make_unique<MixerType>(generator_pointers);
+    }
+    
+    void AddControls()
+    {
+      for (size_t i = 0; i < N; i++)
+      {
+        const auto trackbar_name = std::to_string(frequencies[i]) + trackbar_unit_name;
+        level_trackbars[i] = std::make_unique<TrackBarType>(trackbar_name, window, max_level, 0, default_levels[i], UpdateImage, *this);
+      }
+    }
+    
+    static constexpr auto window_name = "Attenuation";
+    static constexpr auto mute_checkbox_name = "Mute";
+  public:
+    static constexpr unsigned int max_level = 100;
+    
+    audio_data(const std::array<unsigned int, N> &frequencies, const std::array<unsigned int, N> &default_levels)
+     : frequencies(frequencies),
+       max_frequency(*std::max_element(std::begin(frequencies), std::end(frequencies))),
+       default_levels(default_levels),
+       window(window_name),
+       mute_checkbox(mute_checkbox_name, window, false, Mute, Unmute, *this) //Unmuted by default
+    {
+      assert(std::set(frequencies.begin(), frequencies.end()).size() == frequencies.size()); //Check if any frequency occurs twice
+      const auto max_default_level = *std::max_element(std::begin(default_levels), std::end(default_levels));
+      assert(max_default_level <= max_level);
+      InitializeGenerators();
+      AddControls();
+      ResetMixer();
+      UpdateImage(*this); //Update with default values
+    }
+    
+    void ShowImage()
+    {
+      window.ShowInteractive();
+    }
 };
 
-static cv::Mat PlotWaves(const audio_data &data)
+static void ShowImage()
 {
-  constexpr size_t sampling_frequency = 48000;
-  constexpr size_t displayed_samples = 5 * (sampling_frequency / frequencies[0]) + 1; //About five periods of the higher-frequency wave form plus one sample
-  std::array<std::vector<audio_type>, 3> samples { std::vector<audio_type>(displayed_samples), std::vector<audio_type>(displayed_samples), std::vector<audio_type>(displayed_samples) };
-  for (const auto &i : {0, 1})
-    data.generators[i].GetRepresentativeSamples(samples[i].size(), samples[i].data());
-  data.mixer.GetRepresentativeSamples(samples[2].size(), samples[2].data());
-  
-  imgutils::Plot plot({imgutils::PointSet(samples[0], 1, imgutils::Red),
-                       imgutils::PointSet(samples[1], 1, imgutils::Blue),
-                       imgutils::PointSet(samples[2], 1, imgutils::Purple)});
-  plot.SetAxesLabels("t [ms]", "I(t)");
-  imgutils::Tick::GenerateTicks(plot.x_axis_ticks, 0, displayed_samples, 0.001 * sampling_frequency, 1, 0, 1000.0 / sampling_frequency); //Mark and label every ms with no decimal places and a relative scale (1000 for ms)
-  plot.x_axis_ticks.pop_back(); //Remove last tick and label so that the axis label is not overwritten
-  imgutils::Tick::GenerateTicks(plot.y_axis_ticks, std::numeric_limits<audio_type>::lowest() + 1, std::numeric_limits<audio_type>::max(), std::numeric_limits<audio_type>::max() / 2.0, 1, 1, 1.0 / std::numeric_limits<audio_type>::max()); //Mark and label every 0.5 units (0-1) with 1 decimal place and a relative scale (where the maximum is 1)
-  cv::Mat_<cv::Vec3b> image;
-  plot.DrawTo(image);
-  return image;
-}
-
-static cv::Mat PlotSpectrum(int (&levels_percent)[2])
-{
-  constexpr auto max_frequency = frequencies[1] * 1.5;
-  imgutils::Plot plot({imgutils::PointSet({cv::Point2d(frequencies[0], -levels_percent[0])}, imgutils::Red, false, true), //No lines, but samples
-                       imgutils::PointSet({cv::Point2d(frequencies[1], -levels_percent[1])}, imgutils::Blue, false, true)});
-  plot.SetAxesLabels("f [Hz]", "A(f) [dB]");
-  imgutils::Tick::GenerateTicks(plot.x_axis_ticks, 0, max_frequency, 100, 2); //Mark every 100 Hz, label every 200 Hz (0 - max. frequency)
-  imgutils::Tick::GenerateTicks(plot.y_axis_ticks, 0, -100, -10, 2); //Mark every 10 dB, label every 20 dB (0 - -100)
-  cv::Mat_<cv::Vec3b> image;
-  plot.DrawTo(image);
-  return image;
-}
-
-static std::string GetTrackbarName(const int i)
-{
-  constexpr auto unit_name = " Hz level [-dB]";
-  const auto trackbar_name = std::to_string(frequencies[i]) + unit_name;
-  return trackbar_name;
-}
-
-static void TrackbarEvent(const int, void* user_data)
-{
-  auto &data = *(static_cast<audio_data*>(user_data));
-  if (data.player.IsPlaying())
-    data.player.Stop();
-  int levels_percent[2];
-  for (const auto &i : {0, 1})
-  {
-    levels_percent[i] = cv::getTrackbarPos(GetTrackbarName(i), data.window_name);
-    const auto amplitude = comutils::GetValueFromLevel(-levels_percent[i], 1); //Interpret trackbar position as (negative) level in dB (due to attenuation). The reference value is 1 since the amplitude is specified relatively, i.e., between 0 and 1.
-    data.generators[i].SetAmplitude(amplitude);
-  }
-  data.player.Play(data.mixer);
-  const cv::Mat wave_image = PlotWaves(data);
-  const cv::Mat spectrum_image = PlotSpectrum(levels_percent);
-  const cv::Mat combined_image = imgutils::CombineImages({wave_image, spectrum_image}, imgutils::CombinationMode::Horizontal);
-  cv::imshow(data.window_name, combined_image);
-}
-
-static void ShowControls()
-{
-  constexpr auto window_name = "Attenuation";
-  cv::namedWindow(window_name);
-  cv::moveWindow(window_name, 0, 0);
-  static audio_data data(window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
-  for (const auto &i : {0, 1})
-  {
-    const auto trackbar_name = GetTrackbarName(i);
-    cv::createTrackbar(trackbar_name, data.window_name, nullptr, 100, TrackbarEvent, static_cast<void*>(&data));
-  }
-  cv::createButton("Mute", [](const int, void * const user_data)
-                             {
-                               auto &data = *(static_cast<audio_data*>(user_data));
-                               if (data.player.IsPlayingBack())
-                                 data.player.Pause();
-                               else
-                                 data.player.Resume();
-                             }, static_cast<void*>(&data), cv::QT_CHECKBOX);
-  cv::setTrackbarPos(GetTrackbarName(0), window_name, 0);
-  cv::setTrackbarPos(GetTrackbarName(1), window_name, 20); //Implies cv::imshow with second level at -20 dB
+  constexpr std::array frequencies { 400U, 440U };
+  constexpr std::array default_levels { 0U, 20U };
+  audio_data data(frequencies, default_levels);
+  data.ShowImage();
 }
 
 int main(const int argc, const char * const argv[])
@@ -129,7 +196,6 @@ int main(const int argc, const char * const argv[])
     std::cout << "Usage: " << argv[0] << std::endl;
     return 1;
   }
-  ShowControls();
-  cv::waitKey(0);
+  ShowImage();
   return 0;
 }

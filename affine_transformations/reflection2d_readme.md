@@ -17,7 +17,7 @@ Reflecting a point (illustrated by an arrow in the *2-D reflection across a line
 Usage
 -----
 
-Change the angle between the reflection line and the X axis (see parameters below) to see the position of the reflected letter A (white) change compared to the original letter's (semi-transparent grey). Observe that the distance between any point of the original letter and the reflection line is the same as the distance between the reflection line and the corresponding reflected point, given that the distances are measured orthogonal to the reflection line.
+Change the angle between the reflection line and the X axis (see parameters below) to see the position of the reflected letter A (white) change compared to the original letter's (semi-transparent). Observe that the distance between any point of the original letter and the reflection line is the same as the distance between the reflection line and the corresponding reflected point, given that the distances are measured orthogonal to the reflection line.
 
 ![Screenshot after reflecting across the Y axis](../screenshots/reflection2d_90.png)
 
@@ -39,7 +39,8 @@ None
 Hard-coded parameters
 ---------------------
 
-* `letter_size`: Width and height of the displayed letter in relative coordinates.
+* `letter_size` (local to `reflection_data`): Width and height of the displayed letter in relative coordinates.
+* `text` (local to `reflection_data::AddObjects`): Letter(s) to be rendered.
 
 Known issues
 ------------

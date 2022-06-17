@@ -41,7 +41,7 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-* `block_size`: x and y dimension of the block to be predicted. *Note: The displayed area consists of four blocks, i.e., its x and y dimensions are double that of `block_size`, each.*
+* `block_size` (local to `prediction_data`): x and y dimension of the block to be predicted. *Note: The displayed area consists of four blocks, i.e., its x and y dimensions are double that of `block_size`, each.*
 
 Known issues
 ------------

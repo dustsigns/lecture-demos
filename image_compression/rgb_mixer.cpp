@@ -3,65 +3,78 @@
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
+#include <algorithm>
+#include <memory>
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 
 #include "common.hpp"
+#include "window.hpp"
 
-struct RGB_data
+class RGB_data
 {
-  const std::string window_name;
+  protected:
+    static constexpr char portion_names[] = { 'R', 'G', 'B' };
+    static constexpr const auto &first_portion_name = portion_names[0];
+
+    using TrackBarType = imgutils::TrackBar<RGB_data&>;
+    std::unique_ptr<TrackBarType> portion_trackbars[comutils::arraysize(portion_names)];
   
-  static constexpr char portion_names[] = { 'R', 'G', 'B' };
+    imgutils::Window window;
   
-  RGB_data(const std::string &window_name)
-   : window_name(window_name) { }
+    static cv::Mat GenerateColorImage(const cv::Vec3b &pixel_value)
+    {
+      constexpr auto image_dimension = 300;
+      const cv::Size image_size(image_dimension, image_dimension);
+      const cv::Mat image(image_size, CV_8UC3, pixel_value);
+      return image;
+    }
+
+    static void UpdateImage(RGB_data &data)
+    {
+      unsigned char RGB_portions[comutils::arraysize(data.portion_names)]; //RGB portions from trackbar values
+      std::transform(std::rbegin(data.portion_trackbars), std::rend(data.portion_trackbars), std::begin(RGB_portions), //BGR order (reverse iteration)
+                     [](const std::unique_ptr<TrackBarType> &portion_trackbar)
+                       {
+                         return static_cast<unsigned char>(portion_trackbar->GetValue());
+                       });
+      const cv::Vec3b pixel_value(RGB_portions);
+      const cv::Mat image = GenerateColorImage(pixel_value);
+      data.window.UpdateContent(image);
+    }
+    
+    void AddTrackBars()
+    {
+      std::transform(std::begin(portion_names), std::end(portion_names), std::begin(portion_trackbars),
+                     [this](const char &portion_name)
+                           {
+                             using namespace std::string_literals;
+                             const auto trackbar_name = portion_name + " portion"s;
+                             const auto default_value = &portion_name == &first_portion_name ? 255 : 0; //Default red (R=255, G=0, B=0)
+                             return std::make_unique<TrackBarType>(trackbar_name, window, 255, 0, default_value, UpdateImage, *this);
+                           });
+    }
+
+
+    static constexpr auto window_name = "RGB color mixer";
+  public:
+    RGB_data() : window(window_name)
+    {
+      AddTrackBars();
+      UpdateImage(*this); //Update with default values
+    }
+    
+    void ShowImage()
+    {
+      window.ShowInteractive();
+    }
 };
-
-static cv::Mat GenerateColorImage(const cv::Vec3b &pixel_value)
-{
-  constexpr auto image_dimension = 300;
-  const cv::Size image_size(image_dimension, image_dimension);
-  const cv::Mat image(image_size, CV_8UC3, pixel_value);
-  return image;
-}
-
-static std::string GetTrackbarName(const char component)
-{
-  using namespace std::string_literals;
-  const auto trackbar_name = component + " portion"s;
-  return trackbar_name;
-}
-
-static void UpdateImage(const int, void * const user_data)
-{
-  auto &data = *(static_cast<const RGB_data*>(user_data));
-  unsigned char RGB_portions[comutils::arraysize(data.portion_names)];
-  for (size_t i = 0; i < comutils::arraysize(data.portion_names); i++)
-  {
-    const auto trackbar_name = GetTrackbarName(data.portion_names[i]);
-    const auto value = static_cast<unsigned char>(cv::getTrackbarPos(trackbar_name, data.window_name));
-    RGB_portions[comutils::arraysize(RGB_portions) - (i + 1)] = value; //BGR order
-  }
-  const cv::Vec3b pixel_value(RGB_portions);
-  const cv::Mat image = GenerateColorImage(pixel_value);
-  cv::imshow(data.window_name, image);
-}
 
 static void ShowImage()
 {
-  constexpr auto window_name = "RGB color mixer";
-  cv::namedWindow(window_name, cv::WINDOW_GUI_NORMAL);
-  cv::moveWindow(window_name, 0, 0);
-  static RGB_data data(window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
-  for (const auto &portion_name : data.portion_names)
-  {
-    const auto trackbar_name = GetTrackbarName(portion_name);
-    cv::createTrackbar(trackbar_name, data.window_name, nullptr, 255, UpdateImage, static_cast<void*>(&data));
-  }
-  const auto r_trackbar_name = GetTrackbarName(data.portion_names[0]); //TODO: Make constexpr (together with GetTrackbarName, requires C++20)
-  cv::setTrackbarPos(r_trackbar_name, window_name, 255); //Implies cv::imshow with red (R=255, G=0, B=0)
+  RGB_data data;
+  data.ShowImage();
 }
 
 int main(const int argc, const char * const argv[])
@@ -73,6 +86,5 @@ int main(const int argc, const char * const argv[])
     return 1;
   }
   ShowImage();
-  cv::waitKey(0);
   return 0;
 }

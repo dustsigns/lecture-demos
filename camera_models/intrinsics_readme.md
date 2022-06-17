@@ -12,14 +12,14 @@ Overview
 
 ![Screenshot](../screenshots/intrinsics.png)
 
-The intrinsic parameters of a pinhole camera impact the image that it captures (window *Camera view*). The two main parameters are the focal length and the principal point. Both are two-dimensional and can be [expressed in pixels](https://docs.opencv.org/3.4.0/d9/d0c/group__calib3d.html).
+The intrinsic parameters of a pinhole camera impact the image that it captures (window *Camera view*). The two main parameters are the focal length and the principal point. Both are two-dimensional and can be [expressed in pixels](https://docs.opencv.org/4.6.0/d9/d0c/group__calib3d.html).
 
 Usage
 -----
 
 Change the coordinates of the image center (see parameters below) to see the position of the cone on the projection change. Observe that changing the focal length changes the size of the projected cone. When the X and Y focal lengths differ from one another, non-square sensor pixels are simulated and the projected cone's aspect ratio changes.
 
-![Screenshot after changing the (y) focal length and the x image center](../screenshots/intrinsics_fy200_cx150.png)
+![Screenshot after changing the (y) focal length and the x image center](../screenshots/intrinsics_fx600_cx250.png)
 
 Available actions
 -----------------
@@ -42,8 +42,8 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-* `cone_length`: Height of the displayed cone in relative coordinates.
-* `cone_radius` (local to `AddObjects`): Radius of the displayed cone in relative coordinates.
+* `cone_length` (local to `intrisics_data::AddObjects`): Height of the displayed cone in relative coordinates.
+* `cone_radius` (local to `intrisics_data::AddObjects`): Radius of the displayed cone in relative coordinates.
 
 Known issues
 ------------

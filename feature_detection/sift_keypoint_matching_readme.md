@@ -19,7 +19,7 @@ Usage
 
 Change the match index (see parameters below) to visualize the corresponding points (connected by the colored line at the bottom of the *First and second image* window) one by one. Observe that not all matches are actually correct, even though they are considered to be close.
 
-![Screenshot after selecting the point #92](../screenshots/sift_keypoint_matching_point92.png)
+![Screenshot after selecting the 92th point](../screenshots/sift_keypoint_matching_point92.png)
 
 Available actions
 -----------------
@@ -40,7 +40,7 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-* `line_width` (local to `DrawMatches`): Width of the line connecting the supposedly-matching keypoints.
+* `line_width` (local to `match_data::DrawMatches`): Width of the line connecting the supposedly-matching keypoints.
 
 Known issues
 ------------

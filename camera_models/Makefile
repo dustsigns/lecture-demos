@@ -1,4 +1,4 @@
-PARTS = 3d images
+PARTS = 3d
 
 ORDER := intrinsics extrinsics distortion
 

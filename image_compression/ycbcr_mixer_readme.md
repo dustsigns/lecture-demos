@@ -41,7 +41,7 @@ None
 Hard-coded parameters
 ---------------------
 
-* `image_dimension` (local to `GenerateColorImage`): Width and height of the displayed color (image) in pixels.
+* `image_dimension` (local to `YCbCr_data::GenerateColorImage`): Width and height of the displayed color (image) in pixels.
 
 Known issues
 ------------

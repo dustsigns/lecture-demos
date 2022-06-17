@@ -39,7 +39,9 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-* `max_sigma` (local to `AddControls`): Maximum value of sigma allowed to be configured for the standard deviation.
+* `min_sigma` (local to `Gaussian_data`): Minimum value of sigma allowed to be configured for the standard deviation.
+* `max_sigma` (local to `Gaussian_data`): Maximum value of sigma allowed to be configured for the standard deviation.
+* `default_sigma` (local to `Gaussian_data`): Initial value of standard deviation when the program is started.
 
 Known issues
 ------------

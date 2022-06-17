@@ -12,7 +12,7 @@ Overview
 
 ![Screenshot](../screenshots/difference_of_gaussians.png)
 
-In order to robustly find edges in images at multiple scales, the Difference of Gaussians (DoG) can be used. It is computed by subtracting a Gaussian-filtered image with a standard deviation of sigma (left in the *Blurred(sigma) vs. blurred(k\*sigma)* window) from the image filtered with a multiple (k) of sigma (right). The result of the subtraction, i.e., the difference image (window *Blurred(k\*sigma) - blurred(sigma)*), allows localizing edges for suitable choices of k.
+In order to robustly find edges in images at multiple scales, the Difference of Gaussians (DoG) can be used. It is computed by subtracting a Gaussian-filtered image with a standard deviation of sigma (left in the *Blurred(sigma), blurred(k\*sigma)* window) from the image filtered with a multiple (k) of sigma (right). The result of the subtraction, i.e., the difference image (window *Blurred(k\*sigma) - blurred(sigma)*), allows localizing edges for suitable choices of k.
 
 *Note on residual visualizations: Yellow pixels indicate positive differences, teal pixels indicate negative differences. The brighter the color is, the larger the differences are in absolute terms. Black equals zero, i.e., no difference.*
 
@@ -31,8 +31,8 @@ None. *Note: See below for parameters to change.*
 Interactive parameters
 ----------------------
 
-* **Sigma** (track bar in the *Blurred(sigma) vs. blurred(k\*sigma)* window): Allows changing the standard deviation (in the X and Y direction) of the first Gaussian filter in percent.
-* **k** (track bar in the *Blurred(sigma) vs. blurred(k\*sigma)* window): Allows changing the value of k in percent, which is multiplied with sigma (both, in the X and Y direction) to determine the standard deviation of the second Gaussian filter.
+* **Sigma** (track bar in the *Blurred(sigma), blurred(k\*sigma)* window): Allows changing the standard deviation (in the X and Y direction) of the first Gaussian filter in percent.
+* **k** (track bar in the *Blurred(sigma), blurred(k\*sigma)* window): Allows changing the value of k in percent, which is multiplied with sigma (both, in the X and Y direction) to determine the standard deviation of the second Gaussian filter.
 
 Program parameters
 ------------------
@@ -42,8 +42,12 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-* `max_sigma` (local to `ShowImages`): Maximum value of sigma allowed to be configured for the standard deviation.
-* `max_k` (local to `ShowImages`): Maximum value of k allowed to be configured for the multiplier.
+* `min_sigma` (local to `DoG_data`): Minimum value of sigma allowed to be configured for the standard deviation.
+* `max_sigma` (local to `DoG_data`): Maximum value of sigma allowed to be configured for the standard deviation.
+* `default_sigma` (local to `DoG_data`): Initial value of the standard deviation when the program is started.
+* `min_k` (local to `DoG_data`): Maximum value of k allowed to be configured for the multiplier.
+* `max_k` (local to `DoG_data`): Maximum value of k allowed to be configured for the multiplier.
+* `default_k` (local to `DoG_data`): Initial value of the multiplier when the program is started.
 
 Known issues
 ------------

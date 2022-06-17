@@ -1,4 +1,4 @@
-PARTS = images 3d
+PARTS = 3d
 
 ORDER := epipolar_lines anaglyph
 

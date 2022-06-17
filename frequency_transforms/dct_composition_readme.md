@@ -5,7 +5,7 @@
 
 **Author**: Andreas Unterweger
 
-**Status**: Near-complete (non-crucial internal bugs unfixed)
+**Status**: Complete
 
 Overview
 --------
@@ -39,13 +39,12 @@ None
 Hard-coded parameters
 ---------------------
 
-* `coefficients`: The DCT coefficients of the signal to be reassembled. *Note: The number of DCT coefficients must be 2 or larger.*
+* `coefficients` (local to `ShowImage`): The DCT coefficients of the signal to be reassembled. *Note: The number of DCT coefficients must be 2 or larger.*
 
 Known issues
 ------------
 
-* **Potentially invalid intermediate value ranges**: For other coefficients than the ones set by default, drawing erros may occur when any approximation exceeds the [-1; 1] value range used for drawing. The range must be adopted manually based on the minimum and maximum values present in any intermediate step, i.e., for any valid number of components that can be selected.
-* **Dependency on audio processing code**: Wave generation and mixing are primarily designed for audio playback. The respective classes are located in code portions which reference audio processing functionality and thus require audio libraries despite no playback being required for illustrating the DCT.
+None
 
 Missing features
 ----------------

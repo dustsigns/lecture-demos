@@ -17,7 +17,7 @@ Scaling a point by multiplying its coordinates by a factor is one of the simples
 Usage
 -----
 
-Change the zoom value (see parameters below) to see the position and size of the scaled letter A (white) change compared to the original letter's (semi-transparent grey). Observe that the distance between each point of the letter and the origin of the coordinate system (where the red and blue lines meet) becomes a multiple of its original distance. The relative change is expressed by the zoom value. Using identical zoom values for both coordinates (X and Y) is referred to as isotropic scaling, which preserves the relative proportions of the letter. In contrast, using different zoom values for each coordinate is referred to as anisotropic scaling, which changes the aspect ratio, i.e., squeezes the letter.
+Change the zoom value (see parameters below) to see the position and size of the scaled letter A (white) change compared to the original letter's (semi-transparent). Observe that the distance between each point of the letter and the origin of the coordinate system (where the red and green lines meet) becomes a multiple of its original distance. The relative change is expressed by the zoom value. Using identical zoom values for both coordinates (X and Y) is referred to as isotropic scaling, which preserves the relative proportions of the letter. In contrast, using different zoom values for each coordinate is referred to as anisotropic scaling, which changes the aspect ratio, i.e., squeezes the letter.
 
 ![Screenshot after scaling the letter isotropically](../screenshots/scaling2d_200.png)
 
@@ -40,7 +40,8 @@ None
 Hard-coded parameters
 ---------------------
 
-* `letter_size`: Width and height of the displayed letter in relative coordinates.
+* `letter_size` (local to `scaling_data`): Width and height of the displayed letter in relative coordinates.
+* `text` (local to `scaling_data::AddObjects`): Letter(s) to be rendered.
 
 Known issues
 ------------

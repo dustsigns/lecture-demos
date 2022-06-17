@@ -46,7 +46,7 @@ None
 Known issues
 ------------
 
-* **Hard-coded window positioning**: The *Difference* window is positioned with hard-coded offsets as there is no reliable way to get the window sizes and positions with border and control areas included. This may lead to a slightly incorrect position of the *Difference* window.
+* **Window positioning**: The *Difference* window is positioned on the right, exceeding the maximum specified screen size for the default (test) image. It would better to position the *Difference* window under or above the compressed image.
 
 Missing features
 ----------------

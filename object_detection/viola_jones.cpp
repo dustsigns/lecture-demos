@@ -6,11 +6,11 @@
 #include <vector>
 
 #include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
 #include <opencv2/objdetect.hpp>
 #include <opencv2/imgproc.hpp>
 
 #include "colors.hpp"
+#include "window.hpp"
 
 static bool InitClassifier(cv::CascadeClassifier &classifier)
 {
@@ -19,7 +19,17 @@ static bool InitClassifier(cv::CascadeClassifier &classifier)
   return successful;
 }
 
-static void FindFaces(const cv::Mat &image, /*const*/ cv::CascadeClassifier &classifier, std::vector<cv::Rect> &faces)
+static int OpenVideo(const char * const filename, cv::VideoCapture &capture)
+{
+  using namespace std::string_literals;
+  const bool use_webcam = "-"s == filename; //Interpret - as the default webcam
+  const bool opened = use_webcam ? capture.open(0) : capture.open(filename);
+  if (use_webcam) //Minimize buffering for webcams to return up-to-date images
+    capture.set(cv::CAP_PROP_BUFFERSIZE, 1);
+  return opened;
+}
+
+static void FindFaces(const cv::Mat &image, cv::CascadeClassifier &classifier, std::vector<cv::Rect> &faces)
 {
   classifier.detectMultiScale(image, faces);
 }
@@ -40,27 +50,28 @@ static cv::Mat GetGrayscaleImage(const cv::Mat &image)
   return grayscale_image;
 }
 
-static void ShowImage(const cv::Mat &image, /*const*/ cv::CascadeClassifier &classifier)
+static void ShowFacesInImage(const cv::Mat &image, cv::CascadeClassifier &classifier, imgutils::Window &window)
 {
-  constexpr auto window_name = "Frame with objects to detect";
-  cv::namedWindow(window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
-  cv::moveWindow(window_name, 0, 0);
   const cv::Mat grayscale_image = GetGrayscaleImage(image);
   std::vector<cv::Rect> faces;
   FindFaces(grayscale_image, classifier, faces);
   cv::Mat image_with_faces = image.clone();
   HighlightFaces(image_with_faces, faces);
-  cv::imshow(window_name, image_with_faces);
+  window.UpdateContent(image_with_faces);
 }
 
-static int OpenVideo(const char * const filename, cv::VideoCapture &capture)
+static void ShowImages(cv::VideoCapture &capture, cv::CascadeClassifier &classifier, const int wait_time)
 {
-  using namespace std::string_literals;
-  const bool use_webcam = "-"s == filename; //Interpret - as the default webcam
-  const bool opened = use_webcam ? capture.open(0) : capture.open(filename);
-  if (use_webcam) //Minimize buffering for webcams to return up-to-date images
-    capture.set(cv::CAP_PROP_BUFFERSIZE, 1);
-  return opened;
+  constexpr auto window_name = "Frame with objects to detect";
+  imgutils::Window window(window_name);
+  
+  cv::Mat frame;
+  while (capture.read(frame) && !frame.empty())
+  {
+    ShowFacesInImage(frame, classifier, window);
+    if (window.ShowInteractive(nullptr, wait_time, false) == 'q') //Do not hide window after each image; interpret Q key press as exit
+      break;
+  }
 }
 
 int main(const int argc, const char * const argv[])
@@ -90,12 +101,6 @@ int main(const int argc, const char * const argv[])
     std::cerr << "Could not open video '" << video_filename << "'" << std::endl;
     return 3;
   }
-  cv::Mat frame;
-  while (capture.read(frame) && !frame.empty())
-  {
-    ShowImage(frame, classifier);
-    if (cv::waitKey(wait_time) == 'q') //Interpret Q key press as exit
-      break;
-  }
+  ShowImages(capture, classifier, wait_time);
   return 0;
 }

@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <utility>
+#include <memory>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -11,78 +12,82 @@
 
 #include "common.hpp"
 #include "combine.hpp"
+#include "window.hpp"
 
-struct resampling_data
+class resampling_data
 {
-  const cv::Mat image;
-  int resampling_algorithm;
+  protected:
+    using resampling_algorithm = std::pair<const char*, int>;
+    static constexpr resampling_algorithm resampling_algorithms[] {std::make_pair("Nearest neighbor", cv::INTER_NEAREST),
+                                                                   std::make_pair("Bilinear", cv::INTER_LINEAR),
+                                                                   std::make_pair("Lanczos-4", cv::INTER_LANCZOS4)};
+    static constexpr auto &default_algorithm = resampling_algorithms[0]; //Nearest neighbor by default
+
+    imgutils::Window window;
   
-  const std::string window_name;
+    using RadioButtonType = imgutils::RadioButton<resampling_data&, const int>;
+    std::unique_ptr<RadioButtonType> algorithm_radiobuttons[comutils::arraysize(resampling_algorithms)];
+    
+    using TrackBarType = imgutils::TrackBar<resampling_data&>;
+    TrackBarType scaling_factor_trackbar;
   
-  static constexpr auto scaling_trackbar_name = "Scaling [%]";
+    const cv::Mat image;
+    int resampling_algorithm_id; //The current algorithm needs to be stored as there is no reliable way to determine the currently checked radio button
   
-  resampling_data(const cv::Mat &image, const std::string &window_name)
-   : image(image),
-     resampling_algorithm(cv::INTER_NEAREST), window_name(window_name) { }
+    static void UpdateImage(resampling_data &data)
+    {
+      const auto scaling_factor_percent = data.scaling_factor_trackbar.GetValue();
+      const cv::Mat &image = data.image;
+      const double scaling_factor = sqrt(scaling_factor_percent / 100.0);
+      cv::Mat downsampled_image;
+      cv::resize(image, downsampled_image, cv::Size(), scaling_factor, scaling_factor, data.resampling_algorithm_id);
+      cv::Mat upsampled_image;
+      cv::resize(downsampled_image, upsampled_image, image.size(), 0, 0, data.resampling_algorithm_id);
+      const cv::Mat combined_image = imgutils::CombineImages({image, upsampled_image, downsampled_image}, imgutils::CombinationMode::Horizontal);
+      data.window.UpdateContent(combined_image);
+    }
+    
+    static void UpdateResamplingAlgorithm(resampling_data &data, const int algorithm_id)
+    {
+      data.resampling_algorithm_id = algorithm_id;
+      UpdateImage(data);
+    }
+  
+    void AddRadioButtons()
+    {
+      std::transform(std::begin(resampling_algorithms), std::end(resampling_algorithms), std::begin(algorithm_radiobuttons),
+                                [this](const resampling_algorithm &algorithm)
+                                      {
+                                        const auto radiobutton_name = algorithm.first;
+                                        const auto algorithm_id = algorithm.second;
+                                        const auto default_checked = &algorithm == &default_algorithm;
+                                        return std::make_unique<RadioButtonType>(radiobutton_name, window, default_checked, UpdateResamplingAlgorithm, nullptr, *this, algorithm_id); //Only process checking, not unchecking (no callback and thus no update)
+                                      });
+    }
+  
+    static constexpr auto window_name = "Original vs. resampled (incl. intermediate downsampled)";
+    static constexpr auto scaling_factor_trackbar_name = "Scaling [%]";
+  public:
+    resampling_data(const cv::Mat &image)
+     : window(window_name),
+       scaling_factor_trackbar(scaling_factor_trackbar_name, window, 100, 1, 50, UpdateImage, *this), //50% scaling factor by default, minimum 1
+       image(image),
+       resampling_algorithm_id(default_algorithm.second)
+    {
+      AddRadioButtons();
+      UpdateImage(*this); //Update with default values
+    }
+       
+    void ShowImage()
+    {
+      window.ShowInteractive();
+    }
 };
 
-constexpr std::pair<const char*, int> resampling_algorithms[] {std::make_pair("Nearest neighbor", cv::INTER_NEAREST),
-                                                               std::make_pair("Bilinear", cv::INTER_LINEAR),
-                                                               std::make_pair("Lanczos-4", cv::INTER_LANCZOS4)};
-
-static void ShowResampledImages(const int scaling_factor_percent, void * const user_data)
+static void ShowImage(const cv::Mat &image)
 {
-  auto &data = *(static_cast<const resampling_data*>(user_data));
-  const cv::Mat &image = data.image;
-  const double scaling_factor = sqrt(scaling_factor_percent / 100.0);
-  cv::Mat downsampled_image;
-  cv::resize(image, downsampled_image, cv::Size(), scaling_factor, scaling_factor, data.resampling_algorithm);
-  cv::Mat upsampled_image;
-  cv::resize(downsampled_image, upsampled_image, image.size(), 0, 0, data.resampling_algorithm);
-  const cv::Mat combined_image = imgutils::CombineImages({image, upsampled_image, downsampled_image}, imgutils::CombinationMode::Horizontal);
-  cv::imshow(data.window_name, combined_image);
-}
-
-template<int A>
-static void SetResamplingAlgorithm(const int state, void * const user_data)
-{
-  if (!state) //Ignore radio button events where the button becomes unchecked
-    return;
-  auto &data = *(static_cast<resampling_data*>(user_data));
-  data.resampling_algorithm = A;
-  const int scaling_factor_percent = cv::getTrackbarPos(data.scaling_trackbar_name, data.window_name);
-  ShowResampledImages(scaling_factor_percent, user_data);
-}
-
-template<size_t... Is>
-static void CreateButtons(void * const data, const std::index_sequence<Is...>&)
-{
-  constexpr auto index_limit = comutils::arraysize(resampling_algorithms);
-  static_assert(sizeof...(Is) <= index_limit, "Number of array indices is out of bounds");
-  ((void)cv::createButton(resampling_algorithms[Is].first, SetResamplingAlgorithm<resampling_algorithms[Is].second>, data, cv::QT_RADIOBOX, Is == 0), ...); //Make first radio button checked
-}
-
-static void CreateAllButtons(void * const data)
-{
-  constexpr auto N = comutils::arraysize(resampling_algorithms);
-  CreateButtons(data, std::make_index_sequence<N>{}); //Create N buttons with callbacks for every index
-}
-
-static void AddControls(resampling_data &data)
-{
-  cv::createTrackbar(data.scaling_trackbar_name, data.window_name, nullptr, 100, ShowResampledImages, static_cast<void*>(&data));
-  cv::setTrackbarMin(data.scaling_trackbar_name, data.window_name, 1);
-  CreateAllButtons(static_cast<void*>(&data));
-}
-
-static void ShowImages(const cv::Mat &image)
-{
-  constexpr auto window_name = "Original vs. resampled (incl. intermediate downsampled)";
-  cv::namedWindow(window_name);
-  cv::moveWindow(window_name, 0, 0);
-  static resampling_data data(image, window_name); //Make variable global so that it is not destroyed after the function returns (for the variable is needed later)
-  AddControls(data);
-  cv::setTrackbarPos(data.scaling_trackbar_name, window_name, 50); //Implies cv::imshow with 50% scaling factor
+  resampling_data data(image);
+  data.ShowImage();
 }
 
 int main(const int argc, const char * const argv[])
@@ -100,7 +105,6 @@ int main(const int argc, const char * const argv[])
     std::cerr << "Could not read input image '" << filename << "'" << std::endl;
     return 2;
   }
-  ShowImages(image);
-  cv::waitKey(0);
+  ShowImage(image);
   return 0;
 }

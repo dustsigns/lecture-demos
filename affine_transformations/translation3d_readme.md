@@ -17,7 +17,7 @@ Moving a point through translation is the only affine tranformation which requir
 Usage
 -----
 
-Change the offset (see parameters below) to see the position of the bunny (white) change compared to the original's (semi-transparent grey). Observe that the distance by which the bunny is moved is absolute, i.e., it does not depend on the original position of the bunny. The X, Y and Z offsets can be changed independently of one another.
+Change the offset (see parameters below) to see the position of the bunny (white) change compared to the original's (semi-transparent). Observe that the distance by which the bunny is moved is absolute, i.e., it does not depend on the original position of the bunny. The X, Y and Z offsets can be changed independently of one another.
 
 ![Screenshot after moving the bunny](../screenshots/translation3d_x-10_z20.png)
 
@@ -41,8 +41,8 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-* `cone_length`: Height of the displayed cone in relative coordinates.
-* `cone_radius`: Radius of the displayed cone in relative coordinates.
+* `cone_length` (local to `translation_data`): Height of the displayed cone in relative coordinates.
+* `cone_radius` (local to `translation_data`): Radius of the displayed cone in relative coordinates.
 
 Known issues
 ------------

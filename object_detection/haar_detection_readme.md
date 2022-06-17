@@ -42,11 +42,11 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-* `block_width`: Horizontal size of the search window in pixels. *Note: The block width must be even.*
-* `block_height`: Vertical size of the search window in pixels. *Note: The block height must be even.*
-* `detection_threshold`: Threshold above which the feature value (difference of pixel sums) is considered a positive, i.e., above which a detection is reported.
-* `border_size`: Width of the borders highlighting the selected window as well as successful detections. *Note: Larger values might make it difficult to see where the inner and outer parts of a highlighted window are exactly.*
-* `overlay_alpha` (local to `GetAnnotatedImage`): Alpha value for the feature overlay in the selected window. 0 means that the feature is not shown and that only the image content is visible, while 1 means that only the feature is shown and that that the image content is not visible. Values between 0 and 1 blend the feature and the image with the specified intensity (alpha value) and its additive inverse (1 minus `overlay_alpha`), respectively.
+* `block_width` (local to `haar_data`): Horizontal size of the search window in pixels. *Note: The block width must be even.*
+* `block_height` (local to `haar_data`): Vertical size of the search window in pixels. *Note: The block height must be even.*
+* `border_size` (local to `haar_data`): Width of the borders highlighting the selected window as well as successful detections. *Note: Larger values might make it difficult to see where the inner and outer parts of a highlighted window are exactly.*
+* `detection_threshold` (local to `haar_data`): Threshold above which the feature value (difference of pixel sums) is considered a positive, i.e., above which a detection is reported.
+* `overlay_alpha` (local to `haar_data::OverlayBlock`): Alpha value for the feature overlay in the selected window. 0 means that the feature is not shown and that only the image content is visible, while 1 means that only the feature is shown and that that the image content is not visible. Values between 0 and 1 blend the feature and the image with the specified intensity (alpha value) and its additive inverse (1 minus `overlay_alpha`), respectively.
 
 Known issues
 ------------

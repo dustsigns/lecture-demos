@@ -12,7 +12,7 @@ Overview
 
 ![Screenshot](../screenshots/distortion.png)
 
-Camera lenses cause non-linear distortions in the captured image. Comparing such a distorted image (right part of the *Undistorted vs. distorted* window) with that of an ideal pinhole camera (left) makes the distortions visible. For simplicity, distortions are often modeled as [polynomials with distortion coefficients](https://docs.opencv.org/3.4.0/d9/d0c/group__calib3d.html) to describe radial and tangential distortions.
+Camera lenses cause non-linear distortions in the captured image. Comparing such a distorted image (right part of the *Undistorted vs. distorted* window) with that of an ideal pinhole camera (left) makes the distortions visible. For simplicity, distortions are often modeled as [polynomials with distortion coefficients](https://docs.opencv.org/4.6.0/d9/d0c/group__calib3d.html) to describe radial and tangential distortions.
 
 Usage
 -----
@@ -42,8 +42,8 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-* `max_negative_value` (local to `AddControls`): Absolute value of the minimum coefficient value that can be set via the trackbars
-* `max_positive_value` (local to `AddControls`): The maximum coefficient value that can be set via the trackbars
+* `max_negative_value` (local to `distortion_data::AddControls`): Absolute value of the minimum coefficient value that can be set via the trackbars
+* `max_positive_value` (local to `distortion_data::AddControls`): The maximum coefficient value that can be set via the trackbars
 
 *Note: The scaling factors for the coefficients are hard-coded, but the range of meaningful values is very limited. Thus, it is not recommended to change the scaling factors explicitly.*
 

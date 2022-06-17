@@ -21,18 +21,14 @@ ifneq ($(DEBUG), 1)
   LDFLAGS += -O3 -flto
 endif
 
-SRCDEPS := comutils
+SRCDEPS := comutils imgutils
+LIBS += opencv4
 ifneq ($(filter sound,$(PARTS)),)
   SRCDEPS += sndutils
   LIBS += ao
 endif
-ifneq ($(filter images,$(PARTS)),)
-  SRCDEPS += imgutils
-  LIBS += opencv4
-endif
 ifneq ($(filter 3d,$(PARTS)),)
   SRCDEPS += 3dutils
-  LIBS += opencv4
 endif
 SRCDEPS := $(addprefix $(COMMONPATH)/, $(SRCDEPS))
 CXXFLAGS += $(addprefix -I, $(SRCDEPS))

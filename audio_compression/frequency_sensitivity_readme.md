@@ -19,7 +19,7 @@ Usage
 
 Change the frequency (see parameters below) of the tone to hear the perceived loudness change despite the sound level remaining constant. Similarly, observe that a sound level which is barely audible for one frequency might is either clearly noteable or appear mute for another. This can be double-checked by actually muting the signal.
 
-![Screenshot after muting the signal](../screenshots/frequency_sensitivity_mute.png)
+![Screenshot after changing the frequency and muting the signal](../screenshots/frequency_sensitivity_50_mute.png)
 
 Available actions
 -----------------
@@ -41,9 +41,11 @@ None
 Hard-coded parameters
 ---------------------
 
-* `default_frequency`: Initial signal frequency in Hertz when the program is started. *Note: This frequency must be smaller than or equal to `max_frequency`.*
-* `max_frequency`: Maximum frequency in Hertz allowed to be configured for playback. *Note: The actual maximum frequency may be limited by the sound card, the driver and/or the speakers.*
-* `audio_type`: Data type used for audio samples during generation and playback. 8-bit, 16-bit and 32-bit data types are supported.
+* `default_frequency` (local to `audio_data`): Initial signal frequency in Hertz when the program is started. *Note: This frequency must be smaller than or equal to `max_frequency`.*
+* `max_frequency` (local to `audio_data`): Maximum frequency in Hertz allowed to be configured for playback. *Note: The actual maximum frequency may be limited by the sound card, the driver and/or the speakers.*
+* `default_level` (local to `audio_data`): Initial amplitude of the sinusodial tone in decibel when the program is started. *Note: This amplitude must be smaller than or equal to `max_level`.*
+* `max_level` (local to `audio_data`): Maximum amplitude of the sinusodial tone in decibel allowed to be configured for playback. *Note: The actual maximum frequency is limited by the specified `audio_type` (see below).*
+* `audio_type` (local to `audio_data`): Data type used for audio samples during generation and playback. 8-bit, 16-bit and 32-bit data types are supported.
 
 Known issues
 ------------

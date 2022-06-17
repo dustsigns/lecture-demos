@@ -19,7 +19,7 @@ Usage
 
 Change the selected coefficient (see parameters below) to see its weight and associated basis function. Start the automatic recomposition process (see actions below) to see approximations of the original block with an increasing number of weighted basis functions. Observe that a small number of basis functions is sufficient to provide a recognizable approximation.
 
-![Screenshot after recomposition](../screenshots/dct_decomposition_animated.png)
+![Screenshot after recomposition](../screenshots/dct_decomposition_5_animated.png)
 
 Available actions
 -----------------
@@ -40,9 +40,10 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-* `log_max_block_size`: Base-2 logarithm of the maximum x and y dimension of the block to decompose. For example, the default value of 6 limits the block size to 2^6=64 pixels.
-* `log_default_block_size`: Base-2 logarithm of the default x and y dimension of the block to decompose. For example, the default value of 3 corresponds to a block size of 2^3=8 pixels. *Note: The default block size must be smaller than or equal to the maximum block size.*
-* `step_delay` (local to `AddWeightedBasisFunctions`): Delay in milliseconds between the first and second step of the recomposition animation. The delays between the remaining steps decrease with each step, but depend on the initial delay.
+* `log_max_block_size` (local to `DCT_data`): Base-2 logarithm of the maximum x and y dimension of the block to decompose. For example, the default value of 6 limits the block size to 2^6=64 pixels.
+* `log_default_block_size` (local to `DCT_data`): Base-2 logarithm of the default x and y dimension of the block to decompose. For example, the default value of 3 corresponds to a block size of 2^3=8 pixels. *Note: The default block size must be smaller than or equal to the maximum block size.*
+* `displayed_window_dimension` (local to `DCT_data`): Width and height of each displayed window.
+* `step_delay` (local to `DCT_data::AddWeightedBasisFunctions`): Delay in milliseconds between the first and second step of the recomposition animation. The delays between the remaining steps decrease with each step, but depend on the initial delay.
 
 Known issues
 ------------

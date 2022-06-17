@@ -10,17 +10,17 @@
 
 #include <opencv2/core.hpp>
 #include <opencv2/stitching.hpp>
-#include <opencv2/highgui.hpp>
 
 #include "colors.hpp"
 #include "combine.hpp"
+#include "window.hpp"
 
 static std::vector<cv::Mat> LoadImages(std::vector<const char*> image_paths)
 {
   using namespace std::string_literals;
   std::vector<cv::Mat> images(image_paths.size());
   std::transform(image_paths.begin(), image_paths.end(), images.begin(), 
-                 [](const char * const filename) -> cv::Mat
+                 [](const char * const filename)
                    {
                      const cv::Mat image = cv::imread(filename);
                      if (image.empty())
@@ -44,12 +44,12 @@ static cv::Mat StitchImages(const std::vector<cv::Mat> &images)
 static void ShowImages(const std::vector<cv::Mat> &images)
 {
   constexpr auto window_name = "Images combined";
-  cv::namedWindow(window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
-  cv::moveWindow(window_name, 0, 0);
+  imgutils::Window window(window_name);
   const cv::Mat original_images = imgutils::CombineImages(images.size(), images.data(), imgutils::CombinationMode::Horizontal);
   const cv::Mat panoramic_image = StitchImages(images);
   const cv::Mat combined_image = imgutils::CombineImages({original_images, panoramic_image}, imgutils::CombinationMode::Vertical);
-  cv::imshow(window_name, combined_image);
+  window.UpdateContent(combined_image);
+  window.ShowInteractive();
 }
 
 int main(const int argc, const char * const argv[])
@@ -64,8 +64,8 @@ int main(const int argc, const char * const argv[])
   {
     const auto images = LoadImages(image_paths);
     ShowImages(images);
-    cv::waitKey(0);
-  } catch (const std::runtime_error &e)
+  }
+  catch (const std::runtime_error &e)
   {
     std::cerr << e.what() << std::endl;
   }

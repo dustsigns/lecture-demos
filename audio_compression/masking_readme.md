@@ -21,7 +21,7 @@ Usage
 
 Change the intensity (see parameters below) of one of the two sinusodial tones until it becomes inaudible, i.e., only the remaining sinusodial tone can be heard. Observe that the point of transition between audible and inaudible is not at the lowest possible intensity. Playback can be temporarily halted to allow for pauses.
 
-![Screenshot after muting the signal](../screenshots/masking_mute.png)
+![Screenshot after changing the levels and muting the signal](../screenshots/masking_100_0_mute.png)
 
 Available actions
 -----------------
@@ -33,6 +33,9 @@ Interactive parameters
 
 * **First frequency level** (track bar in the *Attenuation* window): Allows changing the intensity (amplitude) of the first sinusodial tone that is played back. The intensitiy is specified as a level in (negative) decibel.
 * **Second frequency level** (track bar in the *Attenuation* window): Allows changing the intensity (amplitude) of the second sinusodial tone that is played back. The intensitiy is specified as a level in (negative) decibel.
+* ...
+* (optional) **N-th frequency level** (track bar in the *Attenuation* window): Allows changing the intensity (amplitude) of the n-th sinusodial tone that is played back. The intensitiy is specified as a level in (negative) decibel. *Note: More than two track bars are only visible when more than two frequencies are hard-coded, see below).
+* ...
 * **Mute** (check box): Allows stopping and resuming playback, when unchecked and checked, respectively.
 
 Program parameters
@@ -43,8 +46,9 @@ None
 Hard-coded parameters
 ---------------------
 
-* `frequencies`: Frequencies of the two sinusodial tones in Hertz. *Note: This array must contain exactly two frequencies, the first of which must be smaller than the second.*
-* `audio_type`: Data type used for audio samples during generation and playback. 8-bit, 16-bit and 32-bit data types are supported.
+* `frequencies` (local to `ShowImage`): Frequencies of at least two sinusodial tones in Hertz. *Note: This array must not contain duplicates.*
+* `default_levels` (local to `ShowImage`): Initial amplitudes in decibels for each of the frequencies specified in `frequencies`(see above). *Note: This array must contain exactly as many entries as there are frequencies.*
+* `audio_type` (local to `audio_data`): Data type used for audio samples during generation and playback. 8-bit, 16-bit and 32-bit data types are supported.
 
 Known issues
 ------------

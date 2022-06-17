@@ -6,16 +6,14 @@
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
-#include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
 #include "combine.hpp"
+#include "window.hpp"
 
-static void ShowImages(const cv::Mat &image)
+static void ShowImage(const cv::Mat &image)
 {
   constexpr auto window_name = "RGB vs. YCbCr";
-  cv::namedWindow(window_name);
-  cv::moveWindow(window_name, 0, 0);
   cv::Mat bgr_planes[3];
   cv::split(image, bgr_planes);
   cv::Mat ycrcb_image;
@@ -26,7 +24,8 @@ static void ShowImages(const cv::Mat &image)
   const cv::Mat ycbcr_planes_combined = imgutils::CombineImages({image, ycrcb_planes[0], ycrcb_planes[2], ycrcb_planes[1]}, imgutils::CombinationMode::Horizontal); //YCrCb as YCbCr
   cv::Mat combined_images = imgutils::CombineImages({rgb_planes_combined, ycbcr_planes_combined}, imgutils::CombinationMode::Vertical);
   cv::resize(combined_images, combined_images, cv::Size(), 1 / sqrt(2), 1 / sqrt(2), cv::INTER_LANCZOS4); //TODO: Don't resize, but find another way to fit the window(s) to the screen size, e.g., by allowing to hide the original image via a checkbox
-  cv::imshow(window_name, combined_images);
+  imgutils::Window window(window_name, combined_images);
+  window.ShowInteractive();
 }
 
 int main(const int argc, const char * const argv[])
@@ -44,7 +43,6 @@ int main(const int argc, const char * const argv[])
     std::cerr << "Could not read input image '" << image_filename << "'" << std::endl;
     return 2;
   }
-  ShowImages(image);
-  cv::waitKey(0);
+  ShowImage(image);
   return 0;
 }

@@ -1,4 +1,4 @@
-PARTS = sound images
+PARTS = sound
 
 ORDER := frequency_sensitivity masking
 

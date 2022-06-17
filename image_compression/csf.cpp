@@ -6,7 +6,8 @@
 #include <cmath>
 
 #include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
+
+#include "window.hpp"
 
 static double ExponentialProgression(const double minimum, const double maximum, const unsigned int steps, const unsigned int step)
 {
@@ -44,10 +45,9 @@ static cv::Mat GenerateCSFImage()
 static void ShowContrastSensitivityFunction()
 {
   constexpr auto window_name = "Contrast sensitivity function";
-  cv::namedWindow(window_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE); //Don't allow changes to size
-  cv::moveWindow(window_name, 0, 0);
   const cv::Mat csf_image = GenerateCSFImage();
-  cv::imshow(window_name, csf_image);
+  imgutils::Window window(window_name, csf_image);
+  window.ShowInteractive();
 }
 
 int main(const int argc, const char * const argv[])
@@ -59,6 +59,5 @@ int main(const int argc, const char * const argv[])
     return 1;
   }
   ShowContrastSensitivityFunction();
-  cv::waitKey(0);
   return 0;
 }

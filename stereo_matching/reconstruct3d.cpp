@@ -5,11 +5,12 @@
 #include <iostream>
 #include <cmath>
 
-#include "opencv2/core.hpp"
-#include "opencv2/calib3d.hpp"
-#include "opencv2/highgui.hpp"
-#include "opencv2/imgproc.hpp"
-#include "opencv2/viz.hpp"
+#include <opencv2/core.hpp>
+#include <opencv2/calib3d.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/viz.hpp>
+
+#include "vizwin.hpp"
 
 static void FilterDepthImage(cv::Mat &depth_image)
 {
@@ -36,17 +37,18 @@ static cv::Mat DisparityImageTo3D(const cv::Mat &disparity_image)
 
 static void ShowWindow(const cv::Mat &disparity_image, const cv::Mat &left_image)
 {
-  cv::viz::Viz3d visualization("3-D reconstruction");
+  constexpr auto window_name = "3-D reconstruction";
+  vizutils::VisualizationWindow window(window_name);
   const cv::Mat depth_image = DisparityImageTo3D(disparity_image);
   cv::viz::WCloud reconstruction(depth_image, left_image);
-  visualization.showWidget("cv::Point cloud", reconstruction);
-  /*visualization.spinOnce(1, true); //TODO: Why does zooming no longer work once the pose is read and set again (even without changes)
-  auto pose = visualization.getViewerPose();
-  pose = pose.rotate(cv::Vec3f(M_PI, 0, 0)); //Flip camera around so that it faces into the right direction
-  visualization.setViewerPose(pose);*/
-  visualization.spinOnce(1, true);
-  while (!visualization.wasStopped())
-    visualization.spinOnce(1, true);
+  window.AddWidget("Point cloud", &reconstruction);
+  window.ShowInteractive([&window]()
+                                  {
+                                    //TODO: Why does zooming no longer work once the pose is read and set again (even without changes)
+                                    /*auto pose = window.GetViewerPose();
+                                    pose = pose.rotate(cv::Vec3f(M_PI, 0, 0)); //Flip camera around so that it faces into the right direction
+                                    window.SetViewerPose(pose);*/
+                                  });
 }
 
 int main(const int argc, const char * const argv[])

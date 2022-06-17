@@ -5,7 +5,7 @@ Motion estimation
 
 **Author**: Andreas Unterweger
 
-**Status**: Near-complete (nice-to-have features missing, non-crucial external bugs unfixed)
+**Status**: Near-complete (nice-to-have features missing)
 
 Overview
 --------
@@ -21,7 +21,7 @@ Usage
 
 Change the motion vector (see parameters below) to see the different resulting residuals and their sum of squared differences (SSDs). Start the automatic motion estimation process (see actions below) to see all possible blocks and subsequently the best match, i.e., the one whose residual yields the smallest SSD. For the default program parameters, observe that the found block is very similar to the original block and thus the residual to be coded is very small. The cost map (see actions below) illustrates the distribution of SSD values among all possible block positions.
 
-![Screenshot after performing motion estimation and showing the cost map](../screenshots/motion_estimation_perform.png)
+![Screenshot after performing motion estimation and showing the cost map](../screenshots/motion_estimation_perform_costmap.png)
 
 Available actions
 -----------------
@@ -45,16 +45,15 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-* `search_radius`: Number of pixels in each direction around the original block (center) used for motion estimation.
-* `block_size`: x and y dimension of the block used for the search.
-* `border_size`: Width of the borders highlighting the blocks. *Note: Larger values might make it difficult to see where the inner and outer parts of a highlighted block are exactly.*
-* `ME_step_delay` (local to `PerformMotionEstimation`): Delay in milliseconds between consecutive motion vector positions for the automatic motion estimation process.
+* `search_radius` (local to `ME_data`): Number of pixels in each direction around the original block (center) used for motion estimation.
+* `block_size` (local to `ME_data`): x and y dimension of the block used for the search.
+* `border_size` (local to `ME_data`): Width of the borders highlighting the blocks. *Note: Larger values might make it difficult to see where the inner and outer parts of a highlighted block are exactly.*
+* `ME_step_delay` (local to `ME_data::PerformMotionEstimation`): Delay in milliseconds between consecutive motion vector positions for the automatic motion estimation process.
 
 Known issues
 ------------
 
 * **Missing option to only show search range**: Only illustrating the area within the search range in both frames would make both, the search process and the manual block center selection clearer.
-* **Incorrect initial zoom** (*OpenCV* bug): The pixel values in the *Original block vs. found block vs. motion compensation* window are supposed to be visible at a zoom level of 30, but the zoom level is calculated incorrectly from the window size (see [*OpenCV* issue #9405](https://github.com/opencv/opencv/issues/9405)).
 
 Missing features
 ----------------

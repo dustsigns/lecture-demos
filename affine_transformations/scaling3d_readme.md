@@ -17,7 +17,7 @@ Scaling a point by multiplying its coordinates by a factor is one of the simples
 Usage
 -----
 
-Change the zoom value (see parameters below) to see the position and size of the scaled bunny (white) change compared to the original's (semi-transparent grey). Observe that the distance between each point of the bunny and the origin of the coordinate system (where the red and blue lines meet) becomes a multiple of its original distance. The relative change is expressed by the zoom value. Using identical zoom values for all three coordinates (X, Y and Z) is referred to as isotropic scaling, which preserves the relative proportions of the bunny. In contrast, using different zoom values for each coordinate is referred to as anisotropic scaling, which changes the aspect ratio, i.e., squeezes the bunny.
+Change the zoom value (see parameters below) to see the position and size of the scaled bunny (white) change compared to the original's (semi-transparent). Observe that the distance between each point of the bunny and the origin of the coordinate system (where the red and green lines meet) becomes a multiple of its original distance. The relative change is expressed by the zoom value. Using identical zoom values for all three coordinates (X, Y and Z) is referred to as isotropic scaling, which preserves the relative proportions of the bunny. In contrast, using different zoom values for each coordinate is referred to as anisotropic scaling, which changes the aspect ratio, i.e., squeezes the bunny.
 
 ![Screenshot after scaling the bunny anisotropically](../screenshots/scaling3d_x50_y200.png)
 
@@ -41,8 +41,8 @@ Program parameters
 Hard-coded parameters
 ---------------------
 
-* `cone_length`: Height of the displayed cone in relative coordinates.
-* `cone_radius`: Radius of the displayed cone in relative coordinates.
+* `cone_length` (local to `scaling_data`): Height of the displayed cone in relative coordinates.
+* `cone_radius` (local to `scaling_data`): Radius of the displayed cone in relative coordinates.
 
 Known issues
 ------------
