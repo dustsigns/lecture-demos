@@ -43,13 +43,14 @@ namespace imgutils
   
   void VisibleWindow::Show()
   {
-    if (!shown) //Don't recreate a window if it is already shown
+    const bool first_show = !shown;
+    if (first_show) //Don't recreate a window if it is already shown
     {
       CreateWindow();
       shown = true;
       AfterCreateWindow();
     }
-    Update(true);
+    Update(first_show);
   }
   
   void VisibleWindow::Hide()
