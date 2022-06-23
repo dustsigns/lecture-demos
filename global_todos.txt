@@ -1,3 +1,5 @@
+Move to Debian 11.3 basis
+Remove auto-size flag and consider trackbar heights in window size calculation (double-check all demos afterwards)
 Specify common modules in Makefiles per executable instead of per folder/Makefile
 Create definition for commonly used cv::Mat_<cv::Vec3b> 8-bit image class
 Isolate tractor from sample images for matching demonstrations (separate branch)

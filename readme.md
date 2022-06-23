@@ -25,6 +25,7 @@ These demonstrations require
 * [*OpenCV* 4.6.0](https://github.com/opencv/opencv/archive/4.6.0.zip) with *QT* support and `pkg-config` support as well as the [contributed modules](https://github.com/opencv/opencv_contrib/archive/4.6.0.zip) `viz`, `stitching` and `sfm` included (see [recommended build command](opencv_config.md)),
 * [*libao* 1.2.0](http://downloads.xiph.org/releases/ao/libao-1.2.0.zip) with *ALSA* output for all audio-related demonstrations, and
 * *make*, *gdb* and *pkg-config*.
+* *Xfce* for correct window sizing and positioning due to limitations in *OpenCV*'s and *QT*'s APIs.
 
 All demonstrations have been tested on a [64-bit *Debian* 11.0.0 minimal](https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-11.0.0-amd64-netinst.iso) system with a minimal *Xfce* desktop environment and the following installed packages: `build-essential` (for *g++* 10.2.1 and *make*), `gdb`, `pkg-config`, `cmake` (only required for building *OpenCV*), `qtbase5-dev`, `qtchooser`, `qt5-qmake`, `qtbase5-dev-tools` (for *QT* 5.15.2), `libvtk9-dev` (for *VTK* 9.0.1 which is required for *OpenCV*'s `viz` module), `libeigen3-dev`, `libgflags-dev`, `libgoogle-glog-dev` (all of which are required for *OpenCV*'s `sfm` module) and `libasound2-dev` (for *ALSA*).
 
