@@ -32,14 +32,14 @@ Content-based image retrieval (`content-based_image_retrieval`)
 * [Mean RGB image features](content-based_image_retrieval/mean_feature_readme.md) (`mean_feature`)
 * [RGB color space quantization](content-based_image_retrieval/quantization_readme.md) (`quantization`)
 
-Feature detection (`feature_detection`)
+Features (`features`)
 ---------------------------------------
-* [Difference of Gaussians](feature_detection/difference_of_gaussians_readme.md) (`difference_of_gaussians`)
-* [Gaussian filtering](feature_detection/gaussian_readme.md) (`gaussian`)
-* [Matching for perspective transform](feature_detection/matching_perspective_readme.md) (`matching_perspective`)
-* [Panoramic image](feature_detection/panoramic_image_readme.md) (`panoramic_image`)
-* [SIFT keypoint matching](feature_detection/sift_keypoint_matching_readme.md) (`sift_keypoint_matching`)
-* [SIFT keypoints](feature_detection/sift_keypoints_readme.md) (`sift_keypoints`)
+* [Difference of Gaussians](features/difference_of_gaussians_readme.md) (`difference_of_gaussians`)
+* [Gaussian filtering](features/gaussian_readme.md) (`gaussian`)
+* [Matching for perspective transform](features/matching_perspective_readme.md) (`matching_perspective`)
+* [Panoramic image](features/panoramic_image_readme.md) (`panoramic_image`)
+* [SIFT keypoint matching](features/sift_keypoint_matching_readme.md) (`sift_keypoint_matching`)
+* [SIFT keypoints](features/sift_keypoints_readme.md) (`sift_keypoints`)
 
 Frequency transforms (`frequency_transforms`)
 ---------------------------------------------
