@@ -27,7 +27,7 @@ These demonstrations require
 * *make*, *gdb* and *pkg-config*.
 * *Xfce* for correct window sizing and positioning due to limitations in *OpenCV*'s and *QT*'s APIs.
 
-All demonstrations have been tested on a [64-bit *Debian* 11.4.0 minimal](https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-11.4.0-amd64-netinst.iso) system with a minimal *Xfce* desktop environment and the following installed packages: `build-essential` (for *g++* 10.2.1 and *make*), `gdb`, `pkg-config`, `cmake` (only required for building *OpenCV*), `qtbase5-dev`, `qtchooser`, `qt5-qmake`, `qtbase5-dev-tools` (for *QT* 5.15.2), `libvtk9-dev` (for *VTK* 9.0.1 which is required for *OpenCV*'s `viz` module), `libeigen3-dev`, `libgflags-dev`, `libgoogle-glog-dev` (all of which are required for *OpenCV*'s `sfm` module) and `libasound2-dev` (for *ALSA*).
+All demonstrations have been tested on a [64-bit *Debian* 11.6.0 minimal](https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-11.6.0-amd64-netinst.iso) system with a minimal *Xfce* desktop environment and the following installed packages: `build-essential` (for *g++* 10.2.1 and *make*), `gdb`, `pkg-config`, `cmake` (only required for building *OpenCV*), `qtbase5-dev`, `qtchooser`, `qt5-qmake`, `qtbase5-dev-tools` (for *QT* 5.15.2), `libvtk9-dev` (for *VTK* 9.0.1 which is required for *OpenCV*'s `viz` module), `libeigen3-dev`, `libgflags-dev`, `libgoogle-glog-dev` (all of which are required for *OpenCV*'s `sfm` module) and `libasound2-dev` (for *ALSA*).
 
 Building
 --------
