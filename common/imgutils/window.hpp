@@ -1,5 +1,5 @@
 //Window abstraction (header)
-// Andreas Unterweger, 2022
+// Andreas Unterweger, 2022-2023
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -85,7 +85,7 @@ namespace imgutils
       static constexpr auto outer_border_size = 1;
       static constexpr auto inner_border_size = 4;
       static constexpr auto title_bar_height = 28;
-      static constexpr auto tool_bar_height = 28;
+      static constexpr auto tool_bar_height = 39;
       static constexpr auto status_bar_height = 20;
       static constexpr auto desktop_offset_height = 26 + outer_border_size; //The start of the window area below the Xfce panel. Windows cannot be positioned on top of it in its default configuration. Since the panel can be configured and/or moved, this value would need to be changed when the default configuration is not used.
       

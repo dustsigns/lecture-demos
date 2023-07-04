@@ -1,5 +1,5 @@
 #Common base for all Makefiles
-# Andreas Unterweger, 2016-2022
+# Andreas Unterweger, 2016-2023
 #This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #The directory that this file is contained in ($(CURDIR) does not change on include)
@@ -11,7 +11,8 @@ DEBUG ?= 1
 
 CXXFLAGS += -c -std=c++17
 ifeq ($(DEBUG), 1)
-  CXXFLAGS += -g -Wall -Wextra -Wpedantic -Werror
+  CXXFLAGS += -g -Wall -Wextra -Werror
+  #CXXFLAGS += -Wpedantic #Uncomment once OpenCV's stitching header does not cause warnings/errors anymore
 else
   CXXFLAGS += -O3 -flto -march=native -mtune=native
 endif
