@@ -1,5 +1,5 @@
 //Window controls (header)
-// Andreas Unterweger, 2022
+// Andreas Unterweger, 2022-2023
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -36,6 +36,8 @@ namespace imgutils
       
       //Returns true if this particular control requires an enhanced window to be rendered (to be overwritten in derived classes)
       virtual bool RequiresEnhancedWindow() const = 0;
+      //Returns the height of the control in pixels or zero if it does not take up space inside the window
+      virtual int GetHeight() const = 0;
   };
   
   //Represents a control element in a window with N callbacks and optional tag types Ts
@@ -84,6 +86,8 @@ namespace imgutils
       
       //Returns true if this particular control requires an enhanced window to be rendered
       bool RequiresEnhancedWindow() const override;
+      //Returns zero as it does not take up space inside the window
+      int GetHeight() const override;
     protected:
       using SimpleWindowControl<int, int, int, Ts...>::TriggerCallback;
   };
@@ -102,6 +106,8 @@ namespace imgutils
       
       //Returns true if this particular control requires an enhanced window to be rendered
       bool RequiresEnhancedWindow() const override;
+      //Returns zero as it does not take up space inside the window
+      int GetHeight() const override;
     protected:
       using SimpleWindowControl<Ts...>::TriggerCallback;
   };
@@ -125,6 +131,8 @@ namespace imgutils
       
       //Returns true if this particular control requires an enhanced window to be rendered
       bool RequiresEnhancedWindow() const override;
+      //Returns the height of the control in pixels
+      int GetHeight() const override;
     protected:
       using SimpleWindowControl<Ts...>::TriggerCallback;
       //The trackbar maximum value
@@ -133,6 +141,9 @@ namespace imgutils
       int min_value;
       //The initial trackbar value
       int default_value;
+      
+      //TODO: This value is specific for Xfce on Debian. If there is an API to get this value directly, use it instead of the hard-coded values
+      static constexpr int height = 23;
   };
   
   //Represents a checkable control
@@ -154,6 +165,8 @@ namespace imgutils
       
       //Returns true if this particular control requires an enhanced window to be rendered
       bool RequiresEnhancedWindow() const override;
+      //Returns zero as it does not take up space inside the window
+      int GetHeight() const override;
     protected:
       using WindowControl<2, Ts...>::TriggerCallback;
       //Returns the type of control to be rendered (to be overwritten in child classes)

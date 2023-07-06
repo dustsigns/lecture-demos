@@ -131,12 +131,21 @@ namespace imgutils
     return content_size;
   }
   
+  int Window::GetControlHeights() const
+  {
+    return std::accumulate(controls.begin(), controls.end(), 0, [](const int sum, const WindowControlBase * const control)
+                                                                  {
+                                                                    return sum + control->GetHeight();
+                                                                  });
+  }
+  
   cv::Size Window::GetSize() const
   {
     const auto content_size = GetContentSize();
     auto total_size = VisibleWindow::GetTotalSize(content_size);
     if (IsEnhanced() || position_like_enhanced) //Enhanced window
       total_size.height += tool_bar_height + status_bar_height; //Consider additional tool bar and status bar
+    total_size.height += GetControlHeights(); //Consider heights of window controls
     return total_size;
   }
   
@@ -147,8 +156,9 @@ namespace imgutils
     {
       auto actual_size = GetContentSize();
       if (IsEnhanced())
-        actual_size.height += tool_bar_height + status_bar_height; //In enhanced windows, OpenCV uses this size for the total inner window size (including tool bars etc.), not only the content, so add everything that contributes to this size so that the content is of the specified size
-      cv::resizeWindow(title, actual_size);
+        actual_size.height += tool_bar_height + status_bar_height;
+      actual_size.height += GetControlHeights();
+      cv::resizeWindow(title, actual_size); //In enhanced windows, OpenCV uses this size for the total inner window size (including tool bars etc.), not only the content, so add everything that contributes to this size so that the content is of the specified size
     }
   }
 
@@ -199,8 +209,6 @@ namespace imgutils
   void Window::CreateWindow()
   {
     int flags = cv::WINDOW_KEEPRATIO;
-    if (size == cv::Size()) //TODO: Get rid of this but determine the correct size instead; auto-sized windows cannot be resized according to the documentation
-      flags |= cv::WINDOW_AUTOSIZE; //Automatic window size when no size is specified
     if (IsEnhanced())
       flags |= cv::WINDOW_GUI_EXPANDED; //Enhanced UI if any control requires it
     else

@@ -284,7 +284,7 @@ class DCT_data
     }
 };
 
-const cv::Size DCT_data::displayed_window_size = cv::Size(displayed_window_dimension, displayed_window_dimension / 2); //2:1 aspect ratio
+const cv::Size DCT_data::displayed_window_size = cv::Size(displayed_window_dimension, displayed_window_dimension / 2); //2:1 aspect ratio //TODO: The width is not correct by a few pixels due to the separator line; correct this
 
 static void ShowImages(const cv::Mat &image)
 {

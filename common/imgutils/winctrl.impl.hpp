@@ -1,8 +1,9 @@
 //Window controls (template implementation)
-// Andreas Unterweger, 2022
+// Andreas Unterweger, 2022-2023
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <cassert>
+#include <numeric>
 
 #include <opencv2/highgui.hpp>
 
@@ -51,6 +52,12 @@ namespace imgutils
   {
     return false;
   }
+  
+  template<typename... Ts>
+  int MouseEvent<Ts...>::GetHeight() const
+  {
+    return 0;
+  }
    
   template<typename... Ts>
   Button<Ts...>::Button(const std::string &name, Window &parent, ControlCallback * const callback, Ts const ...tags) : 
@@ -70,6 +77,12 @@ namespace imgutils
   bool Button<Ts...>::RequiresEnhancedWindow() const
   {
     return true;
+  }
+  
+  template<typename... Ts>
+  int Button<Ts...>::GetHeight() const
+  {
+    return 0;
   }
   
   template<typename... Ts>
@@ -119,6 +132,12 @@ namespace imgutils
   {
     return false;
   }
+  
+  template<typename... Ts>
+  int TrackBar<Ts...>::GetHeight() const
+  {
+    return height;
+  }
 
   template<typename... Ts>
   CheckableControl<Ts...>::CheckableControl(const std::string &name, Window &parent, const bool default_checked, ControlCallback * const checked_callback, ControlCallback * const unchecked_callback, Ts const ...tags) : 
@@ -153,6 +172,12 @@ namespace imgutils
   bool CheckableControl<Ts...>::RequiresEnhancedWindow() const
   {
     return true;
+  }
+  
+  template<typename... Ts>
+  int CheckableControl<Ts...>::GetHeight() const
+  {
+    return 0;
   }
 
   template<typename... Ts>

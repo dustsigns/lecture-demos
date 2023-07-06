@@ -159,6 +159,8 @@ namespace imgutils
       
       //Returns the size of the content (either the actual size when the size is specified as zero, or the specified size otherwise)
       cv::Size GetContentSize() const;
+      //Returns the total height of all controls
+      int GetControlHeights() const;
   };
 }
 
