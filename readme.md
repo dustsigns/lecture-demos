@@ -3,7 +3,7 @@ Andreas Unterweger's Multimedia Lecture Demonstrations
 
 This is a collection of demonstrations by [Andreas Unterweger](https://www.andreas-unterweger.eu) originally designed for the lectures *Media Technology* and *Media Informatics* at the Salzburg University of Applied Sciences. These demonstrations allow to interactively explore selected core concepts of audio, image and video processing as well as related topics.
 
-![Screenshot](screenshots/dct_decomposition_5_during_animation.png)
+![Screenshot](screenshots/dct_decomposition_5_during_animation.webp)
 
 The above image shows a screenshot of the [2-D DCT decomposition demonstration](image_compression/dct_decomposition_readme.md). A full [list of demonstrations](demolist.md) is available.
 

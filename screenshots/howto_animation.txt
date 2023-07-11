@@ -1,0 +1,3 @@
+The animated dct_decomposition_5_during_animation.webp can be created like this (coordinates for Debian 10 with Xfce):
+ffmpeg -f x11grab -video_size 1233x316 -framerate 10 -i :0.0+0,27 test%06d.png
+ffmpeg -y -i test%06d.png -ss 2 -vf fps=1 -lossless 1 -loop 5 dct_decomposition_animated.webp #where ss is set to the time period it took to start the animation
