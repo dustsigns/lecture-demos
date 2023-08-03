@@ -8,6 +8,7 @@ The following is a list of all available demonstrations, grouped by folders, and
 Affine transformations (`affine_transformations`)
 -------------------------------------------------
 * [2-D reflection](affine_transformations/reflection2d_readme.md) (`reflection_2d`)
+* [3-D reflection](affine_transformations/reflection3d_readme.md) (`reflection_3d`)
 * [2-D rotation](affine_transformations/rotation2d_readme.md) (`rotation_2d`)
 * [3-D rotation](affine_transformations/rotation3d_readme.md) (`rotation_3d`)
 * [2-D scaling](affine_transformations/scaling2d_readme.md) (`scaling_2d`)
