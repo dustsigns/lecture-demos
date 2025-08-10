@@ -22,12 +22,12 @@ Prerequisites
 These demonstrations require
 
 * A C++17 compiler, e.g., recent versions of *g++*,
-* [*OpenCV* 4.8.0](https://github.com/opencv/opencv/archive/4.8.0.zip) with *QT* support and `pkg-config` support as well as the [contributed modules](https://github.com/opencv/opencv_contrib/archive/4.8.0.zip) `viz`, `stitching` and `sfm` included (see [recommended build command](opencv_config.md)),
-* [*libao* 1.2.0](http://downloads.xiph.org/releases/ao/libao-1.2.0.zip) with *ALSA* output for all audio-related demonstrations, and
+* [*OpenCV* 4.12.0](https://github.com/opencv/opencv/archive/4.12.0.zip) with *QT* support and `pkg-config` support as well as the [contributed modules](https://github.com/opencv/opencv_contrib/archive/4.12.0.zip) `viz` (patched as described [here](https://github.com/opencv/opencv_contrib/issues/3102#issuecomment-1320291670)), `stitching` and `sfm` included (see [recommended build command](opencv_config.md)),
+* *libao* with *ALSA* output for all audio-related demonstrations, and
 * *make*, *gdb* and *pkg-config*.
 * *Xfce* for correct window sizing and positioning due to limitations in *OpenCV*'s and *QT*'s APIs.
 
-All demonstrations have been tested on a [64-bit *Debian* 11.6.0 minimal](https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-11.6.0-amd64-netinst.iso) system with a minimal *Xfce* desktop environment and the following installed packages: `build-essential` (for *g++* 10.2.1 and *make*), `gdb`, `pkg-config`, `cmake` (only required for building *OpenCV*), `qtbase5-dev`, `qtchooser`, `qt5-qmake`, `qtbase5-dev-tools` (for *QT* 5.15.2), `libvtk9-dev` (for *VTK* 9.0.1 which is required for *OpenCV*'s `viz` module), `libeigen3-dev`, `libgflags-dev`, `libgoogle-glog-dev` (all of which are required for *OpenCV*'s `sfm` module) and `libasound2-dev` (for *ALSA*).
+All demonstrations have been tested on a [64-bit *Debian* 13.0.0 minimal](https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-13.0.0-amd64-netinst.iso) system with a minimal *Xfce* desktop environment and the following installed packages: `build-essential` (for *g++* 14.2.0 and *make*), `gdb`, `pkg-config`, `cmake` (only required for building *OpenCV*), `qt6-base-dev`, `qtchooser`, `qmake6`, `qt6-base-dev-tools` (for *QT* 6.8.2), `libvtk9-dev` (for *VTK* 9.3.0 which is required for *OpenCV*'s `viz` module), `libeigen3-dev`, `libgflags-dev`, `libgoogle-glog-dev` (all of which are required for *OpenCV*'s `sfm` module) as well as `libasound2-dev` (for *ALSA*) and `libao-dev` (for *libao* 1.2.2).
 
 Building
 --------
@@ -42,7 +42,7 @@ Build parameters (optional)
 The following parameters allow changing advanced build options. They are optional and have reasonable defaults.
 
 * **Release mode**: To disable debug builds (which are the default) and enable release builds (with optimizations enabled) instead, set the `DEBUG` flag to `0` when invoking `make`, e.g., `make DEBUG=0`. *Note: The build process does not track debug/release flags of individual files. It is not recommended to build different components with different values of the `DEBUG` flag. Instead, `make clean` should be called in the root folder to clean all intermediate files before switching from debug to release mode or vice versa.*
-* **Toolchain**: The file [common/tools.mak](common/tools.mak) specifies variables for all build tools used to build the demonstrations. They can be changed either in this file (not recommended) or by setting the corresponding variables when invoking `make`, e.g., `make CXX=/usr/bin/g++-10`.
+* **Toolchain**: The file [common/tools.mak](common/tools.mak) specifies variables for all build tools used to build the demonstrations. They can be changed either in this file (not recommended) or by setting the corresponding variables when invoking `make`, e.g., `make CXX=/usr/bin/g++-14`.
 
 Usage
 -----

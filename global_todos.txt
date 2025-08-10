@@ -1,4 +1,3 @@
-Upgrade VTK to >= 9.2 so that Debian >= 12 can be used as the OS
 Specify common modules in Makefiles per executable instead of per folder/Makefile
 Create aliases for commonly used cv::Mat_<cv::Vec3b> 8-bit image class and cv::Vec3b color class
 Isolate tractor from sample images for matching demonstrations (separate branch)

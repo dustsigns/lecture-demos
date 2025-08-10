@@ -6,9 +6,9 @@ To build the [demonstrations](demolist.md), the following build configuration of
 Build command
 -------------
 
-When all other required [prerequisites](readme.md) are installed, the following `cmake` command can be used to build a minimum version of *OpenCV*:
+When all other required [prerequisites](readme.md) are installed  **and** the *viz* module is patched as described [here](https://github.com/opencv/opencv_contrib/issues/3102#issuecomment-1320291670), the following `cmake` command can be used to build a minimum version of *OpenCV*:
 
-`cmake -D OPENCV_EXTRA_MODULES_PATH=../opencv_contrib-4.8.0/modules -D BUILD_LIST=calib3d,features2d,highgui,imgcodecs,imgproc,objdetect,sfm,stitching,videoio,viz -D WITH_1394=OFF -D WITH_GSTREAMER=OFF -D WITH_IPP=OFF -D WITH_OPENJPEG=OFF -D WITH_JASPER=OFF -D WITH_WEBP=OFF -D WITH_OPENEXR=OFF -D WITH_QT=ON -D WITH_TIFF=OFF -D WITH_OPENCL=OFF -D WITH_LAPACK=OFF -D BUILD_ITT=OFF -D WITH_PROTOBUF=OFF -D WITH_IMGCODEC_HDR=OFF -D WITH_IMGCODEC_SUNRASTER=OFF -D WITH_IMGCODEC_PFM=OFF -D WITH_QUIRC=OFF -D WITH_FLATBUFFERS=OFF -D BUILD_opencv_apps=OFF -D BUILD_DOCS=OFF -D BUILD_PACKAGE=OFF -D BUILD_JAVA=OFF -D OPENCV_GENERATE_PKGCONFIG=ON ../opencv-4.8.0/`
+`cmake -D OPENCV_EXTRA_MODULES_PATH=../opencv_contrib-4.12.0/modules -D BUILD_LIST=calib3d,features2d,highgui,imgcodecs,imgproc,objdetect,sfm,stitching,videoio,viz -D WITH_1394=OFF -D WITH_GSTREAMER=OFF -D WITH_IPP=OFF -D WITH_OPENJPEG=OFF -D WITH_JASPER=OFF -D WITH_WEBP=OFF -D WITH_OPENEXR=OFF -D WITH_QT=ON -D WITH_TIFF=OFF -D WITH_OPENCL=OFF -D WITH_LAPACK=OFF -D BUILD_ITT=OFF -D WITH_PROTOBUF=OFF -D WITH_IMGCODEC_HDR=OFF -D WITH_IMGCODEC_SUNRASTER=OFF -D WITH_IMGCODEC_PFM=OFF -D WITH_QUIRC=OFF -D WITH_FLATBUFFERS=OFF -D BUILD_opencv_apps=OFF -D BUILD_DOCS=OFF -D BUILD_PACKAGE=OFF -D BUILD_JAVA=OFF -D OPENCV_GENERATE_PKGCONFIG=ON ../opencv-4.12.0/`
 
 The paths used in the above command are examples. The command is supposed to be called from within a newly created `build` directory inside the extracted *OpenCV* source code folder. The example paths can be used when the source code for *OpenCV*'s contributed modules has been extracted to the same root directory as *OpenCV*'s source code.
 
@@ -25,20 +25,21 @@ The output of the `cmake` call (see above for an example) **must** include the f
 Additional modules may be listed.
 
 ````
---   GUI: 
---     QT:                          YES (ver 5.15.2)
+--   GUI:                           QT6
+--     QT:                          YES (ver 6.8.2 )
 --       QT OpenGL support:         NO
 [...]
---     VTK support:                 YES (ver 9.0.1)
+--     VTK support:                 YES (ver 9.3.0)
 ````
 
 The listed versions may be different.
 
 ````
 --   Media I/O: 
---     ZLib:                        /usr/lib/x86_64-linux-gnu/libz.so (ver 1.2.11)
+--     ZLib:                        /usr/lib/x86_64-linux-gnu/libz.so (ver 1.3.1)
 --     JPEG:                        /usr/lib/x86_64-linux-gnu/libjpeg.so (ver 62)
---     PNG:                         /usr/lib/x86_64-linux-gnu/libpng.so (ver 1.6.37)
+[...]
+--     PNG:                         /usr/lib/x86_64-linux-gnu/libpng.so (ver 1.6.48)
 [...]
 --     PXM:                         YES
 ````
@@ -56,9 +57,7 @@ The listed versions may be different.
 ````
 --   Other third-party libraries:
 --     VA:                          NO
---     Eigen:                       YES (ver 3.3.9)
-[...]
---     Protobuf:                    build (3.19.1)
+--     Eigen:                       YES (ver 3.4.0)
 ````
 
 The listed versions may be different.
