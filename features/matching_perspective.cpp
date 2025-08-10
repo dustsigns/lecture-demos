@@ -1,5 +1,5 @@
 //Illustration of SIFT matching for finding a perspective transform
-// Andreas Unterweger, 2019-2022
+// Andreas Unterweger, 2019-2025
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -40,7 +40,8 @@ static void FilterMatches(const std::vector<std::vector<cv::DMatch>> matches, st
   const double second_to_first_match_distance_ratio = 0.8; //From Lowe's 2004 paper
   for (const auto &match : matches)
   {
-    assert(match.size() == 2);
+    if (match.size() < 2)
+      continue;
     if (match[0].distance < second_to_first_match_distance_ratio * match[1].distance) //Only keep "good" matches, i.e., those where the second candidate is significantly worse than the first
       filtered_matches.push_back(match[0]);
   }
