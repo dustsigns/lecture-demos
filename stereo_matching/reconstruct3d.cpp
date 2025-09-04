@@ -1,5 +1,5 @@
 //Illustration of 3-D reconstruction from a disparity image
-// Andreas Unterweger, 2017-2022
+// Andreas Unterweger, 2017-2025
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -44,6 +44,7 @@ static void ShowWindow(const cv::Mat &disparity_image, const cv::Mat &left_image
   window.AddWidget("Point cloud", &reconstruction);
   window.ShowInteractive([&window]()
                                   {
+                                    (void)window; //Avoid warning for unused capture
                                     //TODO: Why does zooming no longer work once the pose is read and set again (even without changes)
                                     /*auto pose = window.GetViewerPose();
                                     pose = pose.rotate(cv::Vec3f(M_PI, 0, 0)); //Flip camera around so that it faces into the right direction

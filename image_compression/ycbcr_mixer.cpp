@@ -34,7 +34,7 @@ class YCbCr_data
     
     static void UpdateImage(YCbCr_data &data)
     {
-      unsigned char YCbCr_portions[comutils::arraysize(data.portion_names)]; //YCbCr portions from trackbar values
+      unsigned char YCbCr_portions[comutils::arraysize(YCbCr_data::portion_names)]; //YCbCr portions from trackbar values
       std::transform(std::begin(data.portion_trackbars), std::end(data.portion_trackbars), std::begin(YCbCr_portions),
                      [](const std::unique_ptr<TrackBarType> &portion_trackbar)
                        {

@@ -1,5 +1,5 @@
 //Multi-window arrangements (header)
-// Andreas Unterweger, 2022
+// Andreas Unterweger, 2022-2025
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -28,7 +28,7 @@ namespace imgutils
       std::vector<VisibleWindow*> hidden_windows;
 
       //Returns the total width and height of the group of windows
-      cv::Size GetSize() const;
+      cv::Size GetSize() const override;
       //Throws an exception as the size of a group of windows cannot be set in a meaningful way
       void SetSize(const cv::Size &size) override;
       

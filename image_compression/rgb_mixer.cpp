@@ -1,5 +1,5 @@
 //Illustration of RGB color mixing
-// Andreas Unterweger, 2018-2022
+// Andreas Unterweger, 2018-2025
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -33,7 +33,7 @@ class RGB_data
 
     static void UpdateImage(RGB_data &data)
     {
-      unsigned char RGB_portions[comutils::arraysize(data.portion_names)]; //RGB portions from trackbar values
+      unsigned char RGB_portions[comutils::arraysize(RGB_data::portion_names)]; //RGB portions from trackbar values
       std::transform(std::rbegin(data.portion_trackbars), std::rend(data.portion_trackbars), std::begin(RGB_portions), //BGR order (reverse iteration)
                      [](const std::unique_ptr<TrackBarType> &portion_trackbar)
                        {

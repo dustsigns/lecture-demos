@@ -1,5 +1,5 @@
 //Illustration of 3-D reflection across a plane
-// Andreas Unterweger, 2023
+// Andreas Unterweger, 2023-2025
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #include <iostream>
@@ -83,7 +83,7 @@ class reflection_data
       std::transform(std::begin(axes), std::end(axes), std::begin(reflection_radiobuttons),
                      [this](const auto &axis)
                            {
-                             auto plane_name = std::string(axes); //Start with all axes
+                             auto plane_name = std::string(std::begin(axes), std::end(axes)); //Start with all axes
                              plane_name.erase(std::remove(plane_name.begin(), plane_name.end(), axis), plane_name.end()); //Remove axis from all axes to get plane
                              const auto radiobutton_name = plane_name + " plane";
                              const auto default_checked = &axis == &default_axis;
