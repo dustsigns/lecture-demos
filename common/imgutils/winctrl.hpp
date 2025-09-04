@@ -1,5 +1,5 @@
 //Window controls (header)
-// Andreas Unterweger, 2022-2023
+// Andreas Unterweger, 2022-2025
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -29,7 +29,7 @@ namespace imgutils
       WindowControlBase(const std::string &name, Window &parent, const bool requires_hidden_window = true);
       //Explicitly delete the copy constructor since duplicating controls tied to windows is problematic
       WindowControlBase(const WindowControlBase &original) = delete;
-      ~WindowControlBase();
+      virtual ~WindowControlBase();
       
       //Renders the control into the parent window (to be overwritten in derived classes). This method is called by the parent window
       virtual void Render() = 0;
@@ -82,7 +82,7 @@ namespace imgutils
       MouseEvent(Window &parent, ControlCallback * const callback, Ts const ...tags);
       
       //Registers the mouse event handler. This method is called by the parent window.
-      void Render();
+      void Render() override;
       
       //Returns true if this particular control requires an enhanced window to be rendered
       bool RequiresEnhancedWindow() const override;

@@ -1,5 +1,5 @@
 //Wave form generator interface (header)
-// Andreas Unterweger, 2017-2022
+// Andreas Unterweger, 2017-2025
 //This code is licensed under the 3-Clause BSD License. See LICENSE file for details.
 
 #pragma once
@@ -15,6 +15,7 @@ namespace comutils
     public:
       //Constructs a new instance of WaveFormGenerator with the given channel parameters
       WaveFormGenerator(const unsigned int sampling_rate = 48000);
+      virtual ~WaveFormGenerator() = default;
       
       //Produces the next sample of the wave form. To be implemented in child classes.
       virtual T GetNextSample() = 0;
