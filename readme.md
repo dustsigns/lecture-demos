@@ -22,7 +22,7 @@ Prerequisites
 These demonstrations require
 
 * A C++17 compiler, e.g., recent versions of *g++*,
-* [*OpenCV* 4.12.0](https://github.com/opencv/opencv/archive/4.12.0.zip) with *QT* support and `pkg-config` support as well as the [contributed modules](https://github.com/opencv/opencv_contrib/archive/4.12.0.zip) `viz` (patched as described [here](https://github.com/opencv/opencv_contrib/issues/3102#issuecomment-1320291670)), `stitching` and `sfm` included (see [recommended build command](opencv_config.md)),
+* [*OpenCV* 4.13.0](https://github.com/opencv/opencv/archive/4.13.0.zip) with *QT* support and `pkg-config` support as well as the [contributed modules](https://github.com/opencv/opencv_contrib/archive/4.13.0.zip) `viz` (patched as described [here](https://github.com/opencv/opencv_contrib/issues/3102#issuecomment-1320291670)), `stitching` and `sfm` included (see [recommended build command](opencv_config.md)),
 * *libao* with *ALSA* output for all audio-related demonstrations, and
 * *make*, *gdb* and *pkg-config*.
 * *Xfce* for correct window sizing and positioning due to limitations in *OpenCV*'s and *QT*'s APIs.
